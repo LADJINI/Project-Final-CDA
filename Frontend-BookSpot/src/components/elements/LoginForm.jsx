@@ -7,7 +7,7 @@ import * as z from 'zod';
 
 const schema = z.object({
   email: z.string().email('Email invalide'),
-  password: z.string().min(12, 'Mot de passe trop court'),
+  password: z.string().min(12, 'Mot de passe doit contenir au moins 12 caractères'),
 });
 
 export default function LoginForm() {
