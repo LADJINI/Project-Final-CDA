@@ -43,7 +43,7 @@ const Navbar = () => {
               <div className="relative w-full">
                 <input
                   type="text"
-                  placeholder="Rechercher par Auteur, Titre, ISBN..."
+                  placeholder="Rechercher par Titre, Auteur, ISBN..."
                   className="w-full px-4 py-2 border rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
                 <button className="absolute right-0 top-0 mt-2 mr-4">
@@ -60,7 +60,7 @@ const Navbar = () => {
               </button>
               <Link to="/panier" className="flex items-center text-gray-600 hover:text-blue-600">
                 <FaShoppingCart className="mr-2" />
-                <span>Mon Panier</span>
+                <span>Panier</span>
               </Link>
             </div>
 

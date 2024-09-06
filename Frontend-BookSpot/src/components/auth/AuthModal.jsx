@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import LoginForm from './LoginForm';
 import RegisterForm from './RegisterForm';
+import { FaTimes } from 'react-icons/fa'; // Importez l'icône de croix
 
 const AuthModal = ({ isOpen, onClose }) => {
   const [isLogin, setIsLogin] = useState(true);
@@ -10,6 +11,14 @@ const AuthModal = ({ isOpen, onClose }) => {
   return (
     <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full" id="my-modal">
       <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+        <div className="absolute top-0 right-0 mt-4 mr-4">
+          <button
+            onClick={onClose}
+            className="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center"
+          >
+            <FaTimes className="w-5 h-5" />
+          </button>
+        </div>
         <div className="mt-3 text-center">
           <h3 className="text-lg leading-6 font-medium text-gray-900">
             {isLogin ? 'Connexion' : 'Inscription'}
@@ -25,14 +34,6 @@ const AuthModal = ({ isOpen, onClose }) => {
               {isLogin ? "Je n'ai pas de compte" : "J'ai déjà un compte"}
             </button>
           </div>
-        </div>
-        <div className="items-center px-4 py-3">
-          <button
-            className="px-4 py-2 bg-gray-500 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-300"
-            onClick={onClose}
-          >
-            Fermer
-          </button>
         </div>
       </div>
     </div>
