@@ -33,6 +33,15 @@ body {
   width: 100%;           /* Ensure the body takes the full width of the page */
   min-height: 100vh;
 }
+.App {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh; /* Assure que l'App prend au moins la hauteur de la fenêtre */
+}
+
+main {
+  flex-grow: 1; /* Permet au main de prendre tout l'espace disponible */
+}
 
 h1 {
   font-size: 3.2em;
