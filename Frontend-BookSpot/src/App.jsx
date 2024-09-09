@@ -4,6 +4,7 @@ import Navbar from './components/layout/Navbar';
 import Home from './pages/Home';
 import Panier from './pages/Panier';
 import NotFound from './pages/NotFound';
+import CookieConsent from "./components/common/CookieConsent";
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
           <Route path="*" element={<NotFound />} />
         </Routes>
       </main>
+      <CookieConsent />
     </div>
   );
 }
