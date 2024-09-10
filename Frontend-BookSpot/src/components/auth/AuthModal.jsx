@@ -12,16 +12,14 @@ const AuthModal = ({ isOpen, onClose }) => {
     <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex items-center justify-center" id="my-modal">
       <div className="bg-white rounded-lg shadow-xl overflow-hidden max-w-4xl w-full mx-4">
         <div className="flex">
-          {/* Image à gauche uniquement pour la connexion */}
-          {isLogin && (
-            <div className="w-1/2 hidden md:block">
-              <img 
-                src="/FondDePage.png.webp" 
-                alt="Illustration" 
-                className="object-cover w-full h-full"
-              />
-            </div>
-          )}
+          {/* Image à gauche */}
+          <div className="w-1/2 hidden md:block">
+            <img 
+              src={isLogin ? "/FondDePage.png.webp" : "/image-connexion.jpg"}
+              alt="Illustration" 
+              className="object-cover w-full h-full"
+            />
+          </div>
 
           {/* Formulaire à droite */}
           <div className="w-full md:w-1/2 p-8">
