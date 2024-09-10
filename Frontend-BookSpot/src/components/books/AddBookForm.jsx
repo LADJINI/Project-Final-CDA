@@ -2,9 +2,12 @@ import React, { useState } from 'react';
 import { useBooks } from "../../context/BookContext";
 
 const AddBookForm = ({ type }) => {
+  // Utilisation du hook personnalisé pour accéder aux fonctions d'ajout de livres
   const { addBookToSell, addBookToLend } = useBooks();
 
+  // État initial du formulaire
   const [bookData, setBookData] = useState({
+    id: '', // Champ pour l'ID unique du livre
     titre: '',
     auteur: '',
     disponibilite: true,
@@ -19,23 +22,38 @@ const AddBookForm = ({ type }) => {
     quantiteDisponible: ''
   });
 
+  // Gestion des changements dans les champs du formulaire
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setBookData(prevData => ({
       ...prevData,
+      // Gestion spéciale pour les champs de type checkbox
       [name]: type === 'checkbox' ? checked : value
     }));
   };
 
+  // Gestion de la soumission du formulaire
   const handleSubmit = (e) => {
     e.preventDefault();
+    
+    // Création d'un nouvel objet livre avec un ID unique et le type approprié
+    const bookWithTypeAndId = {
+      ...bookData,
+      id: Date.now().toString(), // Génération d'un ID unique
+      type: type === 'vente' ? 'achat' : 'emprunt',
+      prixUnitaire: parseFloat(bookData.prixUnitaire) // Conversion du prix en nombre
+    };
+
+    // Ajout du livre à la liste appropriée selon le type
     if (type === 'vente') {
-      addBookToSell(bookData);
+      addBookToSell(bookWithTypeAndId);
     } else if (type === 'prêt') {
-      addBookToLend(bookData);
+      addBookToLend(bookWithTypeAndId);
     }
-    // Réinitialiser le formulaire
+
+    // Réinitialisation du formulaire après soumission
     setBookData({
+      id: '',
       titre: '',
       auteur: '',
       disponibilite: true,
@@ -49,12 +67,14 @@ const AddBookForm = ({ type }) => {
       editeur: '',
       quantiteDisponible: ''
     });
-    console.log(`Livre ajouté pour ${type}:`, bookData);
+
+    console.log(`Livre ajouté pour ${type}:`, bookWithTypeAndId);
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4 max-w-2xl mx-auto">
       <div className="grid grid-cols-1 gap-4">
+        {/* Champ pour le titre du livre */}
         <input 
           name="titre" 
           value={bookData.titre} 
@@ -63,6 +83,8 @@ const AddBookForm = ({ type }) => {
           required 
           className="w-full px-3 py-2 border rounded-md"
         />
+
+        {/* Champ pour l'auteur du livre */}
         <input 
           name="auteur" 
           value={bookData.auteur} 
@@ -71,6 +93,8 @@ const AddBookForm = ({ type }) => {
           required 
           className="w-full px-3 py-2 border rounded-md"
         />
+
+        {/* Sélection de la disponibilité du livre */}
         <select 
           name="disponibilite" 
           value={bookData.disponibilite} 
@@ -80,6 +104,8 @@ const AddBookForm = ({ type }) => {
           <option value={true}>Disponible</option>
           <option value={false}>Non disponible</option>
         </select>
+
+        {/* Sélection de l'état du livre */}
         <select 
           name="etatLivre" 
           value={bookData.etatLivre} 
@@ -90,6 +116,8 @@ const AddBookForm = ({ type }) => {
           <option value="occasion">Occasion</option>
           <option value="bonEtat">Bon état</option>
         </select>
+
+        {/* Champ pour la description du livre */}
         <textarea 
           name="description" 
           value={bookData.description} 
@@ -98,6 +126,8 @@ const AddBookForm = ({ type }) => {
           maxLength={500}
           className="w-full px-3 py-2 border rounded-md"
         />
+
+        {/* Champ pour l'ISBN du livre */}
         <input 
           name="isbn" 
           value={bookData.isbn} 
@@ -105,23 +135,32 @@ const AddBookForm = ({ type }) => {
           placeholder="ISBN" 
           className="w-full px-3 py-2 border rounded-md"
         />
+
+        {/* Champ pour le nombre de pages */}
         <input 
           type="number" 
           name="nombrePages" 
           value={bookData.nombrePages} 
           onChange={handleChange} 
           placeholder="Nombre de pages" 
+          min="1"
           className="w-full px-3 py-2 border rounded-md"
         />
+
+        {/* Champ pour le prix unitaire (vente ou emprunt) */}
         <input 
           type="number" 
           name="prixUnitaire" 
           value={bookData.prixUnitaire} 
           onChange={handleChange} 
-          placeholder="Prix unitaire" 
+          placeholder={type === 'vente' ? "Prix de vente" : "Prix d'emprunt"} 
           step="0.01" 
+          min="0"
+          required
           className="w-full px-3 py-2 border rounded-md"
         />
+
+        {/* Champ pour la date de publication */}
         <input 
           type="date" 
           name="datePublication" 
@@ -129,6 +168,8 @@ const AddBookForm = ({ type }) => {
           onChange={handleChange}
           className="w-full px-3 py-2 border rounded-md"
         />
+
+        {/* Sélection du statut de publication */}
         <select 
           name="publication" 
           value={bookData.publication} 
@@ -138,6 +179,8 @@ const AddBookForm = ({ type }) => {
           <option value={true}>Publié</option>
           <option value={false}>Non publié</option>
         </select>
+
+        {/* Champ pour l'éditeur */}
         <input 
           name="editeur" 
           value={bookData.editeur} 
@@ -145,6 +188,8 @@ const AddBookForm = ({ type }) => {
           placeholder="Éditeur" 
           className="w-full px-3 py-2 border rounded-md"
         />
+
+        {/* Champ pour la quantité disponible */}
         <input 
           type="number" 
           name="quantiteDisponible" 
@@ -155,12 +200,14 @@ const AddBookForm = ({ type }) => {
           className="w-full px-3 py-2 border rounded-md"
         />
       </div>
+
+      {/* Bouton de soumission du formulaire */}
       <div className="flex justify-center">
         <button 
           type="submit" 
           className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
         >
-          Ajouter le livre pour {type}
+          Ajouter le livre pour {type === 'vente' ? 'la vente' : 'le prêt'}
         </button>
       </div>
     </form>

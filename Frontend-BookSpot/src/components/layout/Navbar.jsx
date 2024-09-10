@@ -1,65 +1,67 @@
-import React, { useState, useEffect } from 'react';
-import { Link , useNavigate  } from 'react-router-dom';
+import React, { useState, useRef, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { FaUser, FaShoppingCart, FaSearch, FaBars } from 'react-icons/fa';
 import AuthModal from '../auth/AuthModal';
 import { useCart } from '/src/context/CartContext';
 import { useBooks } from '/src/context/BookContext';
 import CartPopup from '../common/CartPopup'; 
 
-// Composant Navbar principal
 const Navbar = () => {
-  // Utilisation des hooks personnalisés
+  // Hooks personnalisés pour le panier et la recherche de livres
   const { getTotalItems, getTotalPrice, cart } = useCart();
   const { searchBooks } = useBooks();
   const navigate = useNavigate();
 
-  // États locaux pour le total des articles et le prix total
-  const [totalItems, setTotalItems] = useState(0);
-  const [totalPrice, setTotalPrice] = useState(0);
- 
-  // États locaux pour gérer les différents éléments interactifs
+  // États pour gérer l'ouverture/fermeture des différents éléments
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isCartPopupOpen, setIsCartPopupOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
 
+  // Référence pour le bouton du panier (pour positionner le popup)
+  const cartButtonRef = useRef(null);
+  const [cartButtonPosition, setCartButtonPosition] = useState({ top: 0, left: 0 });
 
-  
- // Effet pour mettre à jour les informations du panier
-useEffect(() => {
-  // Fonction pour mettre à jour les informations du panier
-  const updateCartInfo = () => {
-    setTotalItems(getTotalItems());
-    setTotalPrice(getTotalPrice());
-  };
+  // Utilisation directe des fonctions du contexte pour le panier
+  const totalItems = getTotalItems();
+  const totalPrice = getTotalPrice();
 
-  // Mise à jour immédiate
-  updateCartInfo();
-
-  // Configuration d'un intervalle pour des mises à jour régulières
-  const intervalId = setInterval(updateCartInfo, 1000);
-
-  // Nettoyage de l'intervalle lors du démontage du composant
-  return () => clearInterval(intervalId);
-}, [getTotalItems, getTotalPrice, cart]); // Dépendances de l'effet
-
-  // Fonction pour gérer l'ouverture de la modal d'authentification
+  // Gestion de l'ouverture de la modal d'authentification
   const handleAuthClick = () => {
     setIsAuthModalOpen(true);
   };
 
-  // Fonction pour gérer l'ouverture/fermeture du popup du panier
+  // Gestion de l'ouverture/fermeture du popup du panier
   const handleCartClick = (e) => {
     e.preventDefault();
+    const rect = cartButtonRef.current.getBoundingClientRect();
+    setCartButtonPosition({
+      top: rect.bottom + window.scrollY,
+      left: rect.left + window.scrollX,
+    });
     setIsCartPopupOpen(!isCartPopupOpen);
   };
 
-  // Fonction pour gérer la recherche
+  // Gestion de la recherche
   const handleSearch = (e) => {
     e.preventDefault();
     searchBooks(searchTerm);
     navigate('/search-results');
   };
+
+  // Effet pour fermer le menu mobile lors d'un clic en dehors
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (isMenuOpen && !event.target.closest('.mobile-menu')) {
+        setIsMenuOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isMenuOpen]);
 
   return (
     <>
@@ -82,7 +84,7 @@ useEffect(() => {
             </div>
 
             {/* Barre de recherche (visible sur les écrans moyens et grands) */}
-            <form onSubmit={handleSearch} className="relative flex-grow max-w-xl mx-4">
+            <form onSubmit={handleSearch} className="hidden md:flex relative flex-grow max-w-xl mx-4">
               <input
                 type="text"
                 value={searchTerm}
@@ -105,8 +107,11 @@ useEffect(() => {
                 <FaUser className="mr-2" />
                 <span>Identifiez-vous</span>
               </button>
-              {/* Bouton du panier avec le total des articles et le prix total */}
-              <button onClick={handleCartClick} className="flex items-center text-gray-600 hover:text-blue-600">
+              <button 
+                ref={cartButtonRef}
+                onClick={handleCartClick} 
+                className="flex items-center text-gray-600 hover:text-blue-600"
+              >
                 <FaShoppingCart className="mr-2" />
                 <span>Panier ({totalItems}) - {totalPrice.toFixed(2)}€</span>
               </button>
@@ -123,22 +128,23 @@ useEffect(() => {
 
         {/* Menu mobile (visible uniquement lorsque isMenuOpen est true) */}
         {isMenuOpen && (
-          <div className="md:hidden">
+          <div className="md:hidden mobile-menu">
             <div className="px-2 pt-2 pb-3 space-y-1">
-              <input
-                type="text"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="Rechercher..."
-                className="w-full px-4 py-2 border rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 mb-2"
-              />
+              <form onSubmit={handleSearch} className="mb-2">
+                <input
+                  type="text"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  placeholder="Rechercher..."
+                  className="w-full px-4 py-2 border rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </form>
               <button 
                 onClick={handleAuthClick} 
                 className="block w-full text-left px-3 py-2 text-base font-medium text-gray-600 hover:text-blue-600"
               >
                 Identifiez-vous
               </button>
-              {/* Bouton du panier dans le menu mobile */}
               <button onClick={handleCartClick} className="flex items-center text-gray-600 hover:text-blue-600">
                 <FaShoppingCart className="mr-2" />
                 <span>Panier ({totalItems}) - {totalPrice.toFixed(2)}€</span>
@@ -159,6 +165,7 @@ useEffect(() => {
         isOpen={isCartPopupOpen} 
         onClose={() => setIsCartPopupOpen(false)}
         cart={cart}
+        position={cartButtonPosition}
       />
     </>
   );
