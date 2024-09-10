@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link , useNavigate  } from 'react-router-dom';
 import { FaUser, FaShoppingCart, FaSearch, FaBars } from 'react-icons/fa';
 import AuthModal from '../auth/AuthModal';
 import { useCart } from '/src/context/CartContext';
@@ -11,6 +11,7 @@ const Navbar = () => {
   // Utilisation des hooks personnalisés
   const { getTotalItems, getTotalPrice, cart } = useCart();
   const { searchBooks } = useBooks();
+  const navigate = useNavigate();
 
   // États locaux pour le total des articles et le prix total
   const [totalItems, setTotalItems] = useState(0);
