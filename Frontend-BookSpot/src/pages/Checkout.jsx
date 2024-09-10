@@ -21,10 +21,14 @@ const Checkout = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     // Ici, vous implémenteriez la logique de paiement
-    // Par exemple, envoyer les informations à votre API de paiement
     console.log('Paiement effectué', cardInfo);
-    // Après le paiement, vous pourriez rediriger l'utilisateur vers une page de confirmation
     navigate('/confirmation');
+  };
+
+  // Fonction pour calculer le prix total d'un article
+  const calculateItemTotal = (item) => {
+    const price = parseFloat(item.prixUnitaire);
+    return (price * item.quantity).toFixed(2);
   };
 
   return (
@@ -35,10 +39,10 @@ const Checkout = () => {
         {cart.map(item => (
           <div key={item.id} className="flex justify-between mb-2">
             <span>{item.titre} (x{item.quantity})</span>
-            <span>{((item.type === 'sell' ? item.prixUnitaire : item.prixEmprunt) * item.quantity).toFixed(2)}€</span>
+            <span>{calculateItemTotal(item)}€</span>
           </div>
         ))}
-        <div className="font-bold mt-4">
+        <div className="font-bold mt-4 text-lg">
           Total à payer : {getTotalPrice().toFixed(2)}€
         </div>
       </div>
