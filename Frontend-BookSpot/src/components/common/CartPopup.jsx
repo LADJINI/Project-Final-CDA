@@ -46,7 +46,7 @@ const CartPopup = ({ isOpen, onClose, position }) => {
           Fermer
         </button>
         <button onClick={handleCheckout} className="bg-blue-500 text-white px-4 py-2 rounded">
-          Passer à la caisse
+          Passer la commande
         </button>
       </div>
     </div>
