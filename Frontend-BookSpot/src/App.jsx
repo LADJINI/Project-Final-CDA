@@ -6,7 +6,6 @@ import { BookProvider } from './context/BookContext';
 // Layout Components
 import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
-import SecondaryNavbar from './components/layout/SecondaryNavbar'; 
 import CookieConsent from "./components/common/CookieConsent";
 
 // Page Components
@@ -26,7 +25,7 @@ function App() {
       <CartProvider>
         <div className="App">
           <Navbar />
-          <SecondaryNavbar />
+          
           <main className="container mx-auto mt-4">
             <Routes>
               <Route path="/" element={<Home />} />

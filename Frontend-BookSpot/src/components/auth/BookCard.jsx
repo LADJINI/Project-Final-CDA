@@ -1,3 +1,4 @@
+import React from 'react';
 const BookCard = ({ book }) => {
     return (
       <div className="border rounded p-4">
