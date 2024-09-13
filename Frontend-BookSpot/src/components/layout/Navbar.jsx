@@ -151,7 +151,7 @@ const Navbar = () => {
       {/* Logo et nom du site complètement à gauche */}
       <div className="flex items-center">
         <NavLink to="/" className="flex items-center">
-          <img src="/Log2.PNG" alt="Logo" className="h-10 w-auto mr-2" />
+          <img src="/Log2.PNG" alt="Logo" className="h-16 w-auto mr-2" />
           <div className="flex flex-col items-start">
             <span className="text-lg sm:text-xl font-bold text-blue-600" style={{ fontFamily: 'Tilda Script Bold' }}>
               Book Spot
@@ -218,13 +218,13 @@ const Navbar = () => {
                 to="/ajouter-livre-vente"
                 className="block px-4 py-2 text-[#155e75] hover:bg-gray-100"
               >
-                Ajouter un livre à vendre
+                Pour vendre
               </NavLink>
               <NavLink
                 to="/ajouter-livre-pret"
                 className="block px-4 py-2 text-[#155e75] hover:bg-gray-100"
               >
-                Ajouter un livre à prêter
+                Pour prêter
               </NavLink>
             </div>
           )}
@@ -246,12 +246,7 @@ const Navbar = () => {
         position={cartButtonPosition}
       />
 
-      {/* Menu mobile */}
-      {isMenuOpen && (
-        <div className="md:hidden mobile-menu">
-          {/* Contenu du menu mobile */}
-        </div>
-      )}
+     
     </>
   );
 };
