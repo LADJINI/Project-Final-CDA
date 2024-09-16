@@ -2,6 +2,7 @@ import React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
+import axios from 'axios';
 
 const schema = z.object({
   nom: z.string().min(2, { message: "Le nom doit contenir au moins 2 caractères" }),
@@ -28,11 +29,26 @@ const RegisterForm = () => {
   const { register, handleSubmit, formState: { errors } } = useForm({
     resolver: zodResolver(schema)
   });
-
-  const onSubmit = (data) => {
-    console.log(data);
-    // Ici, vous pouvez ajouter la logique pour envoyer les données au backend
-  };
+// Ici, vous pouvez ajouter la logique pour envoyer les données au backend
+const onSubmit = async (data) => {
+  try {
+    const response = await axios.post('http://localhost:8080/api/auth/register', {
+      nom: data.nom,
+      prenom: data.prenom,
+      email: data.email,
+      password: data.password,
+      sexe: data.sexe,
+      dateNaissance: data.dateNaissance,
+      telephone: data.telephone,
+      adresse: data.adresse
+    });
+    console.log('Inscription réussie', response.data);
+    // Redirigez l'utilisateur ou affichez un message de succès
+  } catch (error) {
+    console.error('Erreur inscription', error.response.data);
+    // Affichez un message d'erreur à l'utilisateur
+  }
+};
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">

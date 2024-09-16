@@ -2,6 +2,7 @@ import React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
+import axios from 'axios';
 
 const schema = z.object({
   email: z.string().email({ message: "Email invalide" }),
@@ -12,11 +13,23 @@ const LoginForm = () => {
   const { register, handleSubmit, formState: { errors } } = useForm({
     resolver: zodResolver(schema)
   });
-
-  const onSubmit = (data) => {
-    console.log(data);
-    // Ici, vous pouvez ajouter la logique pour envoyer les données au backend
-  };
+// Ici, vous pouvez ajouter la logique pour envoyer les données au backend
+const onSubmit = async (data) => {
+  try {
+    const response = await axios.post('http://localhost:8080/api/auth/login', {
+      username: data.email,
+      password: data.password
+    });
+    console.log('Connexion réussie', response.data);
+    // Stockez le token JWT et redirigez l'utilisateur
+    localStorage.setItem('token', response.data.token);
+    // Utilisez un système de routage pour rediriger, par exemple :
+    // history.push('/dashboard');
+  } catch (error) {
+    console.error('Erreur de connexion', error.response.data);
+    // Affichez un message d'erreur à l'utilisateur
+  }
+};
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
