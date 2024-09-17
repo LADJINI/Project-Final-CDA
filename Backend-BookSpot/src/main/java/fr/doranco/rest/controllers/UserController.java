@@ -16,7 +16,7 @@ import fr.doranco.rest.exception.EmailAlreadyExistsException;
 import fr.doranco.rest.services.RoleService;
 import fr.doranco.rest.services.UserService;
 
-@CrossOrigin(origins = "http://localhost:8086")
+@CrossOrigin(origins = " http://localhost:5173")
 @RestController
 @RequestMapping("/api")
 public class UserController {

@@ -16,7 +16,7 @@ const LoginForm = () => {
 // Ici, vous pouvez ajouter la logique pour envoyer les données au backend
 const onSubmit = async (data) => {
   try {
-    const response = await axios.post('http://localhost:8080/api/auth/login', {
+    const response = await axios.post('http://localhost:8086/api/auth/login', {
       username: data.email,
       password: data.password
     });

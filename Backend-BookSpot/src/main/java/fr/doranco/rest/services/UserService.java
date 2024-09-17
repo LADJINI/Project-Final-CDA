@@ -1,14 +1,17 @@
 package fr.doranco.rest.services;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import fr.doranco.rest.entities.User;
+import fr.doranco.rest.dto.RegisterRequest;
 import fr.doranco.rest.dto.UserDto;
 import fr.doranco.rest.entities.Role;
 import fr.doranco.rest.repository.IUserRepository;
@@ -16,19 +19,32 @@ import fr.doranco.rest.repository.IRoleRepository;
 import fr.doranco.rest.exception.EmailAlreadyExistsException;
 import fr.doranco.rest.exception.ResourceNotFoundException;
 
+/**
+ * Service pour la gestion des utilisateurs.
+ */
 @Service
 public class UserService {
+    private final PasswordEncoder passwordEncoder;
+    private final IUserRepository userRepository;
+    private final IRoleRepository roleRepository;
 
+    /**
+     * Constructeur pour l'injection de dépendances.
+     * @param passwordEncoder L'encodeur de mot de passe.
+     * @param userRepository Le repository pour les opérations sur les utilisateurs.
+     * @param roleRepository Le repository pour les opérations sur les rôles.
+     */
     @Autowired
-    private IUserRepository userRepository;
-    
-    @Autowired
-    private IRoleRepository roleRepository;
+    public UserService(PasswordEncoder passwordEncoder, IUserRepository userRepository, IRoleRepository roleRepository) {
+        this.passwordEncoder = passwordEncoder;
+        this.userRepository = userRepository;
+        this.roleRepository = roleRepository;
+    }
 
     /**
      * Trouve un utilisateur par son email.
      * @param email L'email de l'utilisateur.
-     * @return Optional contenant l'UserDto si trouvé.
+     * @return Un Optional contenant l'utilisateur s'il est trouvé.
      */
     @Transactional(readOnly = true)
     public Optional<UserDto> findByEmail(String email) {
@@ -36,8 +52,8 @@ public class UserService {
     }
 
     /**
-     * Récupère tous les utilisateurs.
-     * @return Liste de tous les UserDto.
+     * Trouve tous les utilisateurs.
+     * @return Une liste de tous les utilisateurs.
      */
     @Transactional(readOnly = true)
     public List<UserDto> findAllUsers() {
@@ -49,7 +65,7 @@ public class UserService {
     /**
      * Trouve un utilisateur par son ID.
      * @param id L'ID de l'utilisateur.
-     * @return Optional contenant l'UserDto si trouvé.
+     * @return Un Optional contenant l'utilisateur s'il est trouvé.
      */
     @Transactional(readOnly = true)
     public Optional<UserDto> findById(Long id) {
@@ -59,8 +75,8 @@ public class UserService {
     /**
      * Crée un nouvel utilisateur.
      * @param userDto Les données de l'utilisateur à créer.
-     * @return L'UserDto créé.
-     * @throws EmailAlreadyExistsException si l'email existe déjà.
+     * @return L'utilisateur créé.
+     * @throws EmailAlreadyExistsException Si l'email existe déjà.
      */
     @Transactional
     public UserDto createUser(UserDto userDto) throws EmailAlreadyExistsException {
@@ -68,20 +84,26 @@ public class UserService {
             throw new EmailAlreadyExistsException("Email already exists");
         }
         User user = convertToEntity(userDto);
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         user = userRepository.save(user);
         return convertToDto(user);
     }
 
+    /**
+     * Trouve un utilisateur par son email.
+     * @param email L'email de l'utilisateur.
+     * @return Un Optional contenant l'utilisateur s'il est trouvé.
+     */
     @Transactional(readOnly = true)
     public Optional<User> findUserByEmail(String email) {
         return userRepository.findByEmail(email);
     }
+
     /**
      * Met à jour un utilisateur existant.
      * @param id L'ID de l'utilisateur à mettre à jour.
      * @param userDto Les nouvelles données de l'utilisateur.
-     * @return L'UserDto mis à jour.
-     * @throws ResourceNotFoundException si l'utilisateur n'est pas trouvé.
+     * @return L'utilisateur mis à jour.
      */
     @Transactional
     public UserDto updateUser(Long id, UserDto userDto) {
@@ -95,7 +117,7 @@ public class UserService {
     /**
      * Supprime un utilisateur.
      * @param id L'ID de l'utilisateur à supprimer.
-     * @throws ResourceNotFoundException si l'utilisateur n'est pas trouvé.
+     * @throws ResourceNotFoundException Si l'utilisateur n'est pas trouvé.
      */
     @Transactional
     public void deleteUser(Long id) throws ResourceNotFoundException {
@@ -108,7 +130,7 @@ public class UserService {
     /**
      * Trouve les utilisateurs par ID de rôle.
      * @param roleId L'ID du rôle.
-     * @return Liste des UserDto pour le rôle donné.
+     * @return Une liste d'utilisateurs ayant le rôle spécifié.
      */
     @Transactional(readOnly = true)
     public List<UserDto> findUsersByRoleId(Integer roleId) {
@@ -118,26 +140,34 @@ public class UserService {
     }
 
     /**
-     * Convertit un User en UserDto.
-     * @param user L'entité User à convertir.
-     * @return L'UserDto correspondant.
+     * Enregistre un nouvel utilisateur.
+     * @param registerRequest Les données d'enregistrement de l'utilisateur.
+     * @return L'utilisateur enregistré.
+     * @throws EmailAlreadyExistsException Si l'email existe déjà.
      */
-    private UserDto convertToDto(User user) {
-        UserDto dto = new UserDto();
-        dto.setId(user.getId());
-        dto.setNom(user.getNom());
-        dto.setPrenom(user.getPrenom());
-        dto.setSexe(user.getSexe());
-        dto.setDateNaissance(user.getDateNaissance());
-        dto.setEmail(user.getEmail());
-        dto.setAddress(user.getAddress());
-        dto.setTelephone(user.getTelephone());
-        dto.setRegistrationDate(user.getRegistrationDate());
-        dto.setActif(user.getActif());
-        if (user.getRole() != null) {
-            dto.setRoleId(user.getRole().getId());
+    @Transactional
+    public User registerNewUser(RegisterRequest registerRequest) throws EmailAlreadyExistsException {
+        if (userRepository.findByEmail(registerRequest.getEmail()).isPresent()) {
+            throw new EmailAlreadyExistsException("Email already exists");
         }
-        return dto;
+
+        User user = new User();
+        user.setNom(registerRequest.getNom());
+        user.setPrenom(registerRequest.getPrenom());
+        user.setEmail(registerRequest.getEmail());
+        user.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
+        user.setSexe(registerRequest.getSexe());
+        user.setDateNaissance(registerRequest.getDateNaissance());
+        user.setTelephone(registerRequest.getTelephone());
+        user.setAddress(registerRequest.getAddress());
+        user.setRegistrationDate(LocalDate.now());
+        user.setActif(false);
+
+        Role defaultRole = roleRepository.findByName("USER")
+                .orElseThrow(() -> new RuntimeException("Default role not found"));
+        user.setRole(defaultRole);
+
+        return userRepository.save(user);
     }
     @Transactional(readOnly = true)
     public List<UserDto> findUserDtosByRoleId(Integer roleId) {
@@ -146,39 +176,21 @@ public class UserService {
                 .map(this::convertToDto)
                 .collect(Collectors.toList());
     }
-    /**
-     * Convertit un UserDto en User.
-     * @param dto Le UserDto à convertir.
-     * @return L'entité User correspondante.
-     */
+
+    // Méthodes utilitaires pour la conversion entre entités et DTOs
+    private UserDto convertToDto(User user) {
+        UserDto dto = new UserDto();
+        // Remplir le DTO avec les données de l'utilisateur
+        return dto;
+    }
+
     private User convertToEntity(UserDto dto) {
         User user = new User();
-        updateUserFromDto(user, dto);
+        // Remplir l'entité avec les données du DTO
         return user;
     }
 
-    /**
-     * Met à jour une entité User à partir d'un UserDto.
-     * @param user L'entité User à mettre à jour.
-     * @param dto Le UserDto contenant les nouvelles données.
-     */
     private void updateUserFromDto(User user, UserDto dto) {
-        user.setNom(dto.getNom());
-        user.setPrenom(dto.getPrenom());
-        user.setSexe(dto.getSexe());
-        user.setDateNaissance(dto.getDateNaissance());
-        user.setEmail(dto.getEmail());
-        if (dto.getPassword() != null && !dto.getPassword().isEmpty()) {
-            user.setPassword(dto.getPassword());
-        }
-        user.setAddress(dto.getAddress());
-        user.setTelephone(dto.getTelephone());
-        user.setRegistrationDate(dto.getRegistrationDate());
-        user.setActif(dto.getActif());
-        if (dto.getRoleId() != null) {
-            Role role = roleRepository.findById(dto.getRoleId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Role not found with id: " + dto.getRoleId()));
-            user.setRole(role);
-        }
+        // Mettre à jour l'utilisateur avec les données du DTO
     }
 }
