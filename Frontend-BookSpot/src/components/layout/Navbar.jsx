@@ -1,19 +1,18 @@
-// Importation des dépendances nécessaires
 import React, { useState, useRef, useEffect } from 'react';
-import { NavLink, useNavigate } from 'react-router-dom'; // Utilisation de NavLink pour la gestion des liens actifs
+import { NavLink, useNavigate } from 'react-router-dom';
 import { FaUser, FaShoppingCart, FaSearch, FaChevronDown } from 'react-icons/fa';
 import AuthModal from '../auth/AuthModal';
 import { useCart } from '/src/context/CartContext';
 import { useBooks } from '/src/context/BookContext';
+import { useAuth } from '/src/context/AuthContext'; // Importer le contexte d'authentification
 import CartPopup from '../common/CartPopup';
 
 const Navbar = () => {
-  // Utilisation des hooks personnalisés pour le panier et la recherche de livres
   const { getTotalItems, getTotalPrice, cart } = useCart();
   const { searchBooks } = useBooks();
+  const { user, login, logout } = useAuth(); // Accéder au contexte d'authentification pour l'utilisateur
   const navigate = useNavigate();
 
-  // États pour gérer l'ouverture/fermeture des différents éléments de l'interface
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isCartPopupOpen, setIsCartPopupOpen] = useState(false);
@@ -23,33 +22,13 @@ const Navbar = () => {
   const [catalogueTimeout, setCatalogueTimeout] = useState(null);
   const [addBookTimeout, setAddBookTimeout] = useState(null);
 
-  // Référence pour le bouton du panier (utilisée pour positionner le popup)
   const cartButtonRef = useRef(null);
   const [cartButtonPosition, setCartButtonPosition] = useState({ top: 0, left: 0 });
 
-  // Calcul du nombre total d'articles et du prix total du panier
   const totalItems = getTotalItems();
   const totalPrice = getTotalPrice();
 
-  // Gestion de l'ouverture de la modal d'authentification
-  const handleAuthClick = () => {
-    setIsAuthModalOpen(true);
-    setIsMenuOpen(false);
-  };
-
-  // Gestion de l'ouverture/fermeture du popup du panier
-  const handleCartClick = (e) => {
-    e.preventDefault();
-    const rect = cartButtonRef.current.getBoundingClientRect();
-    setCartButtonPosition({
-      top: rect.bottom + window.scrollY,
-      left: rect.left + window.scrollX,
-    });
-    setIsCartPopupOpen(!isCartPopupOpen);
-    setIsMenuOpen(false);
-  };
-
-  // Gestion de la recherche
+  // Gestion de la recherche de livres
   const handleSearch = (e) => {
     e.preventDefault();
     searchBooks(searchTerm);
@@ -57,7 +36,18 @@ const Navbar = () => {
     setIsMenuOpen(false);
   };
 
-  // Effet pour fermer le menu mobile lors d'un clic en dehors
+  // Ouvrir la modal de connexion/inscription
+  const handleAuthClick = () => {
+    setIsAuthModalOpen(true);
+    setIsMenuOpen(false);
+  };
+
+  // Gestion de la déconnexion
+  const handleLogout = () => {
+    logout(); // Fonction de déconnexion du contexte AuthContext
+    navigate('/'); // Redirection vers la page d'accueil après la déconnexion
+  };
+
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (isMenuOpen && !event.target.closest('.mobile-menu') && !event.target.closest('.menu-button')) {
@@ -80,7 +70,7 @@ const Navbar = () => {
   const handleCatalogueMouseLeave = () => {
     const timeout = setTimeout(() => {
       setIsCatalogueOpen(false);
-    }, 300); // Délai de 300ms avant de masquer le sous-menu
+    }, 300);
     setCatalogueTimeout(timeout);
   };
 
@@ -92,7 +82,7 @@ const Navbar = () => {
   const handleAddBookMouseLeave = () => {
     const timeout = setTimeout(() => {
       setIsAddBookOpen(false);
-    }, 300); // Délai de 300ms avant de masquer le sous-menu
+    }, 300);
     setAddBookTimeout(timeout);
   };
 
@@ -122,16 +112,47 @@ const Navbar = () => {
 
             {/* Boutons d'authentification et panier */}
             <div className="flex items-center space-x-4 ml-4">
-              <button
-                onClick={handleAuthClick}
-                className="flex items-center text-sm text-white bg-custom-blue hover:bg-[#164e63] font-medium transition py-2 px-4 rounded-md h-16"
-              >
-                <FaUser className="mr-1" />
-                <span>Identifiez-vous</span>
-              </button>
+              {user ? (
+                <>
+                  {/* Bouton pour afficher le profil et déconnexion */}
+                  <div className="flex items-center">
+                    <img 
+                      src={user.profilePicture || '/default-avatar.jpg'} // Image de profil par défaut si indisponible
+                      alt="Profil"
+                      className="h-8 w-8 rounded-full mr-2"
+                    />
+                    <span className="text-white">Bonjour, {user.username}</span>
+
+                    <button 
+                      onClick={handleLogout}
+                      className="text-sm text-white bg-custom-blue hover:bg-[#164e63] font-medium transition py-2 px-4 rounded-md ml-4"
+                    >
+                      Déconnexion
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <button
+                  onClick={handleAuthClick}
+                  className="flex items-center text-sm text-white bg-custom-blue hover:bg-[#164e63] font-medium transition py-2 px-4 rounded-md h-16"
+                >
+                  <FaUser className="mr-1" />
+                  <span>Identifiez-vous</span>
+                </button>
+              )}
+
+              {/* Icône du panier */}
               <button
                 ref={cartButtonRef}
-                onClick={handleCartClick}
+                onClick={(e) => {
+                  e.preventDefault();
+                  const rect = cartButtonRef.current.getBoundingClientRect();
+                  setCartButtonPosition({
+                    top: rect.bottom + window.scrollY,
+                    left: rect.left + window.scrollX,
+                  });
+                  setIsCartPopupOpen(!isCartPopupOpen);
+                }}
                 className="flex items-center text-sm text-white bg-custom-blue hover:bg-[#164e63] font-medium transition py-2 px-4 rounded-md h-16"
               >
                 <FaShoppingCart className="mr-1" />
@@ -144,96 +165,74 @@ const Navbar = () => {
         </div>
       </header>
 
-      {/* Navbar avec logo, nom du site et liens de navigation */}
+      {/* Navbar principale */}
       <nav className="bg-white border-b border-gray-200 shadow-md">
-  <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div className="flex items-center justify-between h-16">
-      {/* Logo et nom du site complètement à gauche */}
-      <div className="flex items-center">
-        <NavLink to="/" className="flex items-center">
-          <img src="/Log2.PNG" alt="Logo" className="h-16 w-auto mr-2" />
-          <div className="flex flex-col items-start">
-            <span className="text-lg sm:text-xl font-bold text-blue-600" style={{ fontFamily: 'Tilda Script Bold' }}>
-              Book Spot
-            </span>
-            <p className="font-serif text-xs text-gray-600 hidden sm:block">
-              Bibliothèque accessible à tous
-            </p>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
+            <div className="flex items-center">
+              <NavLink to="/" className="flex items-center">
+                <img src="/Log2.PNG" alt="Logo" className="h-16 w-auto mr-2" />
+                <div className="flex flex-col items-start">
+                  <span className="text-lg sm:text-xl font-bold text-blue-600" style={{ fontFamily: 'Tilda Script Bold' }}>
+                    Book Spot
+                  </span>
+                  <p className="font-serif text-xs text-gray-600 hidden sm:block">
+                    Bibliothèque accessible à tous
+                  </p>
+                </div>
+              </NavLink>
+            </div>
+
+            <div className="flex items-center space-x-4 ml-auto">
+              <NavLink to="/" className="text-[#155e75] hover:text-[#164e63] font-medium transition flex items-center h-16 px-4">
+                Accueil
+              </NavLink>
+
+              {/* Sous-menu Catalogue */}
+              <div
+                className="relative"
+                onMouseEnter={handleCatalogueMouseEnter}
+                onMouseLeave={handleCatalogueMouseLeave}
+              >
+                <button className="bg-white flex items-center text-[#155e75] hover:text-[#164e63] font-medium transition h-16 px-4">
+                  Catalogue <FaChevronDown className="ml-1" />
+                </button>
+                {isCatalogueOpen && (
+                  <div className="absolute left-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1">
+                    <NavLink to="/emprunter-livre" className="block px-4 py-2 text-[#155e75] hover:bg-gray-100">
+                      Emprunter un livre
+                    </NavLink>
+                    <NavLink to="/acheter-livre" className="block px-4 py-2 text-[#155e75] hover:bg-gray-100">
+                      Acheter un livre
+                    </NavLink>
+                  </div>
+                )}
+              </div>
+
+              {/* Sous-menu Ajouter un livre */}
+              <div
+                className="relative"
+                onMouseEnter={handleAddBookMouseEnter}
+                onMouseLeave={handleAddBookMouseLeave}
+              >
+                <button className="bg-white flex items-center text-[#155e75] hover:text-[#164e63] font-medium transition h-16 px-4">
+                  Ajouter un livre <FaChevronDown className="ml-1" />
+                </button>
+                {isAddBookOpen && (
+                  <div className="absolute left-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1">
+                    <NavLink to="/ajouter-livre-vente" className="block px-4 py-2 text-[#155e75] hover:bg-gray-100">
+                      Pour vendre
+                    </NavLink>
+                    <NavLink to="/ajouter-livre-pret" className="block px-4 py-2 text-[#155e75] hover:bg-gray-100">
+                      Pour prêter
+                    </NavLink>
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
-        </NavLink>
-      </div>
-
-      {/* Liens de navigation */}
-      <div className="flex items-center space-x-4 ml-auto">
-        <NavLink
-          to="/"
-          className="text-[#155e75] hover:text-[#164e63] font-medium transition flex items-center h-16 px-4"
-        >
-          Accueil
-        </NavLink>
-
-        {/* Menu déroulant Catalogue */}
-        <div
-          className="relative"
-          onMouseEnter={handleCatalogueMouseEnter}
-          onMouseLeave={handleCatalogueMouseLeave}
-        >
-          <button
-            className="bg-white flex items-center text-[#155e75] hover:text-[#164e63] font-medium transition h-16 px-4"
-          >
-            Catalogue <FaChevronDown className="ml-1" />
-          </button>
-          {isCatalogueOpen && (
-            <div className="absolute left-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1">
-              <NavLink
-                to="/emprunter-livre"
-                className="block px-4 py-2 text-[#155e75] hover:bg-gray-100"
-              >
-                Emprunter un livre
-              </NavLink>
-              <NavLink
-                to="/acheter-livre"
-                className="block px-4 py-2 text-[#155e75] hover:bg-gray-100"
-              >
-                Acheter un livre
-              </NavLink>
-            </div>
-          )}
         </div>
-
-        {/* Menu déroulant Ajouter un livre */}
-        <div
-          className="relative"
-          onMouseEnter={handleAddBookMouseEnter}
-          onMouseLeave={handleAddBookMouseLeave}
-        >
-          <button
-            className="bg-white flex items-center text-[#155e75] hover:text-[#164e63] font-medium transition h-16 px-4"
-          >
-            Ajouter un livre <FaChevronDown className="ml-1" />
-          </button>
-          {isAddBookOpen && (
-            <div className="absolute left-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1">
-              <NavLink
-                to="/ajouter-livre-vente"
-                className="block px-4 py-2 text-[#155e75] hover:bg-gray-100"
-              >
-                Pour vendre
-              </NavLink>
-              <NavLink
-                to="/ajouter-livre-pret"
-                className="block px-4 py-2 text-[#155e75] hover:bg-gray-100"
-              >
-                Pour prêter
-              </NavLink>
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
-  </div>
-</nav>
-
+      </nav>
 
       {/* Modal d'authentification */}
       <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />
@@ -245,8 +244,6 @@ const Navbar = () => {
         cart={cart}
         position={cartButtonPosition}
       />
-
-     
     </>
   );
 };
