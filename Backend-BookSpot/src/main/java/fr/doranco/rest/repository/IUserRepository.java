@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import fr.doranco.rest.entities.Role;
 import fr.doranco.rest.entities.User;
 
 /**
@@ -35,20 +36,19 @@ import fr.doranco.rest.entities.User;
  */
 
 public interface IUserRepository extends JpaRepository<User, Long> {
-	  
     List<User> findByNom(String nom);
     List<User> findByPrenom(String prenom);
     List<User> findByNomContainingOrPrenomContaining(String nom, String prenom);
     List<User> findByIdGreaterThan(long id);
-    List<User> findByRoleId(Integer roleId);
+    List<User> findByRoleId(Long roleId);
     Optional<User> findByEmail(String email);
 
     // 3) Requête JPQL
     @Query(value = "SELECT u FROM User u WHERE u.nom like %?1% OR u.prenom like %?1%")
     List<User> findUsersByNomOrPrenom(String keyword);
 
-    @Query(value = "SELECT u FROM User u WHERE u.email = ?1")
-    Optional<User> findUserByEmail(String email);
+    //@Query(value = "SELECT u FROM User u WHERE u.email = ?1")
+    //Optional<User> findUserByEmail(String email);
 
     @Query(value = "SELECT u FROM User u WHERE u.nom like %?1%")
     List<User> findUsersByNom(String keyword, Sort sort);
@@ -56,5 +56,8 @@ public interface IUserRepository extends JpaRepository<User, Long> {
     
     @Query("SELECT u FROM User u JOIN FETCH u.role WHERE u.email = :email")
     Optional<User> findByEmailWithRole(@Param("email") String email);
+      
+        List<User> findByRole(Role role);
+   
 }
 

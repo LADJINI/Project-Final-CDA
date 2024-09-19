@@ -25,12 +25,13 @@ import java.util.Arrays;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.http.SessionCreationPolicy;
 
 /**
  * Configuration de sécurité pour l'application.
- * Cette classe définit les règles de sécurité, la configuration CORS, et les filtres JWT.
+ * Définit la sécurité HTTP, le CORS, les filtres JWT, et l'encodage des mots de passe avec BCrypt.
  */
 @Configuration
 @EnableWebSecurity
@@ -41,9 +42,10 @@ public class SecurityConfig {
     private final JwtService jwtService;
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
 
+    
     /**
-     * Constructeur pour l'injection de dépendances.
-     * Utilisation de @Lazy pour éviter la circularité des dépendances.
+     * Constructeur avec injection des dépendances.
+     * Utilise @Lazy pour éviter les problèmes de circularité des dépendances.
      */
     @Autowired
     public SecurityConfig(@Lazy UserDetailsService userDetailsService, JwtService jwtService, JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint) {
@@ -52,36 +54,9 @@ public class SecurityConfig {
         this.jwtAuthenticationEntryPoint = jwtAuthenticationEntryPoint;
     }
 
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http
-            .csrf(csrf -> csrf.disable())
-            .authorizeHttpRequests(authz -> authz
-                .requestMatchers("/api/auth/**", "/api/register").permitAll()
-                .requestMatchers("/api/users/**", "/api/addUser").permitAll()
-                .requestMatchers("/api/books/**", "/api/books").permitAll()
-                .requestMatchers("/api/roles/**").permitAll()
-                .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                .anyRequest().authenticated()
-            )
-            .exceptionHandling(exceptions -> exceptions
-                .authenticationEntryPoint(jwtAuthenticationEntryPoint)
-                .accessDeniedHandler(new JwtAccessDeniedHandler())
-            )
-            .sessionManagement(session -> session
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-            )
-            .addFilterBefore(jwtRequestFilter(), UsernamePasswordAuthenticationFilter.class)
-            .cors(cors -> cors.configurationSource(corsConfigurationSource()));
-
-        return http.build();
-    }
-
-    @Bean
-    public JwtRequestFilter jwtRequestFilter() {
-        return new JwtRequestFilter(userDetailsService, jwtService);
-    }
-
+    /**
+     * Configure le CORS pour l'application, permettant les requêtes depuis des origines spécifiques.
+     */
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
@@ -94,21 +69,74 @@ public class SecurityConfig {
         return source;
     }
 
+    /**
+     * Configuration principale de la sécurité HTTP.
+     * Désactive CSRF, gère les autorisations d'accès aux différentes routes,
+     * et intègre le filtre JWT pour la gestion des tokens.
+     */
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http
+            .csrf(csrf -> csrf.disable())  // Désactive CSRF car on utilise des tokens JWT
+            .authorizeHttpRequests(authz -> authz
+                .requestMatchers("/api/admin/**").hasRole("ADMIN")  // Restreint les routes admin aux utilisateurs avec le rôle ADMIN
+                .requestMatchers("/api/user/**").hasRole("USER")    // Restreint certaines routes aux utilisateurs avec le rôle USER
+                .requestMatchers("/api/auth/**", "/api/auth/login", "/api/register").permitAll()  // Permet l'accès public aux routes d'authentification et d'enregistrement
+                .requestMatchers("/api/users/**", "/api/addUser").permitAll()
+                .requestMatchers("/api/books/**", "/api/books").permitAll()
+                .requestMatchers("/api/roles/**").permitAll()
+                .anyRequest().authenticated()  // Toutes les autres routes nécessitent une authentification
+            )
+            .exceptionHandling(exceptions -> exceptions
+                .authenticationEntryPoint(jwtAuthenticationEntryPoint)
+                .accessDeniedHandler(new JwtAccessDeniedHandler())
+            )
+            .sessionManagement(session -> session
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)  // Les sessions sont désactivées, l'authentification est gérée via JWT
+            )
+            .addFilterBefore(jwtRequestFilter(), UsernamePasswordAuthenticationFilter.class)  // Ajoute le filtre JWT avant l'authentification standard
+            .cors(cors -> cors.configurationSource(corsConfigurationSource()));  // Configure le CORS
+
+        return http.build();
+    }
+
+    /**
+     * Bean pour le filtre JWT qui intercepte les requêtes et vérifie les tokens.
+     */
+    @Bean
+    public JwtRequestFilter jwtRequestFilter() {
+        return new JwtRequestFilter(userDetailsService, jwtService);
+    }
+
+    
+    /**
+     * Bean pour l'encodage des mots de passe utilisant BCrypt.
+     */
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
+    /**
+     * Bean pour la gestion de l'authentification.
+     */
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
     }
 
+    /**
+     * Fournisseur d'authentification qui utilise le service UserDetailsService et BCrypt pour valider les utilisateurs.
+     */
     @Bean
+   
     public DaoAuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
-        authProvider.setUserDetailsService(userDetailsService);
-        authProvider.setPasswordEncoder(passwordEncoder());
+        authProvider.setUserDetailsService(userDetailsService);  // Configure UserDetailsService pour charger les utilisateurs
+        authProvider.setPasswordEncoder(passwordEncoder());  // Configure BCrypt pour l'encodage des mots de passe
         return authProvider;
     }
+    
+
+
 }

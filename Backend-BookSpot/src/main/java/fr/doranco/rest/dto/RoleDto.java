@@ -1,12 +1,30 @@
 package fr.doranco.rest.dto;
 
-import lombok.Getter;
-import lombok.Setter;
+import fr.doranco.rest.entities.ERole;
 
-@Getter
-@Setter
+/**
+ * DTO pour les rôles.
+ */
 public class RoleDto {
-	 private Integer id;
-	 private String name;
 
+    private Long id;  // Utiliser Long au lieu de Integer
+    private ERole name;  // Utiliser ERole au lieu de String
+
+    // Getters et Setters
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public ERole getName() {
+        return name;
+    }
+
+    public void setName(ERole name) {
+        this.name = name;
+    }
 }

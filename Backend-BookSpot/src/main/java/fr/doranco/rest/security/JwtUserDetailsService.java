@@ -1,37 +1,35 @@
 package fr.doranco.rest.security;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import fr.doranco.rest.entities.User;
-import fr.doranco.rest.services.UserService;
+import fr.doranco.rest.repository.IUserRepository;
 
-/**
- * Service pour charger les détails de l'utilisateur pour l'authentification JWT.
- */
+import java.util.Collections;
 @Service
 public class JwtUserDetailsService implements UserDetailsService {
-    private final UserService userService;
 
-    /**
-     * Constructeur pour l'injection de dépendances.
-     * Utilisation de @Lazy pour casser la dépendance circulaire.
-     * @param userService Le service utilisateur pour récupérer les informations de l'utilisateur.
-     */
     @Autowired
-    public JwtUserDetailsService(@Lazy UserService userService) {
-        this.userService = userService;
-    }
+    private IUserRepository userRepository;
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userService.findUserByEmail(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        fr.doranco.rest.entities.User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("Unknown user: " + email));
 
-        return UserDetailsImpl.build(user);
+        String roleName = user.getRole().getName().name();
+        SimpleGrantedAuthority authority = new SimpleGrantedAuthority(roleName);
+
+        // Retourner une instance de UserDetailsImpl avec le constructeur approprié
+        return new UserDetailsImpl(
+                user.getId(), // Assurez-vous d'inclure l'ID dans le constructeur
+                user.getEmail(),
+                user.getPassword(),
+                Collections.singletonList(authority)
+        );
     }
 }

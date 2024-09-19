@@ -3,16 +3,32 @@ package fr.doranco.rest.controllers;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import fr.doranco.rest.dto.JwtResponse;
+import fr.doranco.rest.dto.LoginRequest;
+import fr.doranco.rest.dto.RegisterRequest;
 import fr.doranco.rest.dto.RoleDto;
 import fr.doranco.rest.dto.UserDto;
+import fr.doranco.rest.entities.ERole;
+import fr.doranco.rest.entities.Role;
 import fr.doranco.rest.exception.EmailAlreadyExistsException;
+import fr.doranco.rest.repository.IRoleRepository;
+import fr.doranco.rest.security.JwtUtils;
+import fr.doranco.rest.security.UserDetailsImpl;
 import fr.doranco.rest.services.RoleService;
 import fr.doranco.rest.services.UserService;
 
@@ -25,39 +41,23 @@ public class UserController {
 
     @Autowired
     private UserService userService;
+    
+    @Autowired
+    private IRoleRepository roleRepository;
 
+    @Autowired
+    private AuthenticationManager authenticationManager;
+    
     @Autowired
     private RoleService roleService;
     
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    /**
-     * Enregistre un nouvel utilisateur.
-     * @param userDto Les données de l'utilisateur à enregistrer.
-     * @return ResponseEntity contenant l'utilisateur enregistré ou une erreur.
-     */
-    @PostMapping("/register")
-    public ResponseEntity<?> registerUser(@RequestBody UserDto userDto) {
-        try {
-            if (userDto.getPassword() == null || userDto.getPassword().isEmpty()) {
-                return ResponseEntity.badRequest().body("Le mot de passe ne peut pas être vide");
-            }
-            userDto.setPassword(passwordEncoder.encode(userDto.getPassword()));
-            userDto.setRegistrationDate(LocalDate.now());
-            userDto.setActif(false);
+    @Autowired
+    private JwtUtils jwtUtils;
 
-            UserDto savedUserDto = userService.createUser(userDto);
-            return ResponseEntity.status(HttpStatus.CREATED).body(savedUserDto);
-        } catch (EmailAlreadyExistsException e) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body("Cet email est déjà utilisé");
-        } catch (Exception e) {
-            logger.error("Erreur lors de l'enregistrement de l'utilisateur", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Une erreur est survenue lors de l'enregistrement");
-        }
-    }
-
-    /**
+       /**
      * Récupère tous les utilisateurs.
      * @return ResponseEntity contenant la liste des utilisateurs.
      */
@@ -66,6 +66,8 @@ public class UserController {
         List<UserDto> users = userService.findAllUsers();
         return ResponseEntity.ok(users);
     }
+    
+  
 
     /**
      * Ajoute un nouvel utilisateur.
@@ -107,14 +109,19 @@ public class UserController {
      * @param roleId L'ID du rôle.
      * @return ResponseEntity contenant la liste des utilisateurs pour le rôle donné.
      */
-    @GetMapping("/roles/{roleId}/users")
-    public ResponseEntity<List<UserDto>> getUsersByRole(@PathVariable Integer roleId) {
-        Optional<RoleDto> roleOptional = roleService.findById(roleId);
-        if (roleOptional.isEmpty()) {
-            return ResponseEntity.notFound().build();
+    @GetMapping("/roles/{roleName}/users")
+    public ResponseEntity<List<UserDto>> getUsersByRole(@PathVariable String roleName) {
+        try {
+            ERole eRole = ERole.valueOf("ROLE_" + roleName.toUpperCase());
+            Optional<Role> roleOptional = roleRepository.findByName(eRole);
+            if (roleOptional.isEmpty()) {
+                return ResponseEntity.notFound().build();
+            }
+            List<UserDto> userDtos = userService.findUserDtosByRoleId(roleOptional.get().getId());
+            return ResponseEntity.ok(userDtos);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(List.of());
         }
-        List<UserDto> userDtos = userService.findUserDtosByRoleId(roleId);
-        return ResponseEntity.ok(userDtos);
     }
 
     /**
@@ -188,7 +195,7 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Une erreur est survenue");
         }
     }
-
+ 
     /**
      * Vérifie si un UserDto est valide.
      * @param userDto Le UserDto à vérifier.
@@ -203,4 +210,4 @@ public class UserController {
                userDto.getTelephone() != null && !userDto.getTelephone().trim().isEmpty() &&
                userDto.getRoleId() != null;
     }
-}
+  }
