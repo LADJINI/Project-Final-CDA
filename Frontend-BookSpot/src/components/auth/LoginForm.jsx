@@ -1,71 +1,73 @@
-import React from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
-import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
-
-// Schéma de validation avec Zod
-const schema = z.object({
-  email: z.string().email({ message: "Email invalide" }),
-  password: z.string().min(12, { message: "Le mot de passe doit contenir au moins 12 caractères" }),
-});
+import React, { useState } from 'react';
+import { useAuth } from '../../context/AuthContext';
 
 const LoginForm = ({ onClose }) => {
-  const navigate = useNavigate();
-  const { register, handleSubmit, formState: { errors } } = useForm({
-    resolver: zodResolver(schema)
+  const { login } = useAuth(); // Récupération de la fonction login depuis le contexte d'authentification
+  const [formData, setFormData] = useState({
+    email: '',
+    password: ''
   });
+  const [error, setError] = useState('');
 
-  // Fonction appelée lors de la soumission du formulaire
-  const onSubmit = async (data) => {
+  // Gestion des changements dans les champs du formulaire
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
+  };
+
+  // Validation et soumission des données de connexion
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const { email, password } = formData;
+
     try {
-      // Envoyer les données au backend pour authentification
-      const response = await axios.post('http://localhost:8086/api/auth/login', {
-        email: data.email,
-        password: data.password
-      });
-      // Stocker le token JWT et les rôles dans localStorage
-      localStorage.setItem('user', JSON.stringify({
-        token: response.data.token,
-        roles: response.data.roles,
-        nom: response.data.nom,
-        prenom: response.data.prenom,
-        photo: response.data.photo // Ajouter la photo si disponible
-      }));
-      // Rediriger vers la page d'accueil et fermer le modal
-      navigate('/Home');
-      onClose();
+      // Simuler les données de connexion (vous pouvez remplacer par un appel à une API)
+      const userData = {
+        token: 'dummy_token',  // Token fictif pour l'exemple
+        roles: ['user'],  // Rôle par défaut
+        nom: 'Dupont',  // Nom fictif (remplacer par le vrai)
+        prenom: 'Jean',  // Prénom fictif (remplacer par le vrai)
+        photo: 'default.jpg'  // Image par défaut
+      };
+
+      await login(userData); // Connecter l'utilisateur via le contexte
+      onClose();  // Fermer le modal après connexion réussie
     } catch (error) {
-      console.error('Erreur de connexion', error.response?.data || error.message);
-      // Afficher un message d'erreur à l'utilisateur
-      alert('Erreur lors de la connexion. Veuillez vérifier vos identifiants.');
+      setError("Erreur lors de la connexion. Veuillez vérifier vos informations.");
     }
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="max-w-sm mx-auto p-4 border rounded-md shadow-lg">
+    <form onSubmit={handleSubmit}>
+      {error && <p className="text-red-500 mb-4">{error}</p>} {/* Affichage des erreurs */}
       <div className="mb-4">
+        <label className="block text-gray-700">Email</label>
         <input
-          {...register("email")}
           type="email"
-          placeholder="Email"
-          className="mt-2 px-3 py-2 border rounded-md w-full"
+          name="email"
+          value={formData.email}
+          onChange={handleChange}
+          className="w-full p-2 border border-gray-300 rounded mt-1"
+          required
         />
-        {errors.email && <p className="text-red-500 text-xs">{errors.email.message}</p>}
       </div>
-
       <div className="mb-4">
+        <label className="block text-gray-700">Mot de passe</label>
         <input
-          {...register("password")}
           type="password"
-          placeholder="Mot de passe"
-          className="mt-2 px-3 py-2 border rounded-md w-full"
+          name="password"
+          value={formData.password}
+          onChange={handleChange}
+          className="w-full p-2 border border-gray-300 rounded mt-1"
+          required
         />
-        {errors.password && <p className="text-red-500 text-xs">{errors.password.message}</p>}
       </div>
-
-      <button type="submit" className="mt-4 bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600">
+      <button
+        type="submit"
+        className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
+      >
         Se connecter
       </button>
     </form>
