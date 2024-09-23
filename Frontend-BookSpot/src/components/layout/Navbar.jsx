@@ -124,7 +124,7 @@ const Navbar = () => {
                       alt="Profil"
                       className="h-8 w-8 rounded-full mr-2"
                     />
-                    <span className="text-white">Bonjour, {user.username}</span>
+                    <span className="text-white">Bonjour {user.nom} !  </span>
                   </NavLink>
 
                   <button 
@@ -173,46 +173,62 @@ const Navbar = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center">
-              {/* Logo et lien vers l'accueil */}
               <NavLink to="/" className="flex items-center">
                 <img src="/Log2.PNG" alt="Logo" className="h-16 w-auto mr-2" />
                 <div className="flex flex-col items-start">
-                  <span className="text-lg sm:text-xl font-bold text-gray-800">Biblio</span>
-                  <span className="text-sm font-light text-gray-600">Boutique de Livres</span>
+                  <span className="text-lg sm:text-xl font-bold text-blue-600" style={{ fontFamily: 'Tilda Script Bold' }}>
+                    Book Spot
+                  </span>
+                  <p className="font-serif text-xs text-gray-600 hidden sm:block">
+                    Bibliothèque accessible à tous
+                  </p>
                 </div>
               </NavLink>
+            </div>
 
-              {/* Menu Catalogue avec sous-menu */}
-              <div className="ml-6 relative"
+            <div className="flex items-center space-x-4 ml-auto">
+              <NavLink to="/" className="text-[#155e75] hover:text-[#164e63] font-medium transition flex items-center h-16 px-4">
+                Accueil
+              </NavLink>
+
+              {/* Sous-menu Catalogue */}
+              <div
+                className="relative"
                 onMouseEnter={handleCatalogueMouseEnter}
                 onMouseLeave={handleCatalogueMouseLeave}
               >
-                <button className="flex items-center text-gray-700 font-medium hover:text-blue-600">
-                  <span>Catalogue</span>
-                  <FaChevronDown className="ml-1" />
+                <button className="bg-white flex items-center text-[#155e75] hover:text-[#164e63] font-medium transition h-16 px-4">
+                  Catalogue <FaChevronDown className="ml-1" />
                 </button>
                 {isCatalogueOpen && (
-                  <div className="absolute z-10 left-0 w-40 bg-white border border-gray-200 shadow-lg">
-                    <NavLink to="/livres" className="block px-4 py-2 text-gray-700 hover:bg-gray-100">Tous les livres</NavLink>
-                    <NavLink to="/auteurs" className="block px-4 py-2 text-gray-700 hover:bg-gray-100">Auteurs</NavLink>
-                    <NavLink to="/genres" className="block px-4 py-2 text-gray-700 hover:bg-gray-100">Genres</NavLink>
+                  <div className="absolute left-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1">
+                    <NavLink to="/emprunter-livre" className="block px-4 py-2 text-[#155e75] hover:bg-gray-100">
+                      Emprunter un livre
+                    </NavLink>
+                    <NavLink to="/acheter-livre" className="block px-4 py-2 text-[#155e75] hover:bg-gray-100">
+                      Acheter un livre
+                    </NavLink>
                   </div>
                 )}
               </div>
 
-              {/* Menu Ajouter un livre avec sous-menu */}
-              <div className="ml-6 relative"
+              {/* Sous-menu Ajouter un livre */}
+              <div
+                className="relative"
                 onMouseEnter={handleAddBookMouseEnter}
                 onMouseLeave={handleAddBookMouseLeave}
               >
-                <button className="flex items-center text-gray-700 font-medium hover:text-blue-600">
-                  <span>Ajouter un Livre</span>
-                  <FaChevronDown className="ml-1" />
+                <button className="bg-white flex items-center text-[#155e75] hover:text-[#164e63] font-medium transition h-16 px-4">
+                  Ajouter un livre <FaChevronDown className="ml-1" />
                 </button>
                 {isAddBookOpen && (
-                  <div className="absolute z-10 left-0 w-40 bg-white border border-gray-200 shadow-lg">
-                    <NavLink to="/ajouter-livre" className="block px-4 py-2 text-gray-700 hover:bg-gray-100">Ajouter un livre</NavLink>
-                    <NavLink to="/mes-livres" className="block px-4 py-2 text-gray-700 hover:bg-gray-100">Mes livres</NavLink>
+                  <div className="absolute left-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1">
+                    <NavLink to="/ajouter-livre-vente" className="block px-4 py-2 text-[#155e75] hover:bg-gray-100">
+                      Pour vendre
+                    </NavLink>
+                    <NavLink to="/ajouter-livre-pret" className="block px-4 py-2 text-[#155e75] hover:bg-gray-100">
+                      Pour prêter
+                    </NavLink>
                   </div>
                 )}
               </div>
@@ -220,18 +236,17 @@ const Navbar = () => {
           </div>
         </div>
       </nav>
-
       {/* Modal d'authentification */}
       <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />
 
-      {/* Popup du panier */}
-      {isCartPopupOpen && (
-        <CartPopup 
-          cartItems={cart} 
-          totalPrice={totalPrice}
-          position={cartButtonPosition}
+     {/* Popup du panier */}
+     <CartPopup
+        isOpen={isCartPopupOpen}
+        onClose={() => setIsCartPopupOpen(false)}
+        cart={cart}
+        position={cartButtonPosition}
         />
-      )}
+      )
     </>
   );
 };

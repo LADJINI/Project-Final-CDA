@@ -1,116 +1,94 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+import axios from 'axios';
 import { useAuth } from '../../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
+// Schéma de validation avec Zod
+const schema = z.object({
+  nom: z.string().min(2, { message: "Le nom doit contenir au moins 2 caractères" }),
+  prenom: z.string().min(2, { message: "Le prénom doit contenir au moins 2 caractères" }),
+  email: z.string().email({ message: "Email invalide" }),
+  password: z.string().regex(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{12,45}$/, {
+    message: "Le mot de passe doit contenir entre 12 et 45 caractères, incluant au moins une majuscule, une minuscule, un chiffre et un caractère spécial"
+  }),
+  confirmPassword: z.string(),
+  sexe: z.enum(['homme', 'femme'], { message: "Veuillez sélectionner votre sexe" }),
+  dateNaissance: z.string().refine((date) => new Date(date) <= new Date(), {
+    message: "La date de naissance ne peut pas être dans le futur"
+  }),
+  telephone: z.string().regex(/^(\+33|0)[1-9](\d{2}){4}$/, {
+    message: "Numéro de téléphone invalide"
+  }),
+  adresse: z.string().min(5, { message: "L'adresse doit contenir au moins 5 caractères" }),
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "Les mots de passe ne correspondent pas",
+  path: ["confirmPassword"],
+});
 
 const RegisterForm = ({ onClose }) => {
-  const { signup } = useAuth(); // Récupération de la fonction signup depuis le contexte d'authentification
-  const [formData, setFormData] = useState({
-    nom: '',
-    prenom: '',
-    email: '',
-    password: '',
-    confirmPassword: ''
+  const navigate = useNavigate(); // Initialiser useNavigate
+  const { signup } = useAuth(); // Utilisation du contexte d'authentification
+  const { register, handleSubmit, formState: { errors } } = useForm({
+    resolver: zodResolver(schema)
   });
-  const [error, setError] = useState('');
 
-  // Gestion des changements dans les champs du formulaire
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
-  };
-
-  // Validation basique du formulaire et soumission des données
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const { nom, prenom, email, password, confirmPassword } = formData;
-
-    // Validation simple pour vérifier que les mots de passe correspondent
-    if (password !== confirmPassword) {
-      setError("Les mots de passe ne correspondent pas.");
-      return;
-    }
-
+  // Fonction pour gérer la soumission du formulaire d'inscription
+  const onSubmit = async (data) => {
     try {
-      // Simuler les données d'inscription (vous pouvez remplacer par un appel à une API)
-      const userData = {
-        token: 'dummy_token',  // Token fictif pour l'exemple
-        roles: ['user'],  // Rôle par défaut
-        nom,
-        prenom,
-        photo: 'default.jpg'  // Image par défaut (remplacer avec le vrai lien)
-      };
-
-      await signup(userData); // Inscrire l'utilisateur via le contexte
-      onClose();  // Fermer le modal après inscription réussie
+      const response = await axios.post('http://localhost:8086/api/auth/register', data);
+      console.log('Inscription réussie', response.data);
+      await signup(response.data); // Mettre à jour le contexte d'authentification
+      alert('Inscription réussie ! Vous pouvez maintenant vous connecter.');
+      navigate('/'); // Redirection vers la page d'accueil
+      onClose(); // Fermer le modal
     } catch (error) {
-      setError("Erreur lors de l'inscription. Veuillez réessayer.");
+      console.error('Erreur inscription', error.response ? error.response.data : error.message);
+      alert('Erreur lors de l\'inscription : ' + (error.response ? error.response.data : error.message));
     }
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      {error && <p className="text-red-500 mb-4">{error}</p>} {/* Affichage des erreurs */}
-      <div className="mb-4">
-        <label className="block text-gray-700">Nom</label>
-        <input
-          type="text"
-          name="nom"
-          value={formData.nom}
-          onChange={handleChange}
-          className="w-full p-2 border border-gray-300 rounded mt-1"
-          required
-        />
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 max-w-md mx-auto p-4 bg-gray-800 rounded-md shadow-lg">
+      <input {...register("nom")} placeholder="Nom" className="w-full px-3 py-2 border rounded bg-gray-700 text-white" />
+      {errors.nom && <p className="text-red-500 text-xs">{errors.nom.message}</p>}
+
+      <input {...register("prenom")} placeholder="Prénom" className="w-full px-3 py-2 border rounded bg-gray-700 text-white" />
+      {errors.prenom && <p className="text-red-500 text-xs">{errors.prenom.message}</p>}
+
+      <input {...register("email")} type="email" placeholder="Email" className="w-full px-3 py-2 border rounded bg-gray-700 text-white" />
+      {errors.email && <p className="text-red-500 text-xs">{errors.email.message}</p>}
+
+      <input {...register("password")} type="password" placeholder="Mot de passe" className="w-full px-3 py-2 border rounded bg-gray-700 text-white" />
+      {errors.password && <p className="text-red-500 text-xs">{errors.password.message}</p>}
+
+      <input {...register("confirmPassword")} type="password" placeholder="Confirmer le mot de passe" className="w-full px-3 py-2 border rounded bg-gray-700 text-white" />
+      {errors.confirmPassword && <p className="text-red-500 text-xs">{errors.confirmPassword.message}</p>}
+
+      <div className="flex space-x-4">
+        <label className="inline-flex items-center">
+          <input {...register("sexe")} type="radio" value="homme" className="form-radio text-blue-600" />
+          <span className="ml-2">Homme</span>
+        </label>
+        <label className="inline-flex items-center">
+          <input {...register("sexe")} type="radio" value="femme" className="form-radio text-blue-600" />
+          <span className="ml-2">Femme</span>
+        </label>
       </div>
-      <div className="mb-4">
-        <label className="block text-gray-700">Prénom</label>
-        <input
-          type="text"
-          name="prenom"
-          value={formData.prenom}
-          onChange={handleChange}
-          className="w-full p-2 border border-gray-300 rounded mt-1"
-          required
-        />
-      </div>
-      <div className="mb-4">
-        <label className="block text-gray-700">Email</label>
-        <input
-          type="email"
-          name="email"
-          value={formData.email}
-          onChange={handleChange}
-          className="w-full p-2 border border-gray-300 rounded mt-1"
-          required
-        />
-      </div>
-      <div className="mb-4">
-        <label className="block text-gray-700">Mot de passe</label>
-        <input
-          type="password"
-          name="password"
-          value={formData.password}
-          onChange={handleChange}
-          className="w-full p-2 border border-gray-300 rounded mt-1"
-          required
-        />
-      </div>
-      <div className="mb-4">
-        <label className="block text-gray-700">Confirmer le mot de passe</label>
-        <input
-          type="password"
-          name="confirmPassword"
-          value={formData.confirmPassword}
-          onChange={handleChange}
-          className="w-full p-2 border border-gray-300 rounded mt-1"
-          required
-        />
-      </div>
-      <button
-        type="submit"
-        className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
-      >
+      {errors.sexe && <p className="text-red-500 text-xs">{errors.sexe.message}</p>}
+
+      <input {...register("dateNaissance")} type="date" className="w-full px-3 py-2 border rounded bg-gray-700 text-white" />
+      {errors.dateNaissance && <p className="text-red-500 text-xs">{errors.dateNaissance.message}</p>}
+
+      <input {...register("telephone")} placeholder="Téléphone" className="w-full px-3 py-2 border rounded bg-gray-700 text-white" />
+      {errors.telephone && <p className="text-red-500 text-xs">{errors.telephone.message}</p>}
+
+      <input {...register("adresse")} placeholder="Adresse" className="w-full px-3 py-2 border rounded bg-gray-700 text-white" />
+      {errors.adresse && <p className="text-red-500 text-xs">{errors.adresse.message}</p>}
+
+      <button type="submit" className="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600">
         S'inscrire
       </button>
     </form>

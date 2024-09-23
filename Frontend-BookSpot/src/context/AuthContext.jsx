@@ -39,57 +39,26 @@ export const AuthProvider = ({ children }) => {
       }));
 
       // Mettre à jour l'état avec les informations de l'utilisateur
-      setUser({
-        token: userData.token,
-        roles: userData.roles,
-        nom: userData.nom,
-        prenom: userData.prenom,
-        photo: userData.photo,
-      });
-
-      navigate('/');  // Redirection vers la page d'accueil après la connexion réussie
+      setUser(userData);
+      navigate('/dashboard');  // Rediriger vers le tableau de bord après connexion
     } catch (error) {
-      console.error("Erreur lors de la connexion:", error);
-      alert("Une erreur est survenue lors de la connexion. Veuillez réessayer.");
+      console.error("Erreur lors de la connexion :", error);
     }
   };
 
   // Fonction pour s'inscrire
   const signup = async (userData) => {
-    try {
-      // Stocker les informations de l'utilisateur dans localStorage
-      localStorage.setItem('user', JSON.stringify({
-        token: userData.token,
-        roles: userData.roles,
-        nom: userData.nom,
-        prenom: userData.prenom,
-        photo: userData.photo,
-      }));
-
-      // Mettre à jour l'état avec les informations de l'utilisateur
-      setUser({
-        token: userData.token,
-        roles: userData.roles,
-        nom: userData.nom,
-        prenom: userData.prenom,
-        photo: userData.photo,
-      });
-
-      navigate('/');  // Redirection vers la page d'accueil après l'inscription réussie
-    } catch (error) {
-      console.error("Erreur lors de l'inscription:", error);
-      alert("Une erreur est survenue lors de l'inscription. Veuillez réessayer.");
-    }
+    await login(userData); // Se connecter directement après l'inscription
   };
 
   // Fonction pour se déconnecter
   const logout = () => {
-    setUser(null);  // Réinitialiser l'état de l'utilisateur
-    localStorage.removeItem('user');  // Supprimer les informations de l'utilisateur du stockage local
-    navigate('/');  // Redirection vers la page d'accueil après déconnexion
+    localStorage.removeItem('user');  // Supprimer les informations de l'utilisateur
+    setUser(null);  // Réinitialiser l'état utilisateur
+    navigate('/');  // Rediriger vers la page d'accueil
   };
 
-  // Valeurs fournies aux composants enfants
+  // Fournir les données et fonctions via le contexte
   return (
     <AuthContext.Provider value={{ user, login, signup, logout }}>
       {children}
