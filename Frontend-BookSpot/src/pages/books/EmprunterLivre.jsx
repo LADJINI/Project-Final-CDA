@@ -1,4 +1,3 @@
-// EmprunterLivre.jsx
 import React from 'react';
 import BookList from "../../components/books/BookList";
 import { useCart } from '../../context/useCart';
@@ -11,6 +10,11 @@ const EmprunterLivre = () => {
   const handleEmprunt = (livre) => {
     addToCart({ ...livre, type: 'emprunt' });
   };
+
+  // Vérification si booksToLend est un tableau
+  if (!Array.isArray(booksToLend)) {
+    return <div>Erreur : Impossible de charger les livres à prêter.</div>;
+  }
 
   return (
     <div>

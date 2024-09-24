@@ -27,7 +27,7 @@ const Checkout = () => {
 
   // Fonction pour calculer le prix total d'un article
   const calculateItemTotal = (item) => {
-    const price = parseFloat(item.prixUnitaire);
+    const price = parseFloat(item.price); // Utilisation de 'price' au lieu de 'prixUnitaire'
     return (price * item.quantity).toFixed(2);
   };
 
@@ -38,12 +38,12 @@ const Checkout = () => {
         <h2 className="text-xl font-semibold mb-2">Résumé de la commande</h2>
         {cart.map(item => (
           <div key={item.id} className="flex justify-between mb-2">
-            <span>{item.titre} (x{item.quantity})</span>
+            <span>{item.title} (x{item.quantity})</span>
             <span>{calculateItemTotal(item)}€</span>
           </div>
         ))}
         <div className="font-bold mt-4 text-lg">
-          Total à payer : {getTotalPrice().toFixed(2)}€
+          Total à payer : {getTotalPrice().toFixed(2)}€{/* Utilisation de getTotalPrice */}
         </div>
       </div>
       <form onSubmit={handleSubmit} className="max-w-md">
@@ -99,7 +99,7 @@ const Checkout = () => {
           </div>
         </div>
         <button type="submit" className="w-full bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600">
-          Payer {getTotalPrice().toFixed(2)}€
+          Payer {getTotalPrice().toFixed(2)}€{/* Utilisation de getTotalPrice */}
         </button>
       </form>
     </div>

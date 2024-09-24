@@ -1,4 +1,3 @@
-// CartPopup.jsx
 import React from 'react';
 import { useCart } from '/src/context/CartContext';
 import { useNavigate } from 'react-router-dom';
@@ -30,8 +29,10 @@ const CartPopup = ({ isOpen, onClose, position }) => {
         <div>
           <p className="font-semibold">{item.titre}</p>
           <p>Quantité: {item.quantity}</p>
-          <p>Prix unitaire: {item.prixUnitaire}€</p>
-          <p>Total: {(item.prixUnitaire * item.quantity).toFixed(2)}€</p>
+          {/* Utilisation de 'price' au lieu de 'prixUnitaire' */}
+          <p>Prix unitaire: {item.price}€</p> 
+          {/* Calcul du total avec 'price' */}
+          <p>Total: {(item.price * item.quantity).toFixed(2)}€</p> 
         </div>
           <button onClick={() => removeFromCart(item.id)} className="text-red-500">
             Supprimer

@@ -1,6 +1,11 @@
 import React from 'react';
 import AddBookForm from '../../components/books/AddBookForm';
 
+/**
+ * Composant pour ajouter un livre à vendre.
+ * 
+ * @returns {JSX.Element} Page avec formulaire d'ajout de livre à vendre.
+ */
 const AjouterLivreVente = () => {
   return (
     <div>
