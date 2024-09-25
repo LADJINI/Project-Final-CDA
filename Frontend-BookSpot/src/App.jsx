@@ -10,7 +10,7 @@ import Footer from './components/layout/Footer';
 import CookieConsent from "./components/common/CookieConsent";
 
 // Page Components
-import Home from './pages/Home';
+import HomePage from './pages/HomePage';
 import Panier from './pages/Panier';
 import NotFound from './pages/NotFound';
 import AjouterLivreVente from './pages/books/AjouterLivreVente';
@@ -31,7 +31,7 @@ function App() {
             
             <main className="container mx-auto mt-4">
               <Routes>
-                <Route path="/" element={<Home />} />
+                <Route path="/" element={<HomePage />} />
                 <Route path="/panier" element={<Panier />} />
                 <Route path="/ajouter-livre-vente" element={<AjouterLivreVente />} />
                 <Route path="/acheter-livre" element={<AcheterLivre />} />

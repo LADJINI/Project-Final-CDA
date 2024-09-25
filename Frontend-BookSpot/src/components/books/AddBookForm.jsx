@@ -57,7 +57,7 @@ const AddBookForm = ({ type }) => {
     const bookWithTypeAndId = {
       ...bookData,
       id: Date.now().toString(), // Génération d'un ID unique
-      type: type === 'vente' ? 'achat' : 'emprunt',
+      type: type === 'vente' ? 'vente' : 'emprunt',
       price: parseFloat(bookData.price) // Conversion du prix
     };
 

@@ -138,3 +138,34 @@ button:focus-visible {
 .search-input:focus::placeholder {
   color: #6B7280;
 }
+/* home  page */
+.homepage {
+  padding: 20px;
+}
+
+.section {
+  margin-bottom: 40px;
+}
+
+.section-title {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 10px;
+  text-decoration: none;
+  color: #000;
+}
+
+.book-card {
+  padding: 10px;
+  text-align: center;
+}
+
+.book-card img {
+  max-width: 100%;
+  height: auto;
+}
+
+.book-card h3 {
+  margin-top: 10px;
+  font-size: 16px;
+}
