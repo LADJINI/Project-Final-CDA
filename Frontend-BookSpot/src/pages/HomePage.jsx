@@ -1,45 +1,56 @@
 import React, { useEffect, useState } from 'react';
-import { getLatestBooksForSale, getLatestBooksForBorrow } from '../services/bookService'; // Assure que les deux fonctions sont importées
-import BookCarousel from '../components/books/BookCarousel'; // Le composant carrousel
+import { getLatestBooksForSale, getLatestBooksForBorrow } from '../services/bookService'; // Importez les services corrects
+import BookCarousel from '../components/books/BookCarousel'; // Assurez-vous que ce chemin est correct
+import { useNavigate } from 'react-router-dom'; // Importer useNavigate pour la navigation
 
 const HomePage = () => {
   const [booksForSale, setBooksForSale] = useState([]);
-  const [booksForBorrow, setBooksForBorrow] = useState([]); // Ajout d'un état distinct pour les livres à emprunter
+  const [booksForBorrow, setBooksForBorrow] = useState([]);
+  const navigate = useNavigate(); // Pour la navigation vers d'autres pages
 
   useEffect(() => {
-    // Fonction pour récupérer les derniers livres à vendre
+    // Récupérer les derniers livres mis en vente
     const fetchLatestBooksForSale = async () => {
-      const latestBooksForSale = await getLatestBooksForSale();
-      setBooksForSale(latestBooksForSale);
+      const latestBooks = await getLatestBooksForSale();
+      setBooksForSale(latestBooks);
     };
 
-    // Fonction pour récupérer les derniers livres à emprunter
+    // Récupérer les derniers livres mis à emprunter
     const fetchLatestBooksForBorrow = async () => {
-      const latestBooksForBorrow = await getLatestBooksForBorrow();
-      setBooksForBorrow(latestBooksForBorrow);
+      const latestBooks = await getLatestBooksForBorrow();
+      setBooksForBorrow(latestBooks);
     };
 
-    // Appel des deux fonctions dans useEffect
     fetchLatestBooksForSale();
     fetchLatestBooksForBorrow();
-  }, []); // Ce useEffect s'exécute une seule fois au montage du composant
+  }, []);
+
+  // Fonction pour naviguer vers la page "Acheter un livre"
+  const handleNavigateToBuy = () => {
+    navigate('/acheter-livre');
+  };
+
+  // Fonction pour naviguer vers la page "Emprunter un livre"
+  const handleNavigateToBorrow = () => {
+    navigate('/emprunter-livre');
+  };
 
   return (
     <div className="homepage">
-      {/* Carrousel des livres à vendre */}
-      <div className="books-for-sale">
-        <h2 onClick={() => window.location.href = '/acheter-livre'}>
+      {/* Bloc pour acheter des livres */}
+      <div className="section">
+        <h2 onClick={handleNavigateToBuy} style={{ cursor: 'pointer', color: 'blue' }}>
           Choisissez votre livre à acheter
         </h2>
-        <BookCarousel books={booksForSale} /> {/* Utilise seulement les livres à vendre */}
+        <BookCarousel books={booksForSale} />
       </div>
 
-      {/* Carrousel des livres à emprunter */}
-      <div className="books-for-borrow">
-        <h2 onClick={() => window.location.href = '/emprunter-livre'}>
+      {/* Bloc pour emprunter des livres */}
+      <div className="section">
+        <h2 onClick={handleNavigateToBorrow} style={{ cursor: 'pointer', color: 'blue' }}>
           Choisissez un livre à emprunter
         </h2>
-        <BookCarousel books={booksForBorrow} /> {/* Utilise seulement les livres à emprunter */}
+        <BookCarousel books={booksForBorrow} />
       </div>
     </div>
   );
