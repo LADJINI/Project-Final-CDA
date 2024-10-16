@@ -225,7 +225,7 @@ const Navbar = () => {
                       <button 
                         key={lang.code} 
                         onClick={() => handleLanguageChange(lang)} // Changer la langue
-                        className="flex items-center block px-3 py-1 text-sm text-[#155e75] hover:bg-gray-100" // Réduction de la taille du texte
+                        className="flex items-center px-3 py-1 text-sm text-[#155e75] hover:bg-gray-100" // Réduction de la taille du texte
                       >
                         <img src={lang.flag} alt={lang.label} className="h-4 w-4 mr-2" />
                         {lang.label}

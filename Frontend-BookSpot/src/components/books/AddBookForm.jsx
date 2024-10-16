@@ -1,21 +1,21 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { useNavigate } from 'react-router-dom';
-
 import { useBooks } from "../../context/BookContext";
 import axios from 'axios';
 
 /**
- * Composant AddBookForm pour ajouter un livre à la liste.
+ * Composant AddBookForm pour ajouter un livre avec une image.
  * @param {Object} props - Les propriétés du composant.
  * @param {string} props.type - Type d'action ('vente' ou 'prêt').
  * @returns {JSX.Element} Le rendu du composant AddBookForm.
  */
 const AddBookForm = ({ type }) => {
   const { addBookToSell, addBookToLend } = useBooks();
-
+  
+  // Définition de l'état initial pour le formulaire et les images
   const initialState = {
-    id: '',
+	id: '',
     title: '',
     author: '',
     availability: true,
@@ -32,8 +32,8 @@ const AddBookForm = ({ type }) => {
 
   const [bookData, setBookData] = useState(initialState);
   const [error, setError] = useState('');
+  const [selectedImage, setSelectedImage] = useState(null); // État pour l'image
   const navigate = useNavigate(); // Utiliser le hook pour la navigation
-
 
   /**
    * Gère les changements des champs du formulaire.
@@ -48,37 +48,55 @@ const AddBookForm = ({ type }) => {
   };
 
   /**
+   * Gère le changement de fichier pour l'image.
+   * @param {Object} e - L'événement de changement de fichier.
+   */
+  const handleImageChange = (e) => {
+    setSelectedImage(e.target.files[0]); // Stocke le fichier image sélectionné
+  };
+
+  /**
    * Gère la soumission du formulaire pour ajouter un livre.
    * @param {Object} e - L'événement de soumission.
    */
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    const bookWithTypeAndId = {
-      ...bookData,
-      id: Date.now().toString(), // Génération d'un ID unique
-      type: type === 'vente' ? 'vente' : 'emprunt',
-      price: parseFloat(bookData.price) // Conversion du prix
-    };
+    const formData = new FormData();
+    
+    // Ajout des données du livre dans FormData
+    for (const key in bookData) {
+      formData.append(key, bookData[key]);
+    }
+
+    // Ajout de l'image dans FormData
+    if (selectedImage) {
+      formData.append('image', selectedImage); // Ajouter le fichier image
+    }
 
     try {
-      // Envoi de la requête POST au backend
-      const response = await axios.post('http://localhost:8086/api/books', bookWithTypeAndId);
+      // Envoi de la requête POST au backend avec FormData
+      const response = await axios.post('http://localhost:8086/api/books', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        }
+      });
       if (response.status === 201) {
         // Ajout du livre à la liste appropriée
         if (type === 'vente') {
-          addBookToSell(bookWithTypeAndId);
+          addBookToSell(response.data);
         } else if (type === 'prêt') {
-          addBookToLend(bookWithTypeAndId);
+          addBookToLend(response.data);
         }
         
         // Réinitialisation du formulaire
         setBookData(initialState);
+        setSelectedImage(null); // Réinitialiser l'image sélectionnée
         setError('');
-        console.log(`Livre ajouté pour ${type}:`, bookWithTypeAndId);
+        console.log(`Livre ajouté pour ${type}:`, response.data);
 
-         // Redirection vers la page d'accueil après une soumission réussie
-      navigate('/');  // Redirige vers la page d'accueil
+        // Redirection vers la page d'accueil après une soumission réussie
+        navigate('/');  // Redirige vers la page d'accueil
       }
     } catch (e) {
       setError('Erreur lors de l\'ajout du livre.');
@@ -89,7 +107,7 @@ const AddBookForm = ({ type }) => {
   return (
     <form onSubmit={handleSubmit} className="space-y-4 max-w-2xl mx-auto">
       <div className="grid grid-cols-1 gap-4">
-        {/* Champ pour le titre du livre */}
+       {/* Champ pour le titre du livre */}
         <div>
           <label htmlFor="title" className="block text-sm font-medium text-gray-700">Titre</label>
           <input
@@ -228,6 +246,24 @@ const AddBookForm = ({ type }) => {
             rows="4"
             className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500"
           ></textarea>
+        </div>
+
+        {/* Champ pour télécharger une image */}
+        <div>
+          <label htmlFor="image" className="block text-sm font-medium text-gray-700">Image du livre</label>
+          <input
+            type="file"
+            name="image"
+            id="image"
+            accept="image/*"
+            onChange={handleImageChange}
+            className="mt-1 block w-full text-sm text-gray-500
+              file:mr-4 file:py-2 file:px-4
+              file:rounded file:border-0
+              file:text-sm file:font-semibold
+              file:bg-blue-500 file:text-white
+              hover:file:bg-blue-600"
+          />
         </div>
       </div>
 
