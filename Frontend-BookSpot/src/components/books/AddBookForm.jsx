@@ -1,21 +1,18 @@
 import React, { useState } from 'react';
-import PropTypes from 'prop-types';
-import { useNavigate } from 'react-router-dom';
-import { useBooks } from "../../context/BookContext";
+import PropTypes from 'prop-types'; // Importation de PropTypes pour la validation des props
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
+import { useBooks } from '../../context/BookContext'; // Importation du contexte des livres
 
 /**
- * Composant AddBookForm pour ajouter un livre avec une image.
+ * Composant de formulaire pour ajouter un livre.
  * @param {Object} props - Les propriétés du composant.
- * @param {string} props.type - Type d'action ('vente' ou 'prêt').
- * @returns {JSX.Element} Le rendu du composant AddBookForm.
+ * @param {string} props.type - Le type d'ajout ('vente' ou 'prêt').
+ * @returns {JSX.Element} Formulaire pour ajouter un livre.
  */
 const AddBookForm = ({ type }) => {
-  const { addBookToSell, addBookToLend } = useBooks();
-  
-  // Définition de l'état initial pour le formulaire et les images
+  const { addBookToSell, addBookToLend } = useBooks(); // Récupération des fonctions pour ajouter un livre
   const initialState = {
-	id: '',
     title: '',
     author: '',
     availability: true,
@@ -25,262 +22,167 @@ const AddBookForm = ({ type }) => {
     numberOfPages: '',
     price: '',
     publicationDate: '',
-    published: true,
     publisher: '',
-    quantityAvailable: ''
+    quantityAvailable: '',
+    imageId: '', // Ajout de l'imageId pour gérer l'upload
   };
 
+  // États locaux pour gérer les données du livre et l'image sélectionnée
   const [bookData, setBookData] = useState(initialState);
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
   const [error, setError] = useState('');
-  const [selectedImage, setSelectedImage] = useState(null); // État pour l'image
-  const navigate = useNavigate(); // Utiliser le hook pour la navigation
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const navigate = useNavigate(); // Hook pour la navigation
 
   /**
-   * Gère les changements des champs du formulaire.
-   * @param {Object} e - L'événement de changement.
+   * Gère les changements dans les champs du formulaire.
+   * @param {React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>} e - Événement de changement
    */
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setBookData(prevData => ({
+    setBookData((prevData) => ({
       ...prevData,
-      [name]: type === 'checkbox' ? checked : value
+      [name]: type === 'checkbox' ? checked : value, // Gérer les cases à cocher
     }));
   };
 
   /**
-   * Gère le changement de fichier pour l'image.
-   * @param {Object} e - L'événement de changement de fichier.
+   * Gère la sélection de l'image.
+   * @param {React.ChangeEvent<HTMLInputElement>} e - Événement de changement
    */
   const handleImageChange = (e) => {
-    setSelectedImage(e.target.files[0]); // Stocke le fichier image sélectionné
+    const file = e.target.files[0];
+    if (file) {
+      setSelectedImage(file);
+      setImagePreview(URL.createObjectURL(file)); // Crée un aperçu de l'image sélectionnée
+    }
   };
 
   /**
-   * Gère la soumission du formulaire pour ajouter un livre.
-   * @param {Object} e - L'événement de soumission.
+   * Gère la soumission du formulaire.
+   * @param {React.FormEvent<HTMLFormElement>} e - Événement de soumission
    */
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    const formData = new FormData();
-    
-    // Ajout des données du livre dans FormData
-    for (const key in bookData) {
-      formData.append(key, bookData[key]);
-    }
+    setIsSubmitting(true); // Démarre l'état de soumission
 
-    // Ajout de l'image dans FormData
+    const bookWithType = {
+      ...bookData,
+      type: type === 'vente' ? 'vente' : 'emprunt',
+      price: parseFloat(bookData.price) || 0, // Conversion du prix avec une valeur par défaut
+    };
+
+    // Si une image est sélectionnée, on l'ajoute
     if (selectedImage) {
-      formData.append('image', selectedImage); // Ajouter le fichier image
-    }
+      const formData = new FormData(); // Crée un nouvel objet FormData
+      formData.append('book', new Blob([JSON.stringify(bookWithType)], { type: 'application/json' })); // Ajoute le DTO du livre
+      formData.append('image', selectedImage); // Ajoute l'image au FormData
 
-    try {
-      // Envoi de la requête POST au backend avec FormData
-      const response = await axios.post('http://localhost:8086/api/books', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        }
-      });
-      if (response.status === 201) {
-        // Ajout du livre à la liste appropriée
-        if (type === 'vente') {
-          addBookToSell(response.data);
-        } else if (type === 'prêt') {
-          addBookToLend(response.data);
-        }
-        
-        // Réinitialisation du formulaire
-        setBookData(initialState);
-        setSelectedImage(null); // Réinitialiser l'image sélectionnée
-        setError('');
-        console.log(`Livre ajouté pour ${type}:`, response.data);
+      try {
+        const response = await axios.post('http://localhost:8086/api/books', formData, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        });
 
-        // Redirection vers la page d'accueil après une soumission réussie
-        navigate('/');  // Redirige vers la page d'accueil
+        if (response.status === 201) {
+          // Ajout du livre à la liste appropriée dans le contexte
+          const addedBook = response.data; // Obtenez les données du livre ajouté
+          if (type === 'vente') {
+            addBookToSell(addedBook);
+          } else if (type === 'prêt') {
+            addBookToLend(addedBook);
+          }
+
+          // Réinitialisation du formulaire
+          setBookData(initialState);
+          setSelectedImage(null);
+          setImagePreview(null);
+          setError('');
+          console.log(`Livre ajouté pour ${type}:`, addedBook);
+
+          // Redirection vers la page d'accueil après une soumission réussie
+          navigate('/'); // Redirige vers la page d'accueil
+        }
+      } catch (e) {
+        setError('Erreur lors de l\'ajout du livre.');
+        console.error(e); // Pour le débogage
+      } finally {
+        setIsSubmitting(false); // Arrête l'état de soumission
       }
-    } catch (e) {
-      setError('Erreur lors de l\'ajout du livre.');
-      console.error(e); // Pour le débogage
+    } else {
+      setError('Veuillez sélectionner une image.'); // Avertit si aucune image n'est sélectionnée
+      setIsSubmitting(false);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 max-w-2xl mx-auto">
-      <div className="grid grid-cols-1 gap-4">
-       {/* Champ pour le titre du livre */}
+    <div>
+      <h1>Ajouter un Livre</h1>
+      <form onSubmit={handleSubmit}>
         <div>
-          <label htmlFor="title" className="block text-sm font-medium text-gray-700">Titre</label>
-          <input
-            type="text"
-            name="title"
-            id="title"
-            value={bookData.title}
-            onChange={handleChange}
-            required
-            className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500"
-          />
+          <label>Titre:</label>
+          <input type="text" name="title" value={bookData.title} onChange={handleChange} required />
         </div>
-
-        {/* Champ pour l'auteur du livre */}
         <div>
-          <label htmlFor="author" className="block text-sm font-medium text-gray-700">Auteur</label>
-          <input
-            type="text"
-            name="author"
-            id="author"
-            value={bookData.author}
-            onChange={handleChange}
-            required
-            className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500"
-          />
+          <label>Auteur:</label>
+          <input type="text" name="author" value={bookData.author} onChange={handleChange} required />
         </div>
-
-        {/* Champ pour l'ISBN */}
         <div>
-          <label htmlFor="isbn" className="block text-sm font-medium text-gray-700">ISBN</label>
-          <input
-            type="text"
-            name="isbn"
-            id="isbn"
-            value={bookData.isbn}
-            onChange={handleChange}
-            required
-            className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500"
-          />
+          <label>Disponibilité:</label>
+          <input type="checkbox" name="availability" checked={bookData.availability} onChange={handleChange} />
         </div>
-
-        {/* Champ pour le prix */}
         <div>
-          <label htmlFor="price" className="block text-sm font-medium text-gray-700">Prix</label>
-          <input
-            type="number"
-            name="price"
-            id="price"
-            value={bookData.price}
-            onChange={handleChange}
-            required
-            className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500"
-          />
-        </div>
-
-        {/* Champ pour l'état du livre */}
-        <div>
-          <label htmlFor="bookCondition" className="block text-sm font-medium text-gray-700">État</label>
-          <select
-            name="bookCondition"
-            id="bookCondition"
-            value={bookData.bookCondition}
-            onChange={handleChange}
-            className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500"
-          >
+          <label>Condition:</label>
+          <select name="bookCondition" value={bookData.bookCondition} onChange={handleChange}>
             <option value="neuf">Neuf</option>
-            <option value="très bon état">Très bon état</option>
-            <option value="bon état">Bon état</option>
-            <option value="état moyen">État moyen</option>
-            <option value="mauvais état">Mauvais état</option>
+            <option value="occasion">Occasion</option>
           </select>
         </div>
-
-        {/* Champ pour le nombre de pages */}
         <div>
-          <label htmlFor="numberOfPages" className="block text-sm font-medium text-gray-700">Nombre de pages</label>
-          <input
-            type="number"
-            name="numberOfPages"
-            id="numberOfPages"
-            value={bookData.numberOfPages}
-            onChange={handleChange}
-            required
-            className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500"
-          />
+          <label>Description:</label>
+          <textarea name="description" value={bookData.description} onChange={handleChange} />
         </div>
-
-        {/* Champ pour le nombre de livres disponibles */}
         <div>
-          <label htmlFor="quantityAvailable" className="block text-sm font-medium text-gray-700">Quantité disponible</label>
-          <input
-            type="number"
-            name="quantityAvailable"
-            id="quantityAvailable"
-            value={bookData.quantityAvailable}
-            onChange={handleChange}
-            required
-            className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500"
-          />
+          <label>ISBN:</label>
+          <input type="text" name="isbn" value={bookData.isbn} onChange={handleChange} />
         </div>
-
-        {/* Champ pour le nom de l'éditeur */}
         <div>
-          <label htmlFor="publisher" className="block text-sm font-medium text-gray-700">Éditeur</label>
-          <input
-            type="text"
-            name="publisher"
-            id="publisher"
-            value={bookData.publisher}
-            onChange={handleChange}
-            className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500"
-          />
+          <label>Nombre de pages:</label>
+          <input type="number" name="numberOfPages" value={bookData.numberOfPages} onChange={handleChange} />
         </div>
-
-        {/* Champ pour la date de publication */}
         <div>
-          <label htmlFor="publicationDate" className="block text-sm font-medium text-gray-700">Date de publication</label>
-          <input
-            type="date"
-            name="publicationDate"
-            id="publicationDate"
-            value={bookData.publicationDate}
-            onChange={handleChange}
-            className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500"
-          />
+          <label>Prix:</label>
+          <input type="number" name="price" value={bookData.price} onChange={handleChange} />
         </div>
-
-        {/* Champ pour la description */}
         <div>
-          <label htmlFor="description" className="block text-sm font-medium text-gray-700">Description</label>
-          <textarea
-            name="description"
-            id="description"
-            value={bookData.description}
-            onChange={handleChange}
-            rows="4"
-            className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500"
-          ></textarea>
+          <label>Date de publication:</label>
+          <input type="date" name="publicationDate" value={bookData.publicationDate} onChange={handleChange} />
         </div>
-
-        {/* Champ pour télécharger une image */}
         <div>
-          <label htmlFor="image" className="block text-sm font-medium text-gray-700">Image du livre</label>
-          <input
-            type="file"
-            name="image"
-            id="image"
-            accept="image/*"
-            onChange={handleImageChange}
-            className="mt-1 block w-full text-sm text-gray-500
-              file:mr-4 file:py-2 file:px-4
-              file:rounded file:border-0
-              file:text-sm file:font-semibold
-              file:bg-blue-500 file:text-white
-              hover:file:bg-blue-600"
-          />
+          <label>Éditeur:</label>
+          <input type="text" name="publisher" value={bookData.publisher} onChange={handleChange} />
         </div>
-      </div>
-
-      {error && <p className="text-red-600">{error}</p>}
-      <button
-        type="submit"
-        className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition duration-300"
-      >
-        Ajouter le livre
-      </button>
-    </form>
+        <div>
+          <label>Quantité disponible:</label>
+          <input type="number" name="quantityAvailable" value={bookData.quantityAvailable} onChange={handleChange} />
+        </div>
+        <div>
+          <label>Image:</label>
+          <input type="file" accept="image/*" onChange={handleImageChange} required />
+          {imagePreview && <img src={imagePreview} alt="Aperçu" width="100" />} {/* Affiche l'aperçu de l'image */}
+        </div>
+        {error && <p style={{ color: 'red' }}>{error}</p>} {/* Affiche l'erreur s'il y en a une */}
+        <button type="submit" disabled={isSubmitting}>
+          {isSubmitting ? 'Ajout en cours...' : 'Ajouter le livre'}
+        </button>
+      </form>
+    </div>
   );
 };
 
-// Définition des types de propriétés pour le composant AddBookForm
+// Définition des PropTypes
 AddBookForm.propTypes = {
-  type: PropTypes.oneOf(['vente', 'prêt']).isRequired,
+  type: PropTypes.oneOf(['vente', 'prêt']).isRequired, // type doit être soit 'vente' soit 'prêt'
 };
 
 export default AddBookForm;
