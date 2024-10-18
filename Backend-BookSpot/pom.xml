@@ -15,11 +15,13 @@
 	<artifactId>rest</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>rest</name>
-	<description>BackendBookSpot_V6</description>
+	<description>Backend-BookSpot</description>
 
 	<properties>
 		<java.version>17</java.version>
+		
 	</properties>
+	
 
 	<dependencies>
 		<!-- Spring Data JPA -->
@@ -40,6 +42,32 @@
 			<artifactId>mysql-connector-j</artifactId>
 			<scope>runtime</scope>
 		</dependency>
+			<!-- MongoDB (Spring Data) -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-mongodb</artifactId>
+		</dependency>
+
+		<dependency>
+    <groupId>org.mongodb</groupId>
+    <artifactId>mongodb-driver-sync</artifactId>
+    <version>4.9.1</version> <!-- Assurez-vous que cette version est la même que celle de mongodb-driver-core -->
+</dependency>
+<dependency>
+    <groupId>org.mongodb</groupId>
+    <artifactId>mongodb-driver-core</artifactId>
+    <version>4.9.1</version> <!-- Même version que mongodb-driver-sync -->
+</dependency>
+
+
+  <dependency>
+    <groupId>org.modelmapper</groupId>
+    <artifactId>modelmapper</artifactId>
+    <version>3.1.0</version> <!-- Assurez-vous de vérifier la dernière version -->
+</dependency>
+
+
+
 
 		<!-- Lombok -->
 		<dependency>

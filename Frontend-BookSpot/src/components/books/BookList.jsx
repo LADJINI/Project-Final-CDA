@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types'; // Importation de PropTypes pour la validation des props
 import { useCart } from "../../context/useCart";
 
 /**
@@ -20,10 +21,16 @@ const BookList = ({ books, type }) => {
     addToCart({ ...book, type });
   };
 
+  /**
+   * Génère l'URL de l'image du livre à partir de son ID.
+   * @param {string} imageId - L'identifiant de l'image.
+   * @returns {string} L'URL de l'image.
+   */
   const getImageUrl = (imageId) => {
     return `http://localhost:8086/api/imageFile/${imageId}`; // URL pour récupérer l'image
   };
 
+  // Vérifie s'il y a des livres à afficher
   if (books.length === 0) {
     return <p>Aucun livre disponible pour le moment.</p>;
   }
@@ -51,19 +58,37 @@ const BookList = ({ books, type }) => {
               {type === 'achat' ? 'Acheter' : 'Emprunter'}
             </button>
           </div>
- {/* Image du livre */}
+          {/* Image du livre */}
           {book.imageId ? (
             <img 
               src={getImageUrl(book.imageId)} 
-              className="ml-4 w-48 h-72 object-cover rounded-md shadow-sm" // Augmentation de la taille de l'image
+              className="ml-4 w-48 h-72 object-cover rounded-md shadow-sm"
             />
           ) : (
-            <p className="text-gray-3600 mb-2">Image non disponible</p>
+            <p className="text-gray-600 mb-2">Image non disponible</p>
           )}
         </div>
       ))}
     </div>
   );
+};
+
+// Définition des PropTypes pour le composant BookList
+BookList.propTypes = {
+  books: PropTypes.arrayOf(PropTypes.shape({
+    id: PropTypes.string.isRequired,
+    title: PropTypes.string.isRequired,
+    author: PropTypes.string.isRequired,
+    isbn: PropTypes.string,
+    bookCondition: PropTypes.string,
+    numberOfPages: PropTypes.number,
+    publisher: PropTypes.string,
+    publicationDate: PropTypes.string,
+    quantityAvailable: PropTypes.number,
+    price: PropTypes.number.isRequired,
+    imageId: PropTypes.string,
+  })).isRequired,
+  type: PropTypes.oneOf(['achat', 'emprunt']).isRequired,
 };
 
 export default BookList;

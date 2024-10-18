@@ -1,7 +1,15 @@
 package fr.doranco.rest.config;
 
+import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.gridfs.GridFSBucket;
+import com.mongodb.client.gridfs.GridFSBuckets;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.mongodb.MongoDatabaseFactory;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.SimpleMongoClientDatabaseFactory;
+import org.springframework.data.mongodb.gridfs.GridFsTemplate;
+
 import org.springframework.context.annotation.Lazy;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -22,6 +30,7 @@ import fr.doranco.rest.security.JwtService;
 
 import java.util.Arrays;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -68,6 +77,17 @@ public class SecurityConfig {
         source.registerCorsConfiguration("/**", configuration);
         return source;
     }
+    
+    /**
+     * Crée un bean GridFSBucket pour interagir avec MongoDB GridFS.
+     * @param mongoDatabaseFactory Factory pour créer la base de données Mongo.
+     * @return GridFSBucket pour stocker et récupérer des fichiers.
+     */
+    @Bean
+    public GridFSBucket getGridFSBucket(MongoDatabaseFactory mongoDatabaseFactory) {
+        return GridFSBuckets.create(mongoDatabaseFactory.getMongoDatabase());
+    }
+  
 
     /**
      * Configuration principale de la sécurité HTTP.
@@ -85,6 +105,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/users/**", "/api/addUser").permitAll()
                 .requestMatchers("/api/books/**", "/api/books").permitAll()
                 .requestMatchers("/api/roles/**").permitAll()
+                .requestMatchers("/api/imageFile/**").permitAll()
                 .anyRequest().authenticated()  // Toutes les autres routes nécessitent une authentification
             )
             .exceptionHandling(exceptions -> exceptions
@@ -137,6 +158,14 @@ public class SecurityConfig {
         return authProvider;
     }
     
-
+    // Ajout du bean MongoDatabase
+    @Bean
+    public MongoDatabase mongoDatabase(MongoDatabaseFactory mongoDatabaseFactory) {
+        return mongoDatabaseFactory.getMongoDatabase();
+    }
+    @Bean
+    public ModelMapper modelMapper() {
+        return new ModelMapper();
+    }
 
 }

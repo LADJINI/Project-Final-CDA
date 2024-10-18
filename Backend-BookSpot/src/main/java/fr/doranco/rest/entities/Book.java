@@ -60,6 +60,9 @@ public class Book {
     @Column(name = "publication", columnDefinition = "BOOLEAN DEFAULT false")
     private Boolean published;
     
+    @Column(name = "image_id")
+    private String imageId ;
+    
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
