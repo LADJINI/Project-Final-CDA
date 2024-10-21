@@ -24,7 +24,7 @@ const AddBookForm = ({ type }) => {
     publicationDate: '',
     publisher: '',
     quantityAvailable: '',
-    imageId: '', // Ajout de l'imageId pour gérer l'upload
+    imageId: '', // Ajout de l'imageId pour gérer l'upload (téléchargement)
   };
 
   // États locaux pour gérer les données du livre et l'image sélectionnée
