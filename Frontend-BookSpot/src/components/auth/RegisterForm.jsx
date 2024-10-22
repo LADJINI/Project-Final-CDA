@@ -1,12 +1,14 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import axios from 'axios';
+import axios from "axios"; // Ligne correcte
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
-// Schéma de validation avec Zod
+/**
+ * Schéma de validation pour le formulaire d'inscription.
+ */
 const schema = z.object({
   nom: z.string().min(2, { message: "Le nom doit contenir au moins 2 caractères" }),
   prenom: z.string().min(2, { message: "Le prénom doit contenir au moins 2 caractères" }),
@@ -29,18 +31,21 @@ const schema = z.object({
 });
 
 const RegisterForm = ({ onClose }) => {
-  const navigate = useNavigate(); // Initialiser useNavigate
-  const { signup } = useAuth(); // Utilisation du contexte d'authentification
+  const navigate = useNavigate();
+  const { signup } = useAuth();
   const { register, handleSubmit, formState: { errors } } = useForm({
-    resolver: zodResolver(schema)
+    resolver: zodResolver(schema),
   });
 
-  // Fonction pour gérer la soumission du formulaire d'inscription
+  /**
+   * Gère la soumission du formulaire d'inscription.
+   * @param {Object} data - Les données du formulaire.
+   */
   const onSubmit = async (data) => {
     try {
       const response = await axios.post('http://localhost:8086/api/auth/register', data);
       console.log('Inscription réussie', response.data);
-      await signup(response.data); // Mettre à jour le contexte d'authentification
+      await signup(response.data);
       alert('Inscription réussie ! Vous pouvez maintenant vous connecter.');
       navigate('/'); // Redirection vers la page d'accueil
       onClose(); // Fermer le modal
@@ -73,7 +78,7 @@ const RegisterForm = ({ onClose }) => {
           <span className="ml-2">Homme</span>
         </label>
         <label className="inline-flex items-center">
-          <input {...register("sexe")} type="radio" value="femme" className="form-radio text-blue-600" />
+          <input {...register("sexe")} type="radio" value ="femme" className="form-radio text-blue-600" />
           <span className="ml-2">Femme</span>
         </label>
       </div>

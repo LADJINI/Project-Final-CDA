@@ -1,33 +1,37 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import axios from 'axios';
-import { useAuth } from '../../context/AuthContext'; // Assurez-vous d'importer le contexte d'authentification
+import { useAuth } from '../../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
-// Schéma de validation avec Zod
+/**
+ * Schéma de validation pour le formulaire de connexion.
+ */
 const schema = z.object({
   email: z.string().email({ message: "Email invalide" }),
   password: z.string().min(12, { message: "Le mot de passe doit contenir au moins 12 caractères" }),
 });
 
 const LoginForm = ({ onClose }) => {
-  const { login } = useAuth(); // Utilisation du contexte d'authentification
+  const navigate = useNavigate();
+  const { login } = useAuth();
   const { register, handleSubmit, formState: { errors } } = useForm({
-    resolver: zodResolver(schema)
+    resolver: zodResolver(schema),
   });
 
-  // Fonction appelée lors de la soumission du formulaire
+  /**
+   * Gère la soumission du formulaire de connexion.
+   * @param {Object} data - Les données du formulaire.
+   */
   const onSubmit = async (data) => {
     try {
-      const response = await axios.post('http://localhost:8086/api/auth/login', {
-        email: data.email,
-        password: data.password
-      });
-      await login(response.data); // Appeler la fonction de connexion
-      onClose(); // Fermer le modal après connexion
+      const response = await axios.post('http://localhost:8086/api/auth/login', data);
+      await login(response.data);
+      onClose();
     } catch (error) {
-      alert('Erreur lors de la connexion. Veuillez vérifier vos identifiants.');
+      setError('Erreur lors de la connexion. Veuillez vérifier vos identifiants.');
     }
   };
 
@@ -43,7 +47,7 @@ const LoginForm = ({ onClose }) => {
         {errors.email && <p className="text-red-500 text-xs">{errors.email.message}</p>}
       </div>
 
-      <div className="mb-4">
+      <div className="mb-4 ">
         <input
           {...register("password")}
           type="password"

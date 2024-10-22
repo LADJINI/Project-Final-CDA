@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import PropTypes from 'prop-types'; // Importation de PropTypes pour la validation des props
+import PropTypes from 'prop-types';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import { useBooks } from '../../context/BookContext'; // Importation du contexte des livres
+import { useBooks } from '../../context/BookContext';
 
 /**
  * Composant de formulaire pour ajouter un livre.
@@ -11,7 +11,7 @@ import { useBooks } from '../../context/BookContext'; // Importation du contexte
  * @returns {JSX.Element} Formulaire pour ajouter un livre.
  */
 const AddBookForm = ({ type }) => {
-  const { addBookToSell, addBookToLend } = useBooks(); // Récupération des fonctions pour ajouter un livre
+  const { addBookToSell, addBookToLend } = useBooks();
   const initialState = {
     title: '',
     author: '',
@@ -24,16 +24,15 @@ const AddBookForm = ({ type }) => {
     publicationDate: '',
     publisher: '',
     quantityAvailable: '',
-    imageId: '', // Ajout de l'imageId pour gérer l'upload (téléchargement)
+    imageId: '',
   };
 
-  // États locaux pour gérer les données du livre et l'image sélectionnée
   const [bookData, setBookData] = useState(initialState);
   const [selectedImage, setSelectedImage] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const navigate = useNavigate(); // Hook pour la navigation
+  const navigate = useNavigate();
 
   /**
    * Gère les changements dans les champs du formulaire.
@@ -43,7 +42,7 @@ const AddBookForm = ({ type }) => {
     const { name, value, type, checked } = e.target;
     setBookData((prevData) => ({
       ...prevData,
-      [name]: type === 'checkbox' ? checked : value, // Gérer les cases à cocher
+      [name]: type === 'checkbox' ? checked : value,
     }));
   };
 
@@ -55,7 +54,7 @@ const AddBookForm = ({ type }) => {
     const file = e.target.files[0];
     if (file) {
       setSelectedImage(file);
-      setImagePreview(URL.createObjectURL(file)); // Crée un aperçu de l'image sélectionnée
+      setImagePreview(URL.createObjectURL(file));
     }
   };
 
@@ -65,19 +64,25 @@ const AddBookForm = ({ type }) => {
    */
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsSubmitting(true); // Démarre l'état de soumission
+    setIsSubmitting(true);
+
+    // Validation des champs requis
+    if (!bookData.title || !bookData.author || !selectedImage) {
+      setError('Veuillez remplir tous les champs requis et sélectionner une image.');
+      setIsSubmitting(false);
+      return;
+    }
 
     const bookWithType = {
       ...bookData,
       type: type === 'vente' ? 'vente' : 'emprunt',
-      price: parseFloat(bookData.price) || 0, // Conversion du prix avec une valeur par défaut
+      price: parseFloat(bookData.price) || 0,
     };
 
-    // Si une image est sélectionnée, on l'ajoute
     if (selectedImage) {
-      const formData = new FormData(); // Crée un nouvel objet FormData
-      formData.append('book', new Blob([JSON.stringify(bookWithType)], { type: 'application/json' })); // Ajoute le DTO du livre
-      formData.append('image', selectedImage); // Ajoute l'image au FormData
+      const formData = new FormData();
+      formData.append('book', new Blob([JSON.stringify(bookWithType)], { type: 'application/json' }));
+      formData.append('image', selectedImage);
 
       try {
         const response = await axios.post('http://localhost:8086/api/books', formData, {
@@ -85,8 +90,7 @@ const AddBookForm = ({ type }) => {
         });
 
         if (response.status === 201) {
-          // Ajout du livre à la liste appropriée dans le contexte
-          const addedBook = response.data; // Obtenez les données du livre ajouté
+          const addedBook = response.data;
           if (type === 'vente') {
             addBookToSell(addedBook);
           } else if (type === 'prêt') {
@@ -99,18 +103,16 @@ const AddBookForm = ({ type }) => {
           setImagePreview(null);
           setError('');
           console.log(`Livre ajouté pour ${type}:`, addedBook);
-
-          // Redirection vers la page d'accueil après une soumission réussie
           navigate('/'); // Redirige vers la page d'accueil
         }
       } catch (e) {
         setError('Erreur lors de l\'ajout du livre.');
-        console.error(e); // Pour le débogage
+        console.error(e);
       } finally {
-        setIsSubmitting(false); // Arrête l'état de soumission
+        setIsSubmitting(false);
       }
     } else {
-      setError('Veuillez sélectionner une image.'); // Avertit si aucune image n'est sélectionnée
+      setError('Veuillez sélectionner une image.');
       setIsSubmitting(false);
     }
   };
@@ -120,58 +122,58 @@ const AddBookForm = ({ type }) => {
       <h1>Ajouter un Livre</h1>
       <form onSubmit={handleSubmit}>
         <div>
-          <label>Titre:</label>
+          <label htmlFor="title">Titre:</label>
           <input type="text" name="title" value={bookData.title} onChange={handleChange} required />
         </div>
         <div>
-          <label>Auteur:</label>
+          <label htmlFor="author">Auteur :</label>
           <input type="text" name="author" value={bookData.author} onChange={handleChange} required />
         </div>
         <div>
-          <label>Disponibilité:</label>
+          <label htmlFor="availability">Disponibilité:</label>
           <input type="checkbox" name="availability" checked={bookData.availability} onChange={handleChange} />
         </div>
         <div>
-          <label>Condition:</label>
+          <label htmlFor="bookCondition">Condition:</label>
           <select name="bookCondition" value={bookData.bookCondition} onChange={handleChange}>
             <option value="neuf">Neuf</option>
             <option value="occasion">Occasion</option>
           </select>
         </div>
         <div>
-          <label>Description:</label>
+          <label htmlFor="description">Description:</label>
           <textarea name="description" value={bookData.description} onChange={handleChange} />
         </div>
         <div>
-          <label>ISBN:</label>
-          <input type="text" name="isbn" value={bookData.isbn} onChange={handleChange} />
+          <label htmlFor="isbn">ISBN:</label>
+          <input type="text" name="isbn" value={bookData.isbn} onChange={handleChange} required />
         </div>
         <div>
-          <label>Nombre de pages:</label>
+          <label htmlFor="numberOfPages">Nombre de pages:</label>
           <input type="number" name="numberOfPages" value={bookData.numberOfPages} onChange={handleChange} />
         </div>
         <div>
-          <label>Prix:</label>
-          <input type="number" name="price" value={bookData.price} onChange={handleChange} />
+          <label htmlFor="price">Prix:</label>
+          <input type="number" name="price" value={bookData.price} onChange={handleChange} required />
         </div>
         <div>
-          <label>Date de publication:</label>
+          <label htmlFor="publicationDate">Date de publication:</label>
           <input type="date" name="publicationDate" value={bookData.publicationDate} onChange={handleChange} />
         </div>
         <div>
-          <label>Éditeur:</label>
+          <label htmlFor="publisher">Éditeur:</label>
           <input type="text" name="publisher" value={bookData.publisher} onChange={handleChange} />
         </div>
         <div>
-          <label>Quantité disponible:</label>
+          <label htmlFor="quantityAvailable">Quantité disponible:</label>
           <input type="number" name="quantityAvailable" value={bookData.quantityAvailable} onChange={handleChange} />
         </div>
         <div>
-          <label>Image:</label>
+          <label htmlFor="image">Image:</label>
           <input type="file" accept="image/*" onChange={handleImageChange} required />
-          {imagePreview && <img src={imagePreview} alt="Aperçu" width="100" />} {/* Affiche l'aperçu de l'image */}
+          {imagePreview && <img src={imagePreview} alt="Aperçu" width="100" />}
         </div>
-        {error && <p style={{ color: 'red' }}>{error}</p>} {/* Affiche l'erreur s'il y en a une */}
+        {error && <p style={{ color: 'red' }}>{error}</p>}
         <button type="submit" disabled={isSubmitting}>
           {isSubmitting ? 'Ajout en cours...' : 'Ajouter le livre'}
         </button>
@@ -180,9 +182,8 @@ const AddBookForm = ({ type }) => {
   );
 };
 
-// Définition des PropTypes
 AddBookForm.propTypes = {
-  type: PropTypes.oneOf(['vente', 'prêt']).isRequired, // type doit être soit 'vente' soit 'prêt'
+  type: PropTypes.oneOf(['vente', 'prêt']).isRequired,
 };
 
 export default AddBookForm;
