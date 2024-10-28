@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { useBooks } from '../../context/BookContext';
+import { useAuth } from '../../context/AuthContext'; // Importer le contexte d'authentification
 
 /**
  * Composant de formulaire pour ajouter un livre.
@@ -11,7 +12,9 @@ import { useBooks } from '../../context/BookContext';
  * @returns {JSX.Element} Formulaire pour ajouter un livre.
  */
 const AddBookForm = ({ type }) => {
+  const { user } = useAuth(); // Récupérer l'utilisateur depuis le contexte d'authentification
   const { addBookToSell, addBookToLend } = useBooks();
+  
   const initialState = {
     title: '',
     author: '',
@@ -66,6 +69,13 @@ const AddBookForm = ({ type }) => {
     e.preventDefault();
     setIsSubmitting(true);
 
+    // Vérifier si l'utilisateur est connecté
+    if (!user) {
+      alert('Vous devez être connecté pour ajouter un livre.');
+      setIsSubmitting(false);
+      return;
+    }
+
     // Validation des champs requis
     if (!bookData.title || !bookData.author || !selectedImage) {
       setError('Veuillez remplir tous les champs requis et sélectionner une image.');
@@ -77,6 +87,7 @@ const AddBookForm = ({ type }) => {
       ...bookData,
       type: type === 'vente' ? 'vente' : 'emprunt',
       price: parseFloat(bookData.price) || 0,
+      userId: user.id, // Inclure l'ID de l'utilisateur
     };
 
     if (selectedImage) {
@@ -86,7 +97,10 @@ const AddBookForm = ({ type }) => {
 
       try {
         const response = await axios.post('http://localhost:8086/api/books', formData, {
-          headers: { 'Content-Type': 'multipart/form-data' },
+          headers: {
+            'Content-Type': 'multipart/form-data',
+            'Authorization': `Bearer ${user.token}`, // Ajouter le token d'authentification
+          },
         });
 
         if (response.status === 201) {
@@ -106,7 +120,11 @@ const AddBookForm = ({ type }) => {
           navigate('/'); // Redirige vers la page d'accueil
         }
       } catch (e) {
-        setError('Erreur lors de l\'ajout du livre.');
+        if (e.response && e.response.status === 401) {
+          setError('Erreur d\'authentification : vous devez être connecté.');
+        } else {
+          setError('Erreur lors de l\'ajout du livre.');
+        }
         console.error(e);
       } finally {
         setIsSubmitting(false);
