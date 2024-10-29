@@ -136,63 +136,84 @@ const AddBookForm = ({ type }) => {
   };
 
   return (
-    <div>
-      <h1>Ajouter un Livre</h1>
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label htmlFor="title">Titre:</label>
-          <input type="text" name="title" value={bookData.title} onChange={handleChange} required />
+    <div className="max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-xl">
+      <h1 className="text-3xl font-bold mb-6 text-center text-gray-800">Ajouter un Livre</h1>
+      <form onSubmit={handleSubmit} className="space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label htmlFor="title" className="block text-sm font-medium text-gray-700">Titre</label>
+            <input type="text" name="title" id="title" value={bookData.title} onChange={handleChange} required className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" />
+          </div>
+          <div>
+            <label htmlFor="author" className="block text-sm font-medium text-gray-700">Auteur</label>
+            <input type="text" name="author" id="author" value={bookData.author} onChange={handleChange} required className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" />
+          </div>
         </div>
-        <div>
-          <label htmlFor="author">Auteur :</label>
-          <input type="text" name="author" value={bookData.author} onChange={handleChange} required />
+
+        <div className="flex items-center">
+          <input type="checkbox" name="availability" id="availability" checked={bookData.availability} onChange={handleChange} className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded" />
+          <label htmlFor="availability" className="ml-2 block text-sm text-gray-900">Disponible</label>
         </div>
+
         <div>
-          <label htmlFor="availability">Disponibilité:</label>
-          <input type="checkbox" name="availability" checked={bookData.availability} onChange={handleChange} />
-        </div>
-        <div>
-          <label htmlFor="bookCondition">Condition:</label>
-          <select name="bookCondition" value={bookData.bookCondition} onChange={handleChange}>
+          <label htmlFor="bookCondition" className="block text-sm font-medium text-gray-700">État</label>
+          <select name="bookCondition" id="bookCondition" value={bookData.bookCondition} onChange={handleChange} className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
             <option value="neuf">Neuf</option>
             <option value="occasion">Occasion</option>
           </select>
         </div>
+
         <div>
-          <label htmlFor="description">Description:</label>
-          <textarea name="description" value={bookData.description} onChange={handleChange} />
+          <label htmlFor="description" className="block text-sm font-medium text-gray-700">Description</label>
+          <textarea name="description" id="description" rows="3" value={bookData.description} onChange={handleChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"></textarea>
         </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label htmlFor="isbn" className="block text-sm font-medium text-gray-700">ISBN</label>
+            <input type="text" name="isbn" id="isbn" value={bookData.isbn} onChange={handleChange} required className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" />
+          </div>
+          <div>
+            <label htmlFor="numberOfPages" className="block text-sm font-medium text-gray-700">Nombre de pages</label>
+            <input type="number" name="numberOfPages" id="numberOfPages" value={bookData.numberOfPages} onChange={handleChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label htmlFor="price" className="block text-sm font-medium text-gray-700">Prix</label>
+            <input type="number" name="price" id="price" value={bookData.price} onChange={handleChange} required className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" />
+          </div>
+          <div>
+            <label htmlFor="publicationDate" className="block text-sm font-medium text-gray-700">Date de publication</label>
+            <input type="date" name="publicationDate" id="publicationDate" value={bookData.publicationDate} onChange={handleChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label htmlFor="publisher" className="block text-sm font-medium text-gray-700">Éditeur</label>
+            <input type="text" name="publisher" id="publisher" value={bookData.publisher} onChange={handleChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" />
+          </div>
+          <div>
+            <label htmlFor="quantityAvailable" className="block text-sm font-medium text-gray-700">Quantité disponible</label>
+            <input type="number" name="quantityAvailable" id="quantityAvailable" value={bookData.quantityAvailable} onChange={handleChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" />
+          </div>
+        </div>
+
         <div>
-          <label htmlFor="isbn">ISBN:</label>
-          <input type="text" name="isbn" value={bookData.isbn} onChange={handleChange} required />
+          <label htmlFor="image" className="block text-sm font-medium text-gray-700">Image</label>
+          <input type="file" id="image" accept="image/*" onChange={handleImageChange} required className="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100" />
+          {imagePreview && (
+            <div className="mt-2">
+              <img src={imagePreview} alt="Aperçu" className="w-32 h-32 object-cover rounded-md" />
+            </div>
+          )}
         </div>
-        <div>
-          <label htmlFor="numberOfPages">Nombre de pages:</label>
-          <input type="number" name="numberOfPages" value={bookData.numberOfPages} onChange={handleChange} />
-        </div>
-        <div>
-          <label htmlFor="price">Prix:</label>
-          <input type="number" name="price" value={bookData.price} onChange={handleChange} required />
-        </div>
-        <div>
-          <label htmlFor="publicationDate">Date de publication:</label>
-          <input type="date" name="publicationDate" value={bookData.publicationDate} onChange={handleChange} />
-        </div>
-        <div>
-          <label htmlFor="publisher">Éditeur:</label>
-          <input type="text" name="publisher" value={bookData.publisher} onChange={handleChange} />
-        </div>
-        <div>
-          <label htmlFor="quantityAvailable">Quantité disponible:</label>
-          <input type="number" name="quantityAvailable" value={bookData.quantityAvailable} onChange={handleChange} />
-        </div>
-        <div>
-          <label htmlFor="image">Image:</label>
-          <input type="file" accept="image/*" onChange={handleImageChange} required />
-          {imagePreview && <img src={imagePreview} alt="Aperçu" width="100" />}
-        </div>
-        {error && <p style={{ color: 'red' }}>{error}</p>}
-        <button type="submit" disabled={isSubmitting}>
+
+        {error && <p className="text-red-500 text-sm">{error}</p>}
+
+        <button type="submit" disabled={isSubmitting} className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50">
           {isSubmitting ? 'Ajout en cours...' : 'Ajouter le livre'}
         </button>
       </form>
