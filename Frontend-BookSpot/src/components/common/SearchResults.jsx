@@ -19,7 +19,7 @@ const SearchResults = () => {
       {searchResults.map((book) => (
         <div key={book.id} className="border-b py-2">
           <h3 className="text-lg font-semibold">{book.titre}</h3>
-          <p>Auteur: {book.auteur}</p>
+          <p>Auteur: {book.author}</p>
           <p>ISBN: {book.isbn}</p>
           <p>Type: {book.type === 'sell' ? 'À vendre' : 'À emprunter'}</p>
         </div>

@@ -19,10 +19,10 @@ const SearchResultsPage = () => {
         {searchResults.map((book) => (
           <div key={book.id} className="border rounded-lg p-4 shadow-md">
             <h2 className="text-xl font-semibold mb-2">{book.titre}</h2>
-            <p className="mb-1"><span className="font-medium">Auteur:</span> {book.auteur}</p>
+            <p className="mb-1"><span className="font-medium">Auteur:</span> {book.author}</p>
             <p className="mb-1"><span className="font-medium">ISBN:</span> {book.isbn}</p>
             <p className="mb-3"><span className="font-medium">Type:</span> {book.type === 'sell' ? 'À vendre' : 'À emprunter'}</p>
-            {book.type === 'sell' && <p className="mb-3"><span className="font-medium">Prix:</span> {book.prixUnitaire}€</p>}
+            {book.type === 'sell' && <p className="mb-3"><span className="font-medium">Prix:</span> {book.price}€</p>}
             <button 
               onClick={() => handleAddToCart(book)}
               className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
