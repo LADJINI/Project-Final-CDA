@@ -5,6 +5,8 @@ import { useNavigate } from 'react-router-dom';
 import { useBooks } from '../../context/BookContext';
 import { useAuth } from '../../context/AuthContext'; // Importer le contexte d'authentification
 
+import AuthModal from '../auth/AuthModal';
+
 /**
  * Composant de formulaire pour ajouter un livre.
  * @param {Object} props - Les propriétés du composant.
@@ -37,6 +39,10 @@ const AddBookForm = ({ type }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
 
+    // État pour afficher ou masquer le modal d'authentification
+    const [authModalOpen, setAuthModalOpen] = useState(false);
+
+
   /**
    * Gère les changements dans les champs du formulaire.
    * @param {React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>} e - Événement de changement
@@ -67,14 +73,13 @@ const AddBookForm = ({ type }) => {
    */
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsSubmitting(true);
 
-    // Vérifier si l'utilisateur est connecté
     if (!user) {
-      alert('Vous devez être connecté pour ajouter un livre.');
-      setIsSubmitting(false);
+      setAuthModalOpen(true);
       return;
     }
+
+    setIsSubmitting(true);
 
     // Validation des champs requis
     if (!bookData.title || !bookData.author || !selectedImage) {
@@ -217,7 +222,8 @@ const AddBookForm = ({ type }) => {
           {isSubmitting ? 'Ajout en cours...' : 'Ajouter le livre'}
         </button>
       </form>
-    </div>
+      {authModalOpen && <AuthModal isOpen={authModalOpen} onClose={() => setAuthModalOpen(false)} />}
+      </div>
   );
 };
 

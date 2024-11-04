@@ -45,7 +45,7 @@ const Checkout = () => {
 
     try {
       // Envoi de la requête au backend pour créer une session de paiement
-      const response = await fetch('http://localhost:8086/api/payments/create-checkout-session', {
+      const response = await fetch('http://localhost:8086/api/payments', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
