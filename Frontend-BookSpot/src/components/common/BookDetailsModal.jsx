@@ -58,7 +58,7 @@ BookDetailsModal.propTypes = {
     author: PropTypes.string.isRequired,
     price: PropTypes.number.isRequired,
     description: PropTypes.string.isRequired,
-    imageUrl: PropTypes.string.isRequired,
+    imageId: PropTypes.string.isRequired,
     publicationDate: PropTypes.string.isRequired,
     isbn: PropTypes.string.isRequired,
     publisher: PropTypes.string.isRequired,

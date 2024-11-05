@@ -1,5 +1,6 @@
-import React, { createContext, useState, useContext } from 'react';
+import React, { createContext, useEffect, useState, useContext } from 'react';
 import PropTypes from 'prop-types';
+import axios from 'axios';
 
 const BookContext = createContext();
 
@@ -14,6 +15,23 @@ export const BookProvider = ({ children }) => {
   const [booksToLend, setBooksToLend] = useState([]);
   const [searchResults, setSearchResults] = useState([]);
   const [hasSearched, setHasSearched] = useState(false); // Indique si une recherche a été effectuée
+
+  
+  // Fonction pour charger les livres depuis la base de données
+  useEffect(() => {
+    const fetchBooks = async () => {
+      try {
+        const responseSell = await axios.get('http://localhost:8086/api/books?type=vente');
+        const responseLend = await axios.get('http://localhost:8086/api/books?type=prêt');
+        setBooksToSell(responseSell.data);
+        setBooksToLend(responseLend.data);
+      } catch (error) {
+        console.error('Erreur lors de la récupération des livres:', error);
+      }
+    };
+
+    fetchBooks();
+  }, []);
 
   /**
    * Ajoute un livre à la liste des livres à vendre.
