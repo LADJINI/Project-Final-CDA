@@ -132,181 +132,178 @@ const Navbar = () => {
 
   return (
     <>
-      {/* Header avec barre de recherche, profil, et panier */}
-      <header className="bg-custom-blue border-b border-gray-200 shadow-md">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            {/* Barre de recherche */}
-            <form onSubmit={handleSearch} className="relative flex-1 max-w-md">
-              <input
-                type="text"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)} // Mise à jour du champ de recherche
-                placeholder="Rechercher un livre, un auteur, un éditeur..."
-                className="w-full px-4 py-2 text-sm text-gray-700 bg-white border border-gray-300 rounded-md focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all duration-200 ease-in-out"
-              />
-              <button 
-                type="submit" 
-                className="absolute right-0 top-0 bottom-0 px-3 bg-orange-500 text-white rounded-r-md focus:outline-none"
-                aria-label="Rechercher"
-              >
-                <FaSearch className="h-5 w-5" />
-              </button>
-            </form>
-
-            {/* Boutons d'authentification et panier */}
-            <div className="flex items-center space-x-4 ml-4">
-              {user ? (
-                <>
-                  <NavLink to="/profil" className="flex items-center">
-                    <img 
-                      src={user.profilePicture || '/default-avatar.jpg'}
-                      alt="Profil"
-                      className="h-8 w-8 rounded-full mr-2"
-                    />
-                    <span className="text-white">Bonjour {user.nom} !</span>
-                  </NavLink>
-
-                  <button 
-                    onClick={handleLogout} // Déconnexion
-                    className="text-sm text-white bg-custom-blue hover:bg-[#164e63] font-medium transition py-2 px-4 rounded-md ml-4"
-                  >
-                    Déconnexion
-                  </button>
-                </>
-              ) : (
-                <button
-                  onClick={handleAuthClick} // Ouverture de la modal d'authentification
-                  className="flex items-center text-sm text-white bg-custom-blue hover:bg-[#164e63] font-medium transition py-2 px-4 rounded-md h-16"
-                >
-                  <FaUser />
-                  <span className="ml-1">Identifiez-vous</span>
-                </button>
-              )}
-
-              {/* Bouton du panier */}
-              <button
-                ref={cartButtonRef}
-                onClick={(e) => {
-                  e.preventDefault();
-                  const rect = cartButtonRef.current.getBoundingClientRect(); // Récupère la position du bouton
-                  setCartButtonPosition({
-                    top: rect.bottom + window.scrollY,
-                    left: rect.left + window.scrollX,
-                  });
-                  setIsCartPopupOpen(!isCartPopupOpen); // Bascule l'état de la popup panier
-                }}
-                className="flex items-center text-sm text-white bg-custom-blue hover:bg-[#164e63] font-medium transition py-2 px-4 rounded-md h-16"
-              >
-                <FaShoppingCart className="mr-1" />
-                <span>
-                  Panier ({totalItems}) - {totalPrice.toFixed(2)}€
-                </span>
-              </button>
-
-              {/* Sélecteur de langue */}
-              <div 
-                className="relative"
-                onMouseEnter={handleLanguageMouseEnter}
-                onMouseLeave={handleLanguageMouseLeave}
-              >
-                <button 
-                  className="flex items-center text-sm text-white bg-custom-blue hover:bg-[#164e63] font-medium transition py-2 px-4 rounded-md h-16"
-                  onClick={() => setIsLanguageOpen(!isLanguageOpen)} // Basculer l'état du menu déroulant
-                >
-                  <img src={language.flag} alt={language.label} className="h-4 w-4 mr-2" />
-                  {language.label} <FaChevronDown className="ml-1" />
-                </button>
-                {/* Liste des langues */}
-                {isLanguageOpen && (
-                  <div className="absolute left-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
-                    {/* Affiche uniquement l'autre langue */}
-                    {languages.filter(lang => lang.code !== language.code).map((lang) => (
-                      <button 
-                        key={lang.code} 
-                        onClick={() => handleLanguageChange(lang)} // Changer la langue
-                        className="flex items-center px-3 py-1 text-sm text-[#155e75] hover:bg-gray-100" // Réduction de la taille du texte
-                      >
-                        <img src={lang.flag} alt={lang.label} className="h-4 w-4 mr-2" />
-                        {lang.label}
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-      </header>
-
+      
       {/* Navbar principale */}
-      <nav className="bg-white border-b border-gray-200 shadow-md">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center">
-              <NavLink to="/" className="flex items-center">
-                <img src="/Log2.PNG" alt="Logo" className="h-16 w-auto mr-2" />
-                <div className="flex flex-col items-start">
-                  <span className="text-lg sm:text-xl font-bold text-blue-600" style={{ fontFamily: 'Tilda Script Bold' }}>
-                    Book Spot
-                  </span>
-                  <p className="font-serif text-xs text-gray-600 hidden sm:block">
-                    Bibliothèque accessible à tous
-                  </p>
-                </div>
+      <nav className="bg-custom-blue border-b border-gray-200 shadow-md">
+  <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="flex items-center justify-between h-16">
+      {/* Partie gauche - Logo et Bibliothèque accessible à tous */}
+      <div className="flex items-center space-x-4 ml-0">
+        <NavLink to="/" className="flex items-center">
+          <img src="/Book Spot.png" alt="Logo" className="h-16 w-auto mr-2" />
+          <div className="flex flex-col items-start">
+            <span className="text-lg sm:text-xl font-bold text-blue-600" style={{ fontFamily: 'Tilda Script Bold' }}>
+              Book Spot
+            </span>
+            <p className="font-serif text-xs text-gray-600 hidden sm:block">
+              Bibliothèque accessible à tous
+            </p>
+          </div>
+        </NavLink>
+      </div>
+
+      {/* Partie droite - Liens de navigation et autres éléments */}
+      <div className="flex items-center ml-auto space-x-4">
+        <NavLink to="/" className="text-[#155e75] hover:text-[#164e63] font-medium transition flex items-center h-16 px-4 py-2">
+          Accueil
+        </NavLink>
+
+        {/* Sous-menu Catalogue */}
+        <div
+          className="relative"
+          onMouseEnter={handleCatalogueMouseEnter}
+          onMouseLeave={handleCatalogueMouseLeave}
+        >
+          <button className="bg-white flex items-center text-[#155e75] hover:text-[#164e63] font-medium transition h-16 px-4 py-2">
+            Catalogue <FaChevronDown className="ml-1" />
+          </button>
+          {isCatalogueOpen && (
+            <div className="absolute left-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
+              <NavLink to="/emprunter-livre" className="block px-4 py-2 text-[#155e75] hover:bg-gray-100 text-sm">
+                Emprunter un livre
+              </NavLink>
+              <NavLink to="/acheter-livre" className="block px-4 py-2 text-[#155e75] hover:bg-gray-100 text-sm">
+                Acheter un livre
               </NavLink>
             </div>
+          )}
+        </div>
 
-            <div className="flex items-center space-x-4 ml-auto">
-              <NavLink to="/" className="text-[#155e75] hover:text-[#164e63] font-medium transition flex items-center h-16 px-4">
-                Accueil
+        {/* Sous-menu Ajouter un livre */}
+        <div
+          className="relative"
+          onMouseEnter={handleAddBookMouseEnter}
+          onMouseLeave={handleAddBookMouseLeave}
+        >
+          <button className="bg-white flex items-center text-[#155e75] hover:text-[#164e63] font-medium transition h-16 px-4 py-2">
+            Ajouter un livre <FaChevronDown className="ml-1" />
+          </button>
+          {isAddBookOpen && (
+            <div className="absolute left-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
+              <NavLink to="/ajouter-livre-vente" className="block px-4 py-2 text-[#155e75] hover:bg-gray-100 text-sm">
+                Pour vendre
+              </NavLink>
+              <NavLink to="/ajouter-livre-pret" className="block px-4 py-2 text-[#155e75] hover:bg-gray-100 text-sm">
+                Pour prêter
+              </NavLink>
+            </div>
+          )}
+        </div>
+
+        {/* Barre de recherche */}
+        <form onSubmit={handleSearch} className="relative flex-1 max-w-md">
+          <input
+            type="text"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)} // Mise à jour du champ de recherche
+            placeholder="Rechercher un livre, un auteur, un éditeur..."
+            className="w-full px-4 py-2 text-sm text-gray-700 bg-white border border-gray-300 rounded-md focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all duration-200 ease-in-out"
+          />
+          <button 
+            type="submit" 
+            className="absolute right-0 top-0 bottom-0 px-3 bg-orange-500 text-white rounded-r-md focus:outline-none"
+            aria-label="Rechercher"
+          >
+            <FaSearch className="h-5 w-5" />
+          </button>
+        </form>
+
+        {/* Boutons d'authentification et panier */}
+        <div className="flex items-center space-x-4">
+          {user ? (
+            <>
+              <NavLink to="/profil" className="flex items-center">
+                <img 
+                  src={user.profilePicture || '/default-avatar.jpg'}
+                  alt="Profil"
+                  className="h-8 w-8 rounded-full mr-2"
+                />
+                <span className="text-white">Bonjour {user.nom} !</span>
               </NavLink>
 
-              {/* Sous-menu Catalogue */}
-              <div
-                className="relative"
-                onMouseEnter={handleCatalogueMouseEnter}
-                onMouseLeave={handleCatalogueMouseLeave}
+              <button 
+                onClick={handleLogout} // Déconnexion
+                className="text-sm text-white bg-custom-blue hover:bg-[#164e63] font-medium transition py-2 px-4 rounded-md ml-4 h-16"
               >
-                <button className="bg-white flex items-center text-[#155e75] hover:text-[#164e63] font-medium transition h-16 px-4">
-                  Catalogue <FaChevronDown className="ml-1" />
-                </button>
-                {isCatalogueOpen && (
-                  <div className="absolute left-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
-                    <NavLink to="/emprunter-livre" className="block px-4 py-2 text-[#155e75] hover:bg-gray-100 text-sm">
-                      Emprunter un livre
-                    </NavLink>
-                    <NavLink to="/acheter-livre" className="block px-4 py-2 text-[#155e75] hover:bg-gray-100 text-sm">
-                      Acheter un livre
-                    </NavLink>
-                  </div>
-                )}
-              </div>
+                Déconnexion
+              </button>
+            </>
+          ) : (
+            <button
+              onClick={handleAuthClick} // Ouverture de la modal d'authentification
+              className="flex items-center text-sm text-white bg-custom-blue hover:bg-[#164e63] font-medium transition py-2 px-4 rounded-md h-16"
+            >
+              <FaUser />
+              <span className="ml-1">Identifiez-vous</span>
+            </button>
+          )}
 
-              {/* Sous-menu Ajouter un livre */}
-              <div
-                className="relative"
-                onMouseEnter={handleAddBookMouseEnter}
-                onMouseLeave={handleAddBookMouseLeave}
-              >
-                <button className="bg-white flex items-center text-[#155e75] hover:text-[#164e63] font-medium transition h-16 px-4">
-                  Ajouter un livre <FaChevronDown className="ml-1" />
-                </button>
-                {isAddBookOpen && (
-                  <div className="absolute left-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
-                    <NavLink to="/ajouter-livre-vente" className="block px-4 py-2 text-[#155e75] hover:bg-gray-100 text-sm">
-                      Pour vendre
-                    </NavLink>
-                    <NavLink to="/ajouter-livre-pret" className="block px-4 py-2 text-[#155e75] hover:bg-gray-100 text-sm">
-                      Pour prêter
-                    </NavLink>
-                  </div>
-                )}
+          {/* Bouton du panier */}
+          <button
+            ref={cartButtonRef}
+            onClick={(e) => {
+              e.preventDefault();
+              const rect = cartButtonRef.current.getBoundingClientRect(); // Récupère la position du bouton
+              setCartButtonPosition({
+                top: rect.bottom + window.scrollY,
+                left: rect.left + window.scrollX,
+              });
+              setIsCartPopupOpen(!isCartPopupOpen); // Bascule l'état de la popup panier
+            }}
+            className="flex items-center text-sm text-white bg-custom-blue hover:bg-[#164e63] font-medium transition py-2 px-4 rounded-md h-16"
+          >
+            <FaShoppingCart className="mr-1" />
+            <span>
+              Panier ({totalItems}) - {totalPrice.toFixed(2)}€
+            </span>
+          </button>
+
+          {/* Sélecteur de langue */}
+          <div 
+            className="relative"
+            onMouseEnter={handleLanguageMouseEnter}
+            onMouseLeave={handleLanguageMouseLeave}
+          >
+            <button 
+              className="flex items-center text-sm text-white bg-custom-blue hover:bg-[#164e63] font-medium transition py-2 px-4 rounded-md h-16"
+              onClick={() => setIsLanguageOpen(!isLanguageOpen)} // Basculer l'état du menu déroulant
+            >
+              <img src={language.flag} alt={language.label} className="h-4 w-4 mr-2" />
+              {language.label} <FaChevronDown className="ml-1" />
+            </button>
+            {/* Liste des langues */}
+            {isLanguageOpen && (
+              <div className="absolute left-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
+                {/* Affiche uniquement l'autre langue */}
+                {languages.filter(lang => lang.code !== language.code).map((lang) => (
+                  <button 
+                    key={lang.code} 
+                    onClick={() => handleLanguageChange(lang)} // Changer la langue
+                    className="flex items-center px-3 py-1 text-sm text-[#155e75] hover:bg-gray-100"
+                  >
+                    <img src={lang.flag} alt={lang.label} className="h-4 w-4 mr-2" />
+                    {lang.label}
+                  </button>
+                ))}
               </div>
-            </div>
+            )}
           </div>
         </div>
-      </nav>
+      </div>
+    </div>
+  </div>
+</nav>
+
       
       {/* Modal d'authentification */}
       <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />
