@@ -134,71 +134,63 @@ const Navbar = () => {
     <>
       
       {/* Navbar principale */}
-      <nav className="bg-custom-blue border-b border-gray-200 shadow-md">
+      <nav className="bg-custom-blue border-b border-gray-200 shadow-md ">
   <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div className="flex items-center justify-between h-16">
       {/* Partie gauche - Logo et Bibliothèque accessible à tous */}
       <div className="flex items-center space-x-4 ml-0">
         <NavLink to="/" className="flex items-center">
-          <img src="/Book Spot.png" alt="Logo" className="h-16 w-auto mr-2" />
-          <div className="flex flex-col items-start">
-            <span className="text-lg sm:text-xl font-bold text-blue-600" style={{ fontFamily: 'Tilda Script Bold' }}>
-              Book Spot
-            </span>
-            <p className="font-serif text-xs text-gray-600 hidden sm:block">
-              Bibliothèque accessible à tous
-            </p>
-          </div>
+          <img src="/Book Spot logo.png" alt="Logo" className="h-16 w-auto mr-2" />
+         
         </NavLink>
       </div>
 
       {/* Partie droite - Liens de navigation et autres éléments */}
       <div className="flex items-center ml-auto space-x-4">
-        <NavLink to="/" className="text-[#155e75] hover:text-[#164e63] font-medium transition flex items-center h-16 px-4 py-2">
-          Accueil
-        </NavLink>
+       
 
         {/* Sous-menu Catalogue */}
-        <div
-          className="relative"
-          onMouseEnter={handleCatalogueMouseEnter}
-          onMouseLeave={handleCatalogueMouseLeave}
-        >
-          <button className="bg-white flex items-center text-[#155e75] hover:text-[#164e63] font-medium transition h-16 px-4 py-2">
-            Catalogue <FaChevronDown className="ml-1" />
-          </button>
-          {isCatalogueOpen && (
-            <div className="absolute left-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
-              <NavLink to="/emprunter-livre" className="block px-4 py-2 text-[#155e75] hover:bg-gray-100 text-sm">
-                Emprunter un livre
-              </NavLink>
-              <NavLink to="/acheter-livre" className="block px-4 py-2 text-[#155e75] hover:bg-gray-100 text-sm">
-                Acheter un livre
-              </NavLink>
-            </div>
-          )}
-        </div>
+<div
+  className="relative"
+  onMouseEnter={handleCatalogueMouseEnter}
+  onMouseLeave={handleCatalogueMouseLeave}
+>
+  <button className="bg-custom-blue hover:bg-[#164e63] font-medium transition py-2 px-4 rounded-md ml-4 h-16 flex items-center text-sm text-white">
+    Catalogue <FaChevronDown className="ml-1" />
+  </button>
+  {isCatalogueOpen && (
+    <div className="absolute left-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
+      <NavLink to="/emprunter-livre" className="block px-4 py-2 text-[#155e75] hover:bg-gray-100 text-sm">
+        Emprunter un livre
+      </NavLink>
+      <NavLink to="/acheter-livre" className="block px-4 py-2 text-[#155e75] hover:bg-gray-100 text-sm">
+        Acheter un livre
+      </NavLink>
+    </div>
+  )}
+</div>
 
-        {/* Sous-menu Ajouter un livre */}
-        <div
-          className="relative"
-          onMouseEnter={handleAddBookMouseEnter}
-          onMouseLeave={handleAddBookMouseLeave}
-        >
-          <button className="bg-white flex items-center text-[#155e75] hover:text-[#164e63] font-medium transition h-16 px-4 py-2">
-            Ajouter un livre <FaChevronDown className="ml-1" />
-          </button>
-          {isAddBookOpen && (
-            <div className="absolute left-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
-              <NavLink to="/ajouter-livre-vente" className="block px-4 py-2 text-[#155e75] hover:bg-gray-100 text-sm">
-                Pour vendre
-              </NavLink>
-              <NavLink to="/ajouter-livre-pret" className="block px-4 py-2 text-[#155e75] hover:bg-gray-100 text-sm">
-                Pour prêter
-              </NavLink>
-            </div>
-          )}
-        </div>
+{/* Sous-menu Ajouter un livre */}
+<div
+  className="relative"
+  onMouseEnter={handleAddBookMouseEnter}
+  onMouseLeave={handleAddBookMouseLeave}
+>
+  <button className="bg-custom-blue hover:bg-[#164e63] font-medium transition py-2 px-4 rounded-md ml-4 h-16 flex items-center text-sm text-white">
+    Ajouter un livre <FaChevronDown className="ml-1" />
+  </button>
+  {isAddBookOpen && (
+    <div className="absolute left-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
+      <NavLink to="/ajouter-livre-vente" className="block px-4 py-2 text-[#155e75] hover:bg-gray-100 text-sm">
+        Pour vendre
+      </NavLink>
+      <NavLink to="/ajouter-livre-pret" className="block px-4 py-2 text-[#155e75] hover:bg-gray-100 text-sm">
+        Pour prêter
+      </NavLink>
+    </div>
+  )}
+</div>
+
 
         {/* Barre de recherche */}
         <form onSubmit={handleSearch} className="relative flex-1 max-w-md">

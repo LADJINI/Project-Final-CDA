@@ -40,11 +40,11 @@ const BookList = ({ books, type }) => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
       {books.map((book) => (
-        <div key={book.id} className="border rounded-lg p-4 shadow-md">
+        <div key={book.id} className="border rounded-lg p-4 shadow-md flex flex-col justify-between">
           <img
             src={getImageUrl(book.imageId)}
             alt={book.title}
-            className="w-full h-64 object-cover rounded-md mb-4"
+            className="w-1/2 h-32 object-cover rounded-md mb-4"
           />
           <h3 className="text-xl font-semibold">{book.title}</h3>
           <p className="text-gray-700"> {book.author}</p>
@@ -58,7 +58,7 @@ const BookList = ({ books, type }) => {
           </button>
           <button
             onClick={() => handleAddToCart(book)}
-            className="mt-4 bg-blue-500 text-white px-4 py-2 rounded"
+            className="mt-4 bg-blue-500 text-white px-1 py-2 rounded"
           >
             {type === 'achat' ? 'Acheter' : 'Emprunter'}
           </button>

@@ -20,7 +20,7 @@ const AuthModal = ({ isOpen, onClose }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex items-center justify-center" id="my-modal">
+    <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex items-center justify-center z-50" >
       <div className="bg-white rounded-lg shadow-xl overflow-hidden max-w-4xl w-full mx-4">
         <div className="flex">
           {/* Image à gauche pour l'illustration, cachée sur mobile */}
