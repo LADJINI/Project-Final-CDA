@@ -18,8 +18,8 @@ const EmprunterLivre = () => {
 
   return (
     <div>
-      <h1>Emprunter un Livre</h1>
-      <BookList books={booksToLend} type="emprunt" onBookAction={handleEmprunt} />
+      <h1>Don de livres</h1>
+      <BookList books={booksToLend} type="Bénificier" onBookAction={handleEmprunt} />
     </div>
   );
 };

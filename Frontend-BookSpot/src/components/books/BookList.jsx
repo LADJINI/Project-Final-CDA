@@ -60,7 +60,7 @@ const BookList = ({ books, type }) => {
             onClick={() => handleAddToCart(book)}
             className="mt-4 bg-blue-500 text-white px-1 py-2 rounded"
           >
-            {type === 'achat' ? 'Acheter' : 'Emprunter'}
+            {type === 'achat' ? 'Acheter' : 'Bénificier'}
           </button>
         </div>
       ))}
@@ -84,7 +84,7 @@ BookList.propTypes = {
       price: PropTypes.number,
     })
   ).isRequired,
-  type: PropTypes.oneOf(['achat', 'emprunt']).isRequired,
+  type: PropTypes.oneOf(['achat', 'Bénificier']).isRequired,
 };
 
 export default BookList;

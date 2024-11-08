@@ -27,7 +27,7 @@ const SearchResultsPage = () => {
               onClick={() => handleAddToCart(book)}
               className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
             >
-              Ajouter au panier ({book.type === 'sell' ? 'Acheter' : 'Emprunter'})
+              Ajouter au panier ({book.type === 'sell' ? 'Acheter' : 'Bénificier'})
             </button>
           </div>
         ))}

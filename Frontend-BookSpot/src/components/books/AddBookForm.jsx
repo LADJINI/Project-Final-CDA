@@ -90,7 +90,7 @@ const AddBookForm = ({ type }) => {
 
     const bookWithType = {
       ...bookData,
-      type: type === 'vente' ? 'vente' : 'emprunt',
+      type: type === 'vente' ? 'vente' : 'don',
       price: parseFloat(bookData.price) || 0,
       userId: user.id, // Inclure l'ID de l'utilisateur
     };
@@ -112,7 +112,7 @@ const AddBookForm = ({ type }) => {
           const addedBook = response.data;
           if (type === 'vente') {
             addBookToSell(addedBook);
-          } else if (type === 'prêt') {
+          } else if (type === 'don') {
             addBookToLend(addedBook);
           }
 
@@ -127,6 +127,7 @@ const AddBookForm = ({ type }) => {
       } catch (e) {
         if (e.response && e.response.status === 401) {
           setError('Erreur d\'authentification : vous devez être connecté.');
+         
         } else {
           setError('Erreur lors de l\'ajout du livre.');
         }
@@ -228,7 +229,7 @@ const AddBookForm = ({ type }) => {
 };
 
 AddBookForm.propTypes = {
-  type: PropTypes.oneOf(['vente', 'prêt']).isRequired,
+  type: PropTypes.oneOf(['vente', 'don']).isRequired,
 };
 
 export default AddBookForm;

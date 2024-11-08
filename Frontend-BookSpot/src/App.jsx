@@ -16,8 +16,8 @@ import Panier from './pages/Panier';
 import NotFound from './pages/NotFound';
 import AjouterLivreVente from './pages/books/AjouterLivreVente';
 import AcheterLivre from './pages/books/AcheterLivre';
-import AjouterLivrePret from './pages/books/AjouterLivrePret';
-import EmprunterLivre from './pages/books/EmprunterLivre';
+import AjouterLivreDon from './pages/books/AjouterLivreDon';
+import BenificierDonLivre from './pages/books/BenificierDonLivre';
 import SearchResultsPage from './pages/SearchResultsPage';
 import Checkout from './pages/Checkout';
 import UserProfile from './pages/UserProfile'; 
@@ -40,8 +40,8 @@ function App() {
                 <Route path="/panier" element={<Panier />} />
                 <Route path="/ajouter-livre-vente" element={<AjouterLivreVente />} />
                 <Route path="/acheter-livre" element={<AcheterLivre />} />
-                <Route path="/ajouter-livre-pret" element={<AjouterLivrePret />} />
-                <Route path="/emprunter-livre" element={<EmprunterLivre />} />
+                <Route path="/ajouter-livre-don" element={<AjouterLivreDon />} />
+                <Route path="/don-livre" element={<BenificierDonLivre />} />
                 <Route path="/search-results" element={<SearchResultsPage />} />
                 <Route path="/checkout" element={<Checkout />} />
                 <Route path="/profile" element={<UserProfile />} />

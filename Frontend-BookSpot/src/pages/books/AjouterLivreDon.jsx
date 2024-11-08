@@ -10,7 +10,7 @@ const AjouterLivrePret = () => {
   return (
     <div>
       <h1>Ajouter un Livre à Prêter</h1>
-      <AddBookForm type="prêt" />
+      <AddBookForm type="don" />
     </div>
   );
 };

@@ -21,7 +21,7 @@ const SearchResults = () => {
           <h3 className="text-lg font-semibold">{book.titre}</h3>
           <p>Auteur: {book.author}</p>
           <p>ISBN: {book.isbn}</p>
-          <p>Type: {book.type === 'sell' ? 'À vendre' : 'À emprunter'}</p>
+          <p>Type: {book.type === 'sell' ? 'À vendre' : 'À donner'}</p>
         </div>
       ))}
     </div>

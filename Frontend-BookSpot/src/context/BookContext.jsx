@@ -5,7 +5,7 @@ import axios from 'axios';
 const BookContext = createContext();
 
 /**
- * Fournisseur de contexte pour gérer les livres à vendre et à prêter.
+ * Fournisseur de contexte pour gérer les livres à vendre et à donner.
  * @param {Object} props - Les propriétés du fournisseur.
  * @param {ReactNode} props.children - Les éléments enfants à rendre à l'intérieur du fournisseur.
  * @returns {JSX.Element} Le rendu du fournisseur de contexte.
@@ -22,7 +22,7 @@ export const BookProvider = ({ children }) => {
     const fetchBooks = async () => {
       try {
         const responseSell = await axios.get('http://localhost:8086/api/books?type=vente');
-        const responseLend = await axios.get('http://localhost:8086/api/books?type=prêt');
+        const responseLend = await axios.get('http://localhost:8086/api/books?type=don');
         setBooksToSell(responseSell.data);
         setBooksToLend(responseLend.data);
       } catch (error) {
@@ -42,7 +42,7 @@ export const BookProvider = ({ children }) => {
   };
 
   /**
-   * Ajoute un livre à la liste des livres à prêter.
+   * Ajoute un livre à la liste des livres à donner.
    * @param {Object} book - Le livre à ajouter.
    */
   const addBookToLend = (book) => {
@@ -50,7 +50,7 @@ export const BookProvider = ({ children }) => {
   };
 
   /**
-   * Recherche des livres dans les listes de vente et de prêt.
+   * Recherche des livres dans les listes de vente et de don.
    * @param {string} term - Le terme de recherche.
    */
   const searchBooks = (term) => {

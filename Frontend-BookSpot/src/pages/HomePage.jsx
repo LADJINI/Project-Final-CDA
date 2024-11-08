@@ -15,7 +15,7 @@ const HomePage = () => {
       setBooksForSale(latestBooks);
     };
 
-    // Récupérer les derniers livres mis à emprunter
+    // Récupérer les derniers livres mis à donner
     const fetchLatestBooksForBorrow = async () => {
       const latestBooks = await getLatestBooksForBorrow();
       setBooksForBorrow(latestBooks);
@@ -30,9 +30,9 @@ const HomePage = () => {
     navigate('/acheter-livre');
   };
 
-  // Fonction pour naviguer vers la page "Emprunter un livre"
+  // Fonction pour naviguer vers la page "Bénificier d'un don"
   const handleNavigateToBorrow = () => {
-    navigate('/emprunter-livre');
+    navigate('/don-livre');
   };
 
   return (
@@ -45,10 +45,10 @@ const HomePage = () => {
         <BookCarousel books={booksForSale} />
       </div>
 
-      {/* Bloc pour emprunter des livres */}
+      {/* Bloc pour don des livres */}
       <div className="section">
         <h2 onClick={handleNavigateToBorrow} style={{ cursor: 'pointer', color: 'blue' }}>
-          Choisissez un livre à emprunter
+          Bénificier d'un don de livres
         </h2>
         <BookCarousel books={booksForBorrow} />
       </div>
