@@ -59,7 +59,7 @@ export const AuthProvider = ({ children }) => {
 
       // Mettre à jour l'état avec les informations de l'utilisateur
       setUser (userData);
-      navigate('/dashboard'); // Rediriger vers le tableau de bord après connexion
+      navigate('/'); // Rediriger vers le tableau de bord après connexion
     } catch (error) {
       console.error("Erreur lors de la connexion :", error);
     }

@@ -210,10 +210,10 @@ const Navbar = () => {
         <div className="flex items-center space-x-4">
           {user ? (
             <>
-              <NavLink to="/profil" className="flex items-center">
+              <NavLink to="/profile" className="flex items-center">
                 <img 
                   src={user.profilePicture || '/default-avatar.jpg'}
-                  alt="Profil"
+                  alt="profile"
                   className="h-8 w-8 rounded-full mr-2"
                 />
                 <span className="text-white">Bonjour {user.nom} !</span>
