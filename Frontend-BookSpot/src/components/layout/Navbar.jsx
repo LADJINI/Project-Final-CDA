@@ -140,11 +140,11 @@ const Navbar = () => {
       {/* Partie gauche - Logo et Bibliothèque accessible à tous */}
       <div className="flex items-center space-x-4 ml-0">
         <NavLink to="/" className="flex items-center">
-          <img src="/Book Spot logo.png" alt="Logo" className="h-16 w-auto mr-2" />
+          <img src="/Logo_book_spot_2.png" alt="Logo" className="h-16 w-auto mr-2" />
          
         </NavLink>
 
-        {/* Sous-menu Catalogue */}
+        {/* Sous-menu commander un livre */}
 <div
   className="relative"
   onMouseEnter={handleCatalogueMouseEnter}
@@ -155,7 +155,7 @@ const Navbar = () => {
   </button>
   {isCatalogueOpen && (
     <div className="absolute left-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
-      <NavLink to="/emprunter-livre" className="block px-4 py-2 text-[#155e75] hover:bg-gray-100 text-sm">
+      <NavLink to="/don-livre" className="block px-4 py-2 text-[#155e75] hover:bg-gray-100 text-sm">
         Je veux recevoir un don
       </NavLink>
       <NavLink to="/acheter-livre" className="block px-4 py-2 text-[#155e75] hover:bg-gray-100 text-sm">
@@ -179,7 +179,7 @@ const Navbar = () => {
       <NavLink to="/ajouter-livre-vente" className="block px-4 py-2 text-[#155e75] hover:bg-gray-100 text-sm">
       Je souhaite vendre
       </NavLink>
-      <NavLink to="/ajouter-livre-pret" className="block px-4 py-2 text-[#155e75] hover:bg-gray-100 text-sm">
+      <NavLink to="/ajouter-livre-don" className="block px-4 py-2 text-[#155e75] hover:bg-gray-100 text-sm">
       Je souhaite donner
       </NavLink>
     </div>
@@ -216,7 +216,7 @@ const Navbar = () => {
                   alt="profile"
                   className="h-8 w-8 rounded-full mr-2"
                 />
-                <span className="text-white">Bonjour {user.nom} !</span>
+                <span className="text-white">Bonjour {user.prenom} !</span>
               </NavLink>
 
               <button 

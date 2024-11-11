@@ -21,7 +21,7 @@ const SearchResultsPage = () => {
             <h2 className="text-xl font-semibold mb-2">{book.titre}</h2>
             <p className="mb-1"><span className="font-medium">Auteur:</span> {book.author}</p>
             <p className="mb-1"><span className="font-medium">ISBN:</span> {book.isbn}</p>
-            <p className="mb-3"><span className="font-medium">Type:</span> {book.type === 'sell' ? 'À vendre' : 'À emprunter'}</p>
+            <p className="mb-3"><span className="font-medium">Type:</span> {book.type === 'sell' ? 'À vendre' : 'À donner'}</p>
             {book.type === 'sell' && <p className="mb-3"><span className="font-medium">Prix:</span> {book.price}€</p>}
             <button 
               onClick={() => handleAddToCart(book)}

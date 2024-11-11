@@ -12,7 +12,7 @@ export const getLatestBooksForSale = async () => {
 };
 
 // Récupère les 6 derniers livres à donner
-export const getLatestBooksForBorrow = async () => {
+export const getLatestBooksForDonation = async () => {
   try {
     const response = await axios.get('http://localhost:8086/api/books?type=don&limit=6'); 
     return response.data;

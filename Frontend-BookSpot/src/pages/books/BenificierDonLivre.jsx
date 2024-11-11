@@ -3,25 +3,25 @@ import BookList from "../../components/books/BookList";
 import { useCart } from '../../context/useCart';
 import { useBooks } from '../../context/BookContext';
 
-const EmprunterLivre = () => {
+const BenificierDonLivre = () => {
   const { addToCart } = useCart();
-  const { booksToLend } = useBooks();
+  const { booksToGive } = useBooks();
 
-  const handleEmprunt = (livre) => {
-    addToCart({ ...livre, type: 'emprunt' });
+  const handleGive = (livre) => {
+    addToCart({ ...livre, type: 'don' });
   };
 
-  // Vérification si booksToLend est un tableau
-  if (!Array.isArray(booksToLend)) {
+  // Vérification si booksToGive est un tableau
+  if (!Array.isArray(booksToGive)) {
     return <div>Erreur : Impossible de charger les livres à prêter.</div>;
   }
 
   return (
     <div>
       <h1>Don de livres</h1>
-      <BookList books={booksToLend} type="Bénificier" onBookAction={handleEmprunt} />
+      <BookList books={booksToGive} type="Bénificier" onBookAction={handleGive} />
     </div>
   );
 };
 
-export default EmprunterLivre;
+export default BenificierDonLivre;

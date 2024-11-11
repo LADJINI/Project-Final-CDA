@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { getLatestBooksForSale, getLatestBooksForBorrow } from '../services/bookService'; // Importez les services corrects
+import { getLatestBooksForSale, getLatestBooksForDonation } from '../services/bookService'; // Importez les services corrects
 import BookCarousel from '../components/books/BookCarousel'; // Assurez-vous que ce chemin est correct
 import { useNavigate } from 'react-router-dom'; // Importer useNavigate pour la navigation
 
 const HomePage = () => {
   const [booksForSale, setBooksForSale] = useState([]);
-  const [booksForBorrow, setBooksForBorrow] = useState([]);
+  const [booksForDonation, setBooksForDonation] = useState([]);
   const navigate = useNavigate(); // Pour la navigation vers d'autres pages
 
   useEffect(() => {
@@ -16,13 +16,13 @@ const HomePage = () => {
     };
 
     // Récupérer les derniers livres mis à donner
-    const fetchLatestBooksForBorrow = async () => {
-      const latestBooks = await getLatestBooksForBorrow();
-      setBooksForBorrow(latestBooks);
+    const fetchLatestBooksForDonation = async () => {
+      const latestBooks = await getLatestBooksForDonation();
+      setBooksForDonation(latestBooks);
     };
 
     fetchLatestBooksForSale();
-    fetchLatestBooksForBorrow();
+    fetchLatestBooksForDonation();
   }, []);
 
   // Fonction pour naviguer vers la page "Acheter un livre"
@@ -31,7 +31,7 @@ const HomePage = () => {
   };
 
   // Fonction pour naviguer vers la page "Bénificier d'un don"
-  const handleNavigateToBorrow = () => {
+  const handleNavigateToDonation = () => {
     navigate('/don-livre');
   };
 
@@ -47,10 +47,10 @@ const HomePage = () => {
 
       {/* Bloc pour don des livres */}
       <div className="section">
-        <h2 onClick={handleNavigateToBorrow} style={{ cursor: 'pointer', color: 'blue' }}>
+        <h2 onClick={handleNavigateToDonation} style={{ cursor: 'pointer', color: 'blue' }}>
           Bénificier d'un don de livres
         </h2>
-        <BookCarousel books={booksForBorrow} />
+        <BookCarousel books={booksForDonation} />
       </div>
     </div>
   );

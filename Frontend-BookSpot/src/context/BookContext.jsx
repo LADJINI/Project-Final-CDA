@@ -2,17 +2,18 @@ import React, { createContext, useEffect, useState, useContext } from 'react';
 import PropTypes from 'prop-types';
 import axios from 'axios';
 
+
 const BookContext = createContext();
 
 /**
- * Fournisseur de contexte pour gérer les livres à vendre et à donner.
+ * Fournisseur de contexte pour gérer les livres à vendre et à prêter.
  * @param {Object} props - Les propriétés du fournisseur.
  * @param {ReactNode} props.children - Les éléments enfants à rendre à l'intérieur du fournisseur.
  * @returns {JSX.Element} Le rendu du fournisseur de contexte.
  */
 export const BookProvider = ({ children }) => {
   const [booksToSell, setBooksToSell] = useState([]);
-  const [booksToLend, setBooksToLend] = useState([]);
+  const [booksToGive, setBooksToGive] = useState([]);
   const [searchResults, setSearchResults] = useState([]);
   const [hasSearched, setHasSearched] = useState(false); // Indique si une recherche a été effectuée
 
@@ -22,9 +23,9 @@ export const BookProvider = ({ children }) => {
     const fetchBooks = async () => {
       try {
         const responseSell = await axios.get('http://localhost:8086/api/books?type=vente');
-        const responseLend = await axios.get('http://localhost:8086/api/books?type=don');
+        const responseGive = await axios.get('http://localhost:8086/api/books?type=don');
         setBooksToSell(responseSell.data);
-        setBooksToLend(responseLend.data);
+        setBooksToGive(responseGive.data);
       } catch (error) {
         console.error('Erreur lors de la récupération des livres:', error);
       }
@@ -38,15 +39,15 @@ export const BookProvider = ({ children }) => {
    * @param {Object} book - Le livre à ajouter.
    */
   const addBookToSell = (book) => {
-    setBooksToSell(prevBooks => [...prevBooks, { ...book, type: 'sell' }]);
+    setBooksToSell(prevBooks => [...prevBooks, { ...book, type: 'vente' }]);
   };
 
   /**
    * Ajoute un livre à la liste des livres à donner.
    * @param {Object} book - Le livre à ajouter.
    */
-  const addBookToLend = (book) => {
-    setBooksToLend(prevBooks => [...prevBooks, { ...book, type: 'lend' }]);
+  const addBookToGive = (book) => {
+    setBooksToGive(prevBooks => [...prevBooks, { ...book, type: 'don' }]);
   };
 
   /**
@@ -54,7 +55,7 @@ export const BookProvider = ({ children }) => {
    * @param {string} term - Le terme de recherche.
    */
   const searchBooks = (term) => {
-    const allBooks = [...booksToSell, ...booksToLend];
+    const allBooks = [...booksToSell, ...booksToGive];
     const results = allBooks.filter(book => 
       book.title.toLowerCase().includes(term.toLowerCase()) ||
       book.author.toLowerCase().includes(term.toLowerCase()) ||
@@ -68,9 +69,9 @@ export const BookProvider = ({ children }) => {
   return (
     <BookContext.Provider value={{ 
       booksToSell, 
-      booksToLend, 
+      booksToGive, 
       addBookToSell, 
-      addBookToLend, 
+      addBookToGive, 
       searchBooks,
       searchResults,
       hasSearched

@@ -15,7 +15,7 @@ import AuthModal from '../auth/AuthModal';
  */
 const AddBookForm = ({ type }) => {
   const { user } = useAuth(); // Récupérer l'utilisateur depuis le contexte d'authentification
-  const { addBookToSell, addBookToLend } = useBooks();
+  const { addBookToSell, addBookToGive } = useBooks();
   
   const initialState = {
     title: '',
@@ -113,7 +113,7 @@ const AddBookForm = ({ type }) => {
           if (type === 'vente') {
             addBookToSell(addedBook);
           } else if (type === 'don') {
-            addBookToLend(addedBook);
+            addBookToGive(addedBook);
           }
 
           // Réinitialisation du formulaire
