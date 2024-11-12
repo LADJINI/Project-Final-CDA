@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+
 import PropTypes from 'prop-types';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
@@ -10,7 +11,7 @@ import AuthModal from '../auth/AuthModal';
 /**
  * Composant de formulaire pour ajouter un livre.
  * @param {Object} props - Les propriétés du composant.
- * @param {string} props.type - Le type d'ajout ('vente' ou 'prêt').
+ * @param {string} props.type - Le type d'ajout ('vente' ou 'don').
  * @returns {JSX.Element} Formulaire pour ajouter un livre.
  */
 const AddBookForm = ({ type }) => {
@@ -37,12 +38,33 @@ const AddBookForm = ({ type }) => {
   const [imagePreview, setImagePreview] = useState(null);
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [transactionTypeId, setTransactionTypeId] = useState(null); 
+  const [selectedTypeId, setSelectedTypeId] = useState(null); 
+  const [transactionTypes, setTransactionTypes] = useState([]); // Déclaration de l'état pour les types de transaction
   const navigate = useNavigate();
+  
 
     // État pour afficher ou masquer le modal d'authentification
     const [authModalOpen, setAuthModalOpen] = useState(false);
 
+       // Récupération des types de transactions au montage du composant
+       
 
+       useEffect(() => {
+         const fetchTransactionTypes = async () => {
+           try {
+             const response = await axios.get('http://localhost:8086/api/transaction-types');
+             setTransactionTypes(response.data); // Assurez-vous que cette partie est bien exécutée
+           } catch (error) {
+             console.error("Erreur lors de la récupération des types de transaction :", error);
+           }
+         };
+       
+         fetchTransactionTypes();
+       }, []);
+       
+      
+       
   /**
    * Gère les changements dans les champs du formulaire.
    * @param {React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>} e - Événement de changement
@@ -88,12 +110,22 @@ const AddBookForm = ({ type }) => {
       return;
     }
 
+     // Vérifiez que selectedTypeId est défini avant de l'utiliser
+     if (!selectedTypeId) {
+      setError('Veuillez sélectionner un type de transaction.');
+      return;
+    }
+
+    // Structure du livre avec l'ID du type de transaction sélectionné
     const bookWithType = {
       ...bookData,
-      type: type === 'vente' ? 'vente' : 'don',
+      typeId: selectedTypeId, // Utiliser l'ID sélectionné ici
       price: parseFloat(bookData.price) || 0,
-      userId: user.id, // Inclure l'ID de l'utilisateur
+      userId: user.id,
     };
+
+    // Afficher bookWithType pour voir les données envoyées
+    console.log("Données envoyées :", bookWithType);
 
     if (selectedImage) {
       const formData = new FormData();
