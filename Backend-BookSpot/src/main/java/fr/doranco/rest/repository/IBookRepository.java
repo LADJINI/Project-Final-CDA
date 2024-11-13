@@ -6,6 +6,7 @@ import org.hibernate.query.NativeQuery;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import fr.doranco.rest.entities.Book;
 import jakarta.persistence.NamedQuery;
@@ -45,6 +46,8 @@ public interface IBookRepository extends JpaRepository<Book, Long> {
 	 List<Book> findByTitleAndPublished(String title, boolean published);
 	 List<Book> findByIdGreaterThan(long id);
 
+
+
 	 // 1) Requête prédéfinie (Named Query) => il faut définir cette requête dans la classe Book 
 //	 @Query(name = "book::findAllBooks")
 //	 List<Book> findBooksByTitleAndDescription(String keyword);
@@ -60,5 +63,10 @@ public interface IBookRepository extends JpaRepository<Book, Long> {
 	 @Query(value = "SELECT b FROM Book b WHERE b.title like CONCAT('%',?1,'%')")
 	 List<Book> findBooksByTitle(String keyword, Sort sort);
 //	 appeler cette méthode depuis le service => repo.findBooksByTitle("java", Sort.by("title"));
+	 
+	 
+	 @Query("SELECT b FROM Book b LEFT JOIN FETCH b.user WHERE b.id IN :bookIds")
+	 List<Book> findBooksWithUsers(@Param("bookIds") List<Long> bookIds);
+
 
 }

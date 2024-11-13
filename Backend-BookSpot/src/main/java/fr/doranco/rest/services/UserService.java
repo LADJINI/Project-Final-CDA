@@ -52,6 +52,8 @@ public class UserService {
     public Optional<UserDto> findByEmail(String email) {
         return userRepository.findByEmail(email).map(this::convertToDto);
     }
+    
+   
 
     /**
      * Récupère tous les utilisateurs.
@@ -110,6 +112,51 @@ public class UserService {
         return convertToDto(user);
     }
 
+    /**
+     * Met à jour un utilisateur en fonction de son email.
+     * 
+     * @param email L'email de l'utilisateur à mettre à jour.
+     * @param userDto Les nouvelles données de l'utilisateur.
+     * @return Le DTO de l'utilisateur mis à jour.
+     * @throws ResourceNotFoundException Si l'utilisateur n'est pas trouvé pour l'email fourni.
+     */
+    @Transactional
+    public UserDto updateUserByEmail(String email, UserDto userDto) throws ResourceNotFoundException {
+        // Recherche l'utilisateur par email
+        User existingUser = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("Utilisateur non trouvé pour l'email : " + email));
+
+        // Mise à jour des informations de l'utilisateur
+        existingUser.setNom(userDto.getNom());
+        existingUser.setPrenom(userDto.getPrenom());
+        existingUser.setDateNaissance(userDto.getDateNaissance());
+        existingUser.setAddress(userDto.getAddress());
+        existingUser.setTelephone(userDto.getTelephone());
+        existingUser.setSexe(userDto.getSexe());  // Ajout du champ sexe
+
+        // Si le champ actif est fourni, mettez à jour la valeur
+        if (userDto.getActif() != null) {
+            existingUser.setActif(userDto.getActif());
+        }
+
+        // Mise à jour du mot de passe si un nouveau mot de passe est fourni
+        if (userDto.getPassword() != null && !userDto.getPassword().isEmpty()) {
+            existingUser.setPassword(passwordEncoder.encode(userDto.getPassword()));  // Encodage du mot de passe
+        }
+
+        // Mise à jour du rôle si l'ID du rôle est fourni
+        if (userDto.getRoleId() != null) {
+            Role role = roleRepository.findById(userDto.getRoleId())
+                    .orElseThrow(() -> new RuntimeException("Rôle non trouvé pour l'ID : " + userDto.getRoleId()));
+            existingUser.setRole(role);
+        }
+
+        // Sauvegarde l'utilisateur mis à jour dans la base de données
+        userRepository.save(existingUser);
+
+        // Retourne le DTO de l'utilisateur mis à jour
+        return convertToDto(existingUser);
+    }
 
     /**
      * Met à jour un utilisateur existant.
@@ -223,6 +270,20 @@ public class UserService {
         userDto.setTelephone(registerRequest.getTelephone());  
         userDto.setDateNaissance(registerRequest.getDateNaissance());  
         return createUser(userDto);
+    }
+    public User convertToEntity(UserDto userDto) {
+        User user = new User();
+        user.setId(userDto.getId());
+        user.setEmail(userDto.getEmail());
+        user.setNom(userDto.getNom());
+        user.setPrenom(userDto.getPrenom());
+        user.setDateNaissance(userDto.getDateNaissance());
+        user.setAddress(userDto.getAddress());
+        user.setTelephone(userDto.getTelephone());
+        user.setSexe(userDto.getSexe());
+        user.setActif(userDto.getActif());
+        user.setRegistrationDate(userDto.getRegistrationDate());
+        return user;
     }
 
 }

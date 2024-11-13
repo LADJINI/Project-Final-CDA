@@ -1,9 +1,16 @@
 package fr.doranco.rest.repository;
 
-
-import org.springframework.data.jpa.repository.JpaRepository;
-
 import fr.doranco.rest.entities.TransactionType;
 
-public interface ITransactionTypeRepository extends JpaRepository<TransactionType, Integer> {
+import java.util.List;
+
+
+import org.springframework.data.repository.CrudRepository;
+
+public interface ITransactionTypeRepository extends CrudRepository<TransactionType, Integer> {
+
+    
+    TransactionType findByTypeTransaction(String typeTransaction);
+    @Override
+    List<TransactionType> findAll();
 }

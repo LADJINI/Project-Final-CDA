@@ -162,6 +162,41 @@ public class UserController {
                                  .body("Une erreur est survenue lors de la mise à jour de l'utilisateur");
         }
     }
+    
+    /**
+     * Met à jour les informations d'un utilisateur en fonction de son email.
+     * Cette méthode est utilisée pour modifier un utilisateur existant dans la base de données.
+     * 
+     * @param email L'email de l'utilisateur à mettre à jour.
+     * @param userDto Un objet contenant les nouvelles données de l'utilisateur.
+     * @return Une réponse HTTP contenant l'utilisateur mis à jour ou une erreur.
+     */
+    @PutMapping("/users/email/{email}")
+    public ResponseEntity<?> updateUserByEmail(@PathVariable("email") String email, @RequestBody UserDto userDto) {
+        try {
+            // Vérifie si les données envoyées pour la mise à jour sont valides
+            if (userDto == null) {
+                return ResponseEntity.badRequest().body("Les données de l'utilisateur à mettre à jour ne peuvent pas être null");
+            }
+
+            // Mise à jour de l'utilisateur en fonction de l'email
+            UserDto updatedUser = userService.updateUserByEmail(email, userDto);
+            
+            if (updatedUser == null) {
+                // Si l'utilisateur n'existe pas, retourner une réponse "not found"
+                return ResponseEntity.notFound().build();
+            }
+
+            // Retourne une réponse HTTP 200 avec l'utilisateur mis à jour
+            return ResponseEntity.ok(updatedUser);
+        } catch (Exception e) {
+            // En cas d'erreur, retourne une réponse HTTP 500 avec un message d'erreur
+            logger.error("Erreur lors de la mise à jour de l'utilisateur avec l'email : {}", email, e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                 .body("Une erreur est survenue lors de la mise à jour de l'utilisateur");
+        }
+    }
+
 
     /**
      * Supprime un utilisateur.

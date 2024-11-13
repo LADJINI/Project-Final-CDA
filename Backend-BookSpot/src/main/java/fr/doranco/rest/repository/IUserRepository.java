@@ -42,6 +42,7 @@ public interface IUserRepository extends JpaRepository<User, Long> {
     List<User> findByIdGreaterThan(long id);
     List<User> findByRoleId(Long roleId);
     Optional<User> findByEmail(String email);
+    Optional<User> findById(Long id);
 
     // 3) Requête JPQL
     @Query(value = "SELECT u FROM User u WHERE u.nom like %?1% OR u.prenom like %?1%")
@@ -58,6 +59,10 @@ public interface IUserRepository extends JpaRepository<User, Long> {
     Optional<User> findByEmailWithRole(@Param("email") String email);
       
         List<User> findByRole(Role role);
+        
+        @Query("SELECT u FROM User u LEFT JOIN FETCH u.books WHERE u.id = :userId")
+        Optional<User> findByIdWithBooks(@Param("userId") Long userId);
+
    
 }
 

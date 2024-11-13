@@ -9,7 +9,7 @@ import org.springframework.data.mongodb.MongoDatabaseFactory;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.SimpleMongoClientDatabaseFactory;
 import org.springframework.data.mongodb.gridfs.GridFsTemplate;
-
+import org.springframework.http.HttpMethod;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -71,6 +71,9 @@ public class SecurityConfig {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(Arrays.asList("http://localhost:5173"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        
+        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "Accept", "X-Requested-With"));
+
         configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setAllowCredentials(true);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
@@ -98,7 +101,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
             .csrf(csrf -> csrf.disable())  // Désactive CSRF car on utilise des tokens JWT
-            .authorizeHttpRequests(authz -> authz
+             .authorizeHttpRequests(authz -> authz
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")  // Restreint les routes admin aux utilisateurs avec le rôle ADMIN
                 .requestMatchers("/api/user/**").hasRole("USER")    // Restreint certaines routes aux utilisateurs avec le rôle USER
                 .requestMatchers("/api/auth/**", "/api/auth/login", "/api/register").permitAll()  // Permet l'accès public aux routes d'authentification et d'enregistrement
@@ -106,6 +109,10 @@ public class SecurityConfig {
                 .requestMatchers("/api/books/**", "/api/books").permitAll()
                 .requestMatchers("/api/roles/**").permitAll()
                 .requestMatchers("/api/imageFile/**").permitAll()
+                .requestMatchers("/api/transactions/**").permitAll()
+                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                .requestMatchers("/api/transaction-types/**").permitAll()
+                
                 .anyRequest().authenticated()  // Toutes les autres routes nécessitent une authentification
             )
             .exceptionHandling(exceptions -> exceptions

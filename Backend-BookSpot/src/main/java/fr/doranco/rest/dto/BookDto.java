@@ -44,5 +44,9 @@ public class BookDto {
     private Boolean published;
 
     private String imageId; // ID de l'image dans MongoDB
+    
+    public void setTransactionId(Integer transactionId) {
+      
+    }
 
 }

@@ -12,6 +12,8 @@ import java.util.List;
 /**
  * Contrôleur pour gérer les paiements.
  */
+
+@CrossOrigin(origins = "http://localhost:8086")
 @RestController
 @RequestMapping("/api/payments")
 public class PaymentController {

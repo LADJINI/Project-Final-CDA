@@ -20,11 +20,11 @@ public class Book {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Setter(AccessLevel.PROTECTED)
+  
     @Column(name = "id_livre")
     private Long id;
 
-    @Column(name = "titre", length = 50, nullable = false, unique = true)
+    @Column(name = "titre", length = 50, nullable = false)
     private String title;
 
     @Column(name = "auteur", length = 50)

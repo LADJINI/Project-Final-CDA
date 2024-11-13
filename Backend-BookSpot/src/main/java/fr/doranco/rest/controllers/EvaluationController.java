@@ -12,6 +12,8 @@ import java.util.List;
 /**
  * Contrôleur pour gérer les évaluations.
  */
+
+@CrossOrigin(origins = "http://localhost:8086")
 @RestController
 @RequestMapping("/evaluations")
 public class EvaluationController {

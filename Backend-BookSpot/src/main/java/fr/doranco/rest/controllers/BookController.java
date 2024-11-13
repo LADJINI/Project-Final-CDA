@@ -16,8 +16,19 @@ import java.io.ByteArrayOutputStream; // Pour ByteArrayOutputStream
 
 
 import fr.doranco.rest.dto.BookDto;
+import fr.doranco.rest.dto.TransactionDto;
+import fr.doranco.rest.dto.UserDto;
 import fr.doranco.rest.entities.Book;
+
+import fr.doranco.rest.entities.Payment;
+import fr.doranco.rest.entities.Transaction;
+import fr.doranco.rest.entities.TransactionType;
+import fr.doranco.rest.entities.User;
 import fr.doranco.rest.repository.IBookRepository;
+import fr.doranco.rest.repository.ITransactionRepository;
+import fr.doranco.rest.repository.ITransactionTypeRepository;
+import fr.doranco.rest.services.TransactionService;
+import fr.doranco.rest.services.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 
 import org.bson.types.ObjectId;
@@ -30,6 +41,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.security.Principal;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -43,13 +56,19 @@ public class BookController {
 
     @Autowired
     private IBookRepository bookRepository;
+    @Autowired
+    private UserService userService;
+    
+    @Autowired
+    private ITransactionTypeRepository transactionTypeRepository;
 
     @Autowired
     private GridFSBucket gridFSBucket;  // Injection du bucket GridFS pour MongoDB
     
     @Autowired
     private MongoDatabase mongoDatabase; // Ajoutez cette ligne pour injecter MongoDatabase
-
+    @Autowired
+    private TransactionService transactionService;
 
     /**
      * Récupère tous les livres, avec une option de filtrage par titre.
@@ -75,42 +94,62 @@ public class BookController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
-
+    
+   
     /**
-     * Endpoint pour ajouter un livre avec une image.
+     * Endpoint pour ajouter un livre avec une image conditionné par la connexion de l'utilisateur ou création de compte.
      *
      * @param bookDto   Les données du livre.
      * @param imageFile Fichier image uploadé pour le livre.
+     * @param principal Détails de l'utilisateur connecté.
+     * @param request   HttpServletRequest pour journaliser le type de contenu.
      * @return Réponse HTTP avec les détails du livre ajouté ou une erreur 500 en cas d'échec.
      */
+
     @PostMapping("/books")
-    public ResponseEntity<BookDto> addBook(
+    public ResponseEntity<?> addBook(
             @RequestPart("book") BookDto bookDto,
-            @RequestPart("image") MultipartFile imageFile,
+            @RequestPart(value = "image", required = false) MultipartFile imageFile,
+            Principal principal,  // Utilisé pour récupérer l'utilisateur connecté
             HttpServletRequest request
-    ) {logger.info("Received request with Content-Type: " + request.getContentType());
+    ) {
+        logger.info("Received request with Content-Type: " + request.getContentType());
         try {
-            if (bookDto == null || bookDto.getTitle() == null || bookDto.getTitle().trim().isEmpty()) {
-                return ResponseEntity.badRequest().build();
+            // Vérifier que l'utilisateur est connecté
+            if (principal == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User must be logged in.");
             }
 
-            // Sauvegarde des détails du livre dans MySQL
+            // Récupération de l'email à partir du Principal et recherche de l'utilisateur dans la base
+            String email = principal.getName();
+            UserDto userDto = userService.findByEmail(email).orElse(null);  // Utilisation de findByEmail
+
+            if (userDto == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not found.");
+            }
+
+            // Convertir UserDto en User
+            User user = userService.convertToEntity(userDto);
+
+            // Associer l'utilisateur au livre
             Book book = convertToEntity(bookDto);
+            book.setUser(user);
+            
+            // Sauvegarde du livre dans MySQL
             Book savedBook = bookRepository.save(book);
 
-            // Si une image est fournie, on la stocke dans MongoDB et on récupère l'ObjectId
+            // Si une image est fournie, la stocker dans MongoDB
             if (imageFile != null && !imageFile.isEmpty()) {
                 ObjectId imageId = saveImageToMongoDB(imageFile);
-
-                // Associer l'ObjectId de l'image au livre dans MySQL
                 savedBook.setImageId(imageId.toHexString());
-                bookRepository.save(savedBook); // Mise à jour de l'enregistrement avec l'image
+                bookRepository.save(savedBook);  // Mise à jour avec l'ID de l'image
             }
-
+           
             return ResponseEntity.status(HttpStatus.CREATED).body(convertToDto(savedBook));
+
         } catch (Exception e) {
             logger.error("Erreur lors de l'ajout d'un livre", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while adding the book.");
         }
     }
 
@@ -132,6 +171,7 @@ public class BookController {
         logger.info("Image sauvegardée dans MongoDB avec l'ID: " + imageId);
         return imageId;
     }
+
     /**
      * Récupère image par son ID.
      *
@@ -263,7 +303,7 @@ public class BookController {
      */
     private BookDto convertToDto(Book book) {
         BookDto dto = new BookDto();
-        dto.setId(book.getId());
+        book.setId(dto.getId());
         dto.setTitle(book.getTitle());
         dto.setAuthor(book.getAuthor());
         dto.setIsbn(book.getIsbn());
@@ -287,7 +327,9 @@ public class BookController {
      * @return L'entité Book correspondante.
      */
     private Book convertToEntity(BookDto dto) {
+    	
         Book book = new Book();
+        
         book.setTitle(dto.getTitle());
         book.setAuthor(dto.getAuthor());
         book.setIsbn(dto.getIsbn());
@@ -311,6 +353,7 @@ public class BookController {
      * @param dto  Le DTO BookDto contenant les nouvelles données.
      */
     private void updateBookFromDto(Book book, BookDto dto) {
+    	 
         book.setTitle(dto.getTitle());
         book.setAuthor(dto.getAuthor());
         book.setIsbn(dto.getIsbn());

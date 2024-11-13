@@ -3,6 +3,7 @@ package fr.doranco.rest.entities;
 import java.util.List;
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import java.time.LocalDateTime;
 
@@ -10,6 +11,7 @@ import java.time.LocalDateTime;
 @Table(name = "paiements")
 @Getter
 @Setter
+@NoArgsConstructor 
 public class Payment {
 
     @Id
@@ -28,4 +30,11 @@ public class Payment {
 
     @OneToMany(mappedBy = "payment")
     private List<Transaction> transactions;
+    
+    public Payment(Double amount, String paymentMethod, LocalDateTime paymentDate) {
+        this.amount = amount;
+        this.paymentMethod = paymentMethod;
+        this.paymentDate = paymentDate;
+    }
+
 }

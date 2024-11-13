@@ -49,7 +49,17 @@ public class PaymentService {
     }
 
     /**
-     * Récupère un paiement par son identifiant.
+     * Récupère un paiement par son identifiant en tant qu'entité Payment.
+     *
+     * @param id L'identifiant du paiement à récupérer.
+     * @return L'entité Payment ou un Optional vide si non trouvée.
+     */
+    public Optional<Payment> findById(Integer id) {
+        return paymentRepository.findById(id);
+    }
+
+    /**
+     * Récupère un paiement par son identifiant en tant que DTO.
      *
      * @param id L'identifiant du paiement à récupérer.
      * @return Le DTO du paiement ou null si non trouvé.
