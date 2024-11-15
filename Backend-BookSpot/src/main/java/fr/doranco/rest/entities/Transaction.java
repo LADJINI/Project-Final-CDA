@@ -1,6 +1,9 @@
 package fr.doranco.rest.entities;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -12,10 +15,18 @@ import java.util.Set;
  * Elle contient les informations liées à une transaction, incluant l'utilisateur, 
  * le type de transaction, le paiement, les livres, les dates et le statut.
  */
+@Data
+
+@AllArgsConstructor
+@Builder
 @Entity
 @Table(name = "transactions")
-@Getter
 @Setter
+@Getter
+@NamedQueries({
+    @NamedQuery(name = "transaction.findAll",
+                query = "SELECT t FROM Transaction t WHERE t.status = :status")
+})
 public class Transaction {
 
     @Id
@@ -35,13 +46,16 @@ public class Transaction {
     @JoinColumn(name = "id_paiment")
     private Payment payment;
 
-    @ManyToMany
+    // Utilisation de FetchType.EAGER pour charger immédiatement les livres associés
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
         name = "livre_transaction",
         joinColumns = @JoinColumn(name = "id_transaction"),
         inverseJoinColumns = @JoinColumn(name = "id_livre")
     )
+      
     private Set<Book> books;
+
 
     @Column(name = "date_transaction", nullable = false)
     private LocalDateTime transactionDate;

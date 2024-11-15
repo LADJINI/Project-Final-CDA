@@ -3,10 +3,14 @@ package fr.doranco.rest.services;
 import fr.doranco.rest.entities.TransactionType;
 import fr.doranco.rest.dto.TransactionTypeDto;
 import fr.doranco.rest.repository.ITransactionTypeRepository;
+import jakarta.annotation.PostConstruct;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -17,6 +21,20 @@ public class TransactionTypeService {
     @Autowired
     public TransactionTypeService(ITransactionTypeRepository transactionTypeRepository) {
         this.transactionTypeRepository = transactionTypeRepository;
+    }
+    
+    // Initialisation des types de transactions lors du démarrage
+    @PostConstruct
+    public void initTransactionTypes() {
+        List<String> types = Arrays.asList("vente", "achat", "don", "beneficier_don");
+
+        for (String type : types) {
+            // Vérifie si le type existe déjà dans la base de données
+            Optional<TransactionType> existingType = transactionTypeRepository.findByTypeTransaction(type);
+            if (existingType.isEmpty()) {  // Java 11 ou supérieur
+                transactionTypeRepository.save(new TransactionType(type));
+            }
+        }
     }
 
     /**

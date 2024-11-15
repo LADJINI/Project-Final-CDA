@@ -2,14 +2,13 @@ package fr.doranco.rest.repository;
 
 import java.util.List;
 
-import org.hibernate.query.NativeQuery;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import fr.doranco.rest.entities.Book;
-import jakarta.persistence.NamedQuery;
+
 
 /**
  * Avec Spring, nous pouvons utiliser les méthodes implicites (déjà implémentées) de JpaRepository :

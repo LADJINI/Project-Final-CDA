@@ -14,13 +14,13 @@ import fr.doranco.rest.repository.ITransactionRepository;
 import fr.doranco.rest.repository.ITransactionTypeRepository;
 import fr.doranco.rest.repository.IUserRepository;
 import jakarta.transaction.Transactional;
+import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
-
+import java.util.NoSuchElementException;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -35,44 +35,91 @@ public class TransactionService {
     @Autowired
     private IBookRepository bookRepository;
 
+    /**
+     * Crée une nouvelle transaction en fonction des informations fournies.
+     * 
+     * @param requestDTO Objet DTO contenant les informations nécessaires pour créer une transaction.
+     * @return La transaction nouvellement créée et sauvegardée en base de données.
+     * @throws IllegalArgumentException Si le type de transaction, l'utilisateur ou les livres sont introuvables.
+     */
     @Transactional
     public Transaction createTransaction(TransactionRequestDTO requestDTO) {
-        // Vérifier si le type de transaction existe
         TransactionType transactionType = transactionTypeRepository.findById(requestDTO.getTypeTransactionId())
                 .orElseThrow(() -> new IllegalArgumentException("Invalid Transaction Type"));
-
-        // Vérifier si l'utilisateur existe
+        
         User user = userRepository.findByIdWithBooks(requestDTO.getUserId())
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
-
-        // Récupérer les livres par leurs IDs
+        
         List<Book> booksList = bookRepository.findBooksWithUsers(requestDTO.getBookIds());
         if (booksList.isEmpty()) {
             throw new IllegalArgumentException("Books not found");
         }
 
-        // Créer la transaction
         Transaction transaction = new Transaction();
         transaction.setTypeTransaction(transactionType);
         transaction.setPrice(requestDTO.getPrice());
-        transaction.setStatus("en cours");  // Laissez le statut par défaut si nécessaire
+        transaction.setStatus("en cours");
         transaction.setUser(user);
         transaction.setBooks(new HashSet<>(booksList));
         transaction.startTransaction();
 
-        // Sauvegarder la transaction dans la base de données
         return transactionRepository.save(transaction);
     }
 
-
-    public List<Transaction> getAllTransactionsEntities() {
-        return transactionRepository.findAll();
+    /**
+     * Récupère toutes les transactions de la base de données.
+     * 
+     * @return Liste de toutes les transactions.
+     */
+    @Transactional
+    public List<Transaction> getAllTransactions() {
+    	
+            return transactionRepository.findAll();
     }
 
-    public Optional<Transaction> getTransactionEntityById(Integer id) {
-        return transactionRepository.findById(id);
+    /**
+     * Récupère une transaction spécifique par son ID, avec les livres associés.
+     * 
+     * @param id L'ID de la transaction à récupérer.
+     * @return La transaction correspondante.
+     * @throws NoSuchElementException Si aucune transaction n'est trouvée avec l'ID spécifié.
+     */
+    @Transactional
+    public Transaction getTransactionById(Integer id) {
+        return transactionRepository.findByIdWithBooks(id)
+               .orElseThrow(() -> new NoSuchElementException("Transaction not found"));
     }
 
+    /**
+     * Récupère une transaction avec les livres associés et convertit le résultat en TransactionDto.
+     * 
+     * @param id L'ID de la transaction à récupérer.
+     * @return Un objet TransactionDto représentant la transaction et les livres associés.
+     * @throws RuntimeException Si la transaction n'est pas trouvée.
+     */
+    @Transactional
+    public TransactionDto getTransactionWithBooks(Integer id) {
+        // Récupérer la transaction avec les livres associés
+        Transaction transaction = transactionRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Transaction not found"));
+
+        // Initialiser explicitement les livres associés (lazy loading)
+        Hibernate.initialize(transaction.getBooks());
+
+        // Convertir la transaction en TransactionDto
+        return convertToDto(transaction);
+    }
+
+
+    /**
+     * Met à jour le statut d'une transaction spécifique.
+     * 
+     * @param id L'ID de la transaction à mettre à jour.
+     * @param status Le nouveau statut de la transaction ("en cours", "validée", ou "annulée").
+     * @return La transaction mise à jour.
+     * @throws IllegalArgumentException Si le statut est invalide ou si la mise à jour n'est pas permise.
+     * @throws RuntimeException Si la transaction n'est pas trouvée.
+     */
     @Transactional
     public Transaction updateTransactionStatus(Integer id, String status) {
         Transaction transaction = transactionRepository.findById(id)
@@ -104,78 +151,124 @@ public class TransactionService {
         return transactionRepository.save(transaction);
     }
 
-    public List<TransactionDto> getAllTransactions() {
-        return transactionRepository.findAll().stream()
-                .map(this::convertToDto)
-                .collect(Collectors.toList());
+    /**
+     * Convertit une transaction en TransactionDto en initialisant explicitement les livres associés.
+     * 
+     * @param transaction L'entité Transaction à convertir.
+     * @return Un TransactionDto représentant la transaction.
+     */
+    @Transactional
+    public TransactionDto convertToDto(Transaction transaction) {
+        // Initialisation explicite des livres si nécessaire
+        // On s'assure que la collection des livres est bien initialisée
+        Hibernate.initialize(transaction.getBooks());
+
+        // Récupération des livres en une seule requête via une méthode dédiée
+        Set<BookDto> bookDtos = transaction.getBooks().stream()
+                .map(this::convertBookToDto)
+                .collect(Collectors.toSet());
+        
+        // Retour du DTO de transaction avec tous les détails
+        return new TransactionDto(
+                transaction.getId(),
+                transaction.getUser().getId(),
+                transaction.getTypeTransaction().getId(),
+                convertPaymentToDto(transaction.getPayment()),
+                bookDtos, // Les livres sont maintenant transformés en BookDto
+                transaction.getTransactionDate(),
+                transaction.getPrice(),
+                transaction.getStatus(),
+                transaction.getStartDate(),
+                transaction.getEndDate()
+        );
     }
 
-    public TransactionDto getTransactionById(Integer id) {
-        Transaction transaction = transactionRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Transaction not found"));
-        return convertToDto(transaction);
-    }
-    
-   
+
     /**
-     * Convertit une entité `Payment` en un `PaymentDto`.
+     * Convertit un DTO de transaction en une entité Transaction.
+     * 
+     * @param transactionDto Le DTO TransactionDto à convertir.
+     * @return L'entité Transaction correspondante.
+     * @throws IllegalArgumentException Si l'utilisateur ou le type de transaction est introuvable.
+     */
+    public Transaction convertToEntity(TransactionDto transactionDto) {
+        Transaction transaction = new Transaction();
+        transaction.setId(transactionDto.getId());
+        
+        // Récupération de l'utilisateur et du type de transaction
+        transaction.setUser(userRepository.findById(transactionDto.getUserId())
+                .orElseThrow(() -> new IllegalArgumentException("User not found")));
+        transaction.setTypeTransaction(transactionTypeRepository.findById(transactionDto.getTransactionTypeId())
+                .orElseThrow(() -> new IllegalArgumentException("Transaction type not found")));
+        
+        // Conversion du paiement
+        transaction.setPayment(convertDtoToPayment(transactionDto.getPayment()));
+        
+        // Optimisation : récupération des livres en une seule requête avec findAllById
+        List<Long> bookIds = transactionDto.getBooks().stream()
+                .map(BookDto::getId) // On récupère les IDs des livres
+                .collect(Collectors.toList());
+        
+        List<Book> books = bookRepository.findAllById(bookIds); // Récupération de tous les livres en une seule requête
+        transaction.setBooks(new HashSet<>(books)); // On associe les livres à la transaction
+        
+        // Réglage des autres propriétés de la transaction
+        transaction.setTransactionDate(transactionDto.getTransactionDate());
+        transaction.setPrice(transactionDto.getPrice());
+        transaction.setStatus(transactionDto.getStatus());
+        transaction.setStartDate(transactionDto.getStartDate());
+        transaction.setEndDate(transactionDto.getEndDate());
+        
+        return transaction;
+    }
+
+    // Conversion Helpers
+
+    /**
+     * Convertit une entité Payment en PaymentDto.
      * 
      * @param payment L'entité Payment à convertir.
-     * @return Le DTO PaymentDto correspondant.
+     * @return Un PaymentDto représentant le paiement.
      */
     public PaymentDto convertPaymentToDto(Payment payment) {
-        if (payment == null) {
-            return null;
-        }
+        if (payment == null) return null;
 
         PaymentDto paymentDto = new PaymentDto();
         paymentDto.setId(payment.getId());
         paymentDto.setPaymentDate(payment.getPaymentDate());
         paymentDto.setPaymentMethod(payment.getPaymentMethod());
         paymentDto.setAmount(payment.getAmount());
-
-        // Récupération des IDs des transactions associées au paiement
-        List<Integer> transactionIds = payment.getTransactions().stream()
-                .map(transaction -> transaction.getId())
-                .collect(Collectors.toList());
-        paymentDto.setTransactionIds(transactionIds);
-
+        paymentDto.setTransactionIds(payment.getTransactions().stream()
+                .map(Transaction::getId)
+                .collect(Collectors.toList()));
         return paymentDto;
     }
 
     /**
-     * Convertit un DTO `PaymentDto` en une entité `Payment`.
+     * Convertit un PaymentDto en une entité Payment.
      * 
      * @param paymentDto Le DTO PaymentDto à convertir.
      * @return L'entité Payment correspondante.
      */
     public Payment convertDtoToPayment(PaymentDto paymentDto) {
-        if (paymentDto == null) {
-            return null;
-        }
+        if (paymentDto == null) return null;
 
         Payment payment = new Payment();
         payment.setId(paymentDto.getId());
         payment.setPaymentDate(paymentDto.getPaymentDate());
         payment.setPaymentMethod(paymentDto.getPaymentMethod());
         payment.setAmount(paymentDto.getAmount());
-
-        // Les transactions doivent être ajoutées séparément, donc nous n'ajoutons pas ici les transactions.
-        // Si vous avez besoin de gérer les transactions, cela doit être fait à un autre endroit, dans le service associé.
-
         return payment;
     }
 
     /**
-     * Convertit une entité `Book` en un `BookDto`.
+     * Convertit une entité Book en BookDto.
      * 
      * @param book L'entité Book à convertir.
-     * @return Le DTO BookDto correspondant.
+     * @return Un BookDto représentant le livre.
      */
     public BookDto convertBookToDto(Book book) {
-        if (book == null) {
-            return null;
-        }
+        if (book == null) return null;
 
         BookDto bookDto = new BookDto();
         bookDto.setId(book.getId());
@@ -191,21 +284,17 @@ public class TransactionService {
         bookDto.setQuantityAvailable(book.getQuantityAvailable());
         bookDto.setPrice(book.getPrice());
         bookDto.setPublished(book.getPublished());
-        bookDto.setImageId(book.getImageId());
-
         return bookDto;
     }
 
     /**
-     * Convertit un DTO `BookDto` en une entité `Book`.
+     * Convertit un BookDto en une entité Book.
      * 
      * @param bookDto Le DTO BookDto à convertir.
      * @return L'entité Book correspondante.
      */
     public Book convertDtoToBook(BookDto bookDto) {
-        if (bookDto == null) {
-            return null;
-        }
+        if (bookDto == null) return null;
 
         Book book = new Book();
         book.setId(bookDto.getId());
@@ -221,42 +310,6 @@ public class TransactionService {
         book.setQuantityAvailable(bookDto.getQuantityAvailable());
         book.setPrice(bookDto.getPrice());
         book.setPublished(bookDto.getPublished());
-        book.setImageId(bookDto.getImageId());
-
         return book;
     }
-
-    
-    
-
-    public  TransactionDto convertToDto(Transaction transaction) {
-        return TransactionDto.builder()
-                .id(transaction.getId())
-                .userId(transaction.getUser().getId())
-                .transactionTypeId(transaction.getTypeTransaction().getId())
-                .payment(convertPaymentToDto(transaction.getPayment()))
-                .books(transaction.getBooks().stream().map(this::convertBookToDto).collect(Collectors.toSet()))
-                .transactionDate(transaction.getTransactionDate())
-                .price(transaction.getPrice())
-                .status(transaction.getStatus())
-                .startDate(transaction.getStartDate())
-                .endDate(transaction.getEndDate())
-                .build();
-    }
-
-    public  Transaction convertToEntity(TransactionDto transactionDto) {
-        Transaction transaction = new Transaction();
-        transaction.setId(transactionDto.getId());
-        transaction.setUser(userRepository.findById(transactionDto.getUserId()).orElseThrow(() -> new IllegalArgumentException("User not found")));
-        transaction.setTypeTransaction(transactionTypeRepository.findById(transactionDto.getTransactionTypeId()).orElseThrow(() -> new IllegalArgumentException("Transaction type not found")));
-        transaction.setPayment(convertDtoToPayment(transactionDto.getPayment()));
-        transaction.setBooks(transactionDto.getBooks().stream().map(this::convertDtoToBook).collect(Collectors.toSet()));
-        transaction.setTransactionDate(transactionDto.getTransactionDate());
-        transaction.setPrice(transactionDto.getPrice());
-        transaction.setStatus(transactionDto.getStatus());
-        transaction.setStartDate(transactionDto.getStartDate());
-        transaction.setEndDate(transactionDto.getEndDate());
-        return transaction;
-    }
-
 }

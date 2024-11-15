@@ -70,6 +70,7 @@ public class Book {
     @OneToMany(mappedBy = "book")
     private Set<Evaluation> evaluations;
 
+  
     @ManyToMany
     @JoinTable(
         name = "livre_transaction",  
