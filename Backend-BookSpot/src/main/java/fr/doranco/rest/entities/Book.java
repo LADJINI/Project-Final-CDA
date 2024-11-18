@@ -20,7 +20,6 @@ public class Book {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-  
     @Column(name = "id_livre")
     private Long id;
 

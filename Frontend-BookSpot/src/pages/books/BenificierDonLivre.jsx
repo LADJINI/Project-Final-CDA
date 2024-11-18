@@ -19,7 +19,7 @@ const BenificierDonLivre = () => {
   return (
     <div>
       <h1>Don de livres</h1>
-      <BookList books={booksToGive} type="beneficier" onBookAction={handleGive} />
+      <BookList books={booksToGive} type="beneficier_don" onBookAction={handleGive} />
     </div>
   );
 };

@@ -1,6 +1,7 @@
 package fr.doranco.rest.repository;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -44,6 +45,7 @@ public interface IBookRepository extends JpaRepository<Book, Long> {
 	 List<Book> findByDescriptionContaining(String text);
 	 List<Book> findByTitleAndPublished(String title, boolean published);
 	 List<Book> findByIdGreaterThan(long id);
+	 Optional<Book> findById(Long id);
 
 
 

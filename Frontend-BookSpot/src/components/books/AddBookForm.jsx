@@ -1,11 +1,9 @@
 import React, { useState, useEffect } from 'react';
-
 import PropTypes from 'prop-types';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { useBooks } from '../../context/BookContext';
 import { useAuth } from '../../context/AuthContext'; // Importer le contexte d'authentification
-
 import AuthModal from '../auth/AuthModal';
 
 /**
@@ -38,33 +36,41 @@ const AddBookForm = ({ type }) => {
   const [imagePreview, setImagePreview] = useState(null);
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [transactionTypeId, setTransactionTypeId] = useState(null); 
-  const [selectedTypeId, setSelectedTypeId] = useState(null); 
-  const [transactionTypes, setTransactionTypes] = useState([]); // Déclaration de l'état pour les types de transaction
-  const navigate = useNavigate();
   
+  const [transactionTypes, setTransactionTypes] = useState([]); // Déclaration de l'état pour les types de transaction
+  const [transactionTypeId, setTransactionTypeId] = useState(); // État pour le type de transaction sélectionné
+  const navigate = useNavigate();
 
-    // État pour afficher ou masquer le modal d'authentification
-    const [authModalOpen, setAuthModalOpen] = useState(false);
+  // État pour afficher ou masquer le modal d'authentification
+  const [authModalOpen, setAuthModalOpen] = useState(false);
 
-       // Récupération des types de transactions au montage du composant
-       
+  // Effect pour charger les types de transaction au montage du composant
+  useEffect(() => {
+    const fetchTransactionTypes = async () => {
+      if (user && user.token) {
+        try {
+          const response = await axios.get('http://localhost:8086/api/transaction-types', {
+            headers: {
+              'Authorization': `Bearer ${user.token}`,
+            },
+          });
+          setTransactionTypes(response.data);
+          
+          // Sélectionner automatiquement le premier type de transaction par défaut
+          if (response.data.length > 0) {
+            setTransactionTypeId(response.data[0].id); // Définir le premier ID par défaut
+            console.log("ID du type de transaction sélectionné :", response.data[0].id);
+          }
+          
+        } catch (error) {
+          console.error('Erreur lors de la récupération des types de transaction:', error);
+        }
+      }
+    };
+  
+    fetchTransactionTypes();
+  }, [user]);
 
-       useEffect(() => {
-         const fetchTransactionTypes = async () => {
-           try {
-             const response = await axios.get('http://localhost:8086/api/transaction-types');
-             setTransactionTypes(response.data); // Assurez-vous que cette partie est bien exécutée
-           } catch (error) {
-             console.error("Erreur lors de la récupération des types de transaction :", error);
-           }
-         };
-       
-         fetchTransactionTypes();
-       }, []);
-       
-      
-       
   /**
    * Gère les changements dans les champs du formulaire.
    * @param {React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>} e - Événement de changement
@@ -90,18 +96,45 @@ const AddBookForm = ({ type }) => {
   };
 
   /**
+   * Crée une transaction après l'ajout du livre.
+   * @param {number} bookId - L'ID du livre ajouté.
+   * @param {number} transactionTypeId - L'ID du type de transaction.
+   */
+  const createTransaction = async (bookId, transactionTypeId) => {
+    try {
+      const response = await axios.post('http://localhost:8086/api/transactions/create', {
+        typeTransactionId: transactionTypeId, // ID du type de transaction
+        price: parseFloat(bookData.price) || 0,  // Prix du livre
+        status: 'en cours', // Statut de la transaction
+        userId: user.id,    // ID de l'utilisateur connecté
+        bookIds: [bookId],   // Liste des IDs des livres (un seul livre ici)
+      }, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${user.token}`,
+        }
+      });
+      console.log('Transaction créée avec succès:', response.data);
+    } catch (error) {
+      console.error('Erreur lors de la création de la transaction:', error);
+      setError('Erreur lors de la création de la transaction.');
+    }
+  };
+
+  /**
    * Gère la soumission du formulaire.
    * @param {React.FormEvent<HTMLFormElement>} e - Événement de soumission
    */
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+    setIsSubmitting(true);
+    setError(''); // Réinitialiser l'erreur avant de soumettre
+  
     if (!user) {
       setAuthModalOpen(true);
+      setIsSubmitting(false);
       return;
     }
-
-    setIsSubmitting(true);
 
     // Validation des champs requis
     if (!bookData.title || !bookData.author || !selectedImage) {
@@ -110,16 +143,10 @@ const AddBookForm = ({ type }) => {
       return;
     }
 
-     // Vérifiez que selectedTypeId est défini avant de l'utiliser
-     if (!selectedTypeId) {
-      setError('Veuillez sélectionner un type de transaction.');
-      return;
-    }
-
     // Structure du livre avec l'ID du type de transaction sélectionné
     const bookWithType = {
       ...bookData,
-      typeId: selectedTypeId, // Utiliser l'ID sélectionné ici
+      typeId: transactionTypeId, // Utiliser l'ID sélectionné ici
       price: parseFloat(bookData.price) || 0,
       userId: user.id,
     };
@@ -139,15 +166,32 @@ const AddBookForm = ({ type }) => {
             'Authorization': `Bearer ${user.token}`, // Ajouter le token d'authentification
           },
         });
+        console.log('Réponse après ajout du livre:', response);
 
         if (response.status === 201) {
           const addedBook = response.data;
+
+          // Vérifiez si l'ID est bien présent
+          if (!addedBook.id) {
+            console.error('L\'ID du livre est manquant dans la réponse.');
+            setError('Erreur lors de l\'ajout du livre, ID manquant.');
+            setIsSubmitting(false);
+            return;
+          }
           if (type === 'vente') {
             addBookToSell(addedBook);
           } else if (type === 'don') {
             addBookToGive(addedBook);
-          }
 
+          }
+          
+          // Créez la transaction uniquement après l'ajout du livre
+        try {
+          await createTransaction(addedBook.id, transactionTypeId);
+        } catch (error) {
+          setError('Erreur lors de la création de la transaction.');
+          console.error('Erreur lors de la création de la transaction:', error);
+        }
           // Réinitialisation du formulaire
           setBookData(initialState);
           setSelectedImage(null);
@@ -159,7 +203,6 @@ const AddBookForm = ({ type }) => {
       } catch (e) {
         if (e.response && e.response.status === 401) {
           setError('Erreur d\'authentification : vous devez être connecté.');
-         
         } else {
           setError('Erreur lors de l\'ajout du livre.');
         }
@@ -172,7 +215,7 @@ const AddBookForm = ({ type }) => {
       setIsSubmitting(false);
     }
   };
-
+  
   return (
     <div className="max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-xl">
       <h1 className="text-3xl font-bold mb-6 text-center text-gray-800">Ajouter un Livre</h1>
@@ -194,7 +237,7 @@ const AddBookForm = ({ type }) => {
         </div>
 
         <div>
-          <label htmlFor="bookCondition" className="block text-sm font-medium text-gray-700">État</label>
+          <label htmlFor="bookCondition" className="block text-sm font-medium text-gray -700">État</label>
           <select name="bookCondition" id="bookCondition" value={bookData.bookCondition} onChange={handleChange} className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
             <option value="neuf">Neuf</option>
             <option value="occasion">Occasion</option>
@@ -242,7 +285,7 @@ const AddBookForm = ({ type }) => {
         <div>
           <label htmlFor="image" className="block text-sm font-medium text-gray-700">Image</label>
           <input type="file" id="image" accept="image/*" onChange={handleImageChange} required className="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100" />
-          {imagePreview && (
+          { imagePreview && (
             <div className="mt-2">
               <img src={imagePreview} alt="Aperçu" className="w-32 h-32 object-cover rounded-md" />
             </div>
@@ -256,7 +299,7 @@ const AddBookForm = ({ type }) => {
         </button>
       </form>
       {authModalOpen && <AuthModal isOpen={authModalOpen} onClose={() => setAuthModalOpen(false)} />}
-      </div>
+    </div>
   );
 };
 

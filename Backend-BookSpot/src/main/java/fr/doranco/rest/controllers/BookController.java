@@ -47,7 +47,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-@CrossOrigin(origins = "http://localhost:8086")
+@CrossOrigin(origins = "http://localhost:5173")
 @RestController
 @RequestMapping("/api")
 public class BookController {
@@ -303,7 +303,7 @@ public class BookController {
      */
     private BookDto convertToDto(Book book) {
         BookDto dto = new BookDto();
-        book.setId(dto.getId());
+        dto.setId(book.getId());
         dto.setTitle(book.getTitle());
         dto.setAuthor(book.getAuthor());
         dto.setIsbn(book.getIsbn());
@@ -329,7 +329,7 @@ public class BookController {
     private Book convertToEntity(BookDto dto) {
     	
         Book book = new Book();
-        
+        book.setId(dto.getId());
         book.setTitle(dto.getTitle());
         book.setAuthor(dto.getAuthor());
         book.setIsbn(dto.getIsbn());

@@ -13,4 +13,5 @@ public interface ITransactionTypeRepository extends CrudRepository<TransactionTy
 	 Optional<TransactionType> findByTypeTransaction(String typeTransaction);
     @Override
     List<TransactionType> findAll();
+    Optional<TransactionType> findById(Integer id);
 }

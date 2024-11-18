@@ -6,9 +6,7 @@ import com.mongodb.client.gridfs.GridFSBuckets;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.mongodb.MongoDatabaseFactory;
-import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.SimpleMongoClientDatabaseFactory;
-import org.springframework.data.mongodb.gridfs.GridFsTemplate;
+
 import org.springframework.http.HttpMethod;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -23,6 +21,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+
 import fr.doranco.rest.security.JwtAccessDeniedHandler;
 import fr.doranco.rest.security.JwtAuthenticationEntryPoint;
 import fr.doranco.rest.security.JwtRequestFilter;
@@ -34,9 +33,12 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.http.SessionCreationPolicy;
+
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 /**
  * Configuration de sécurité pour l'application.
@@ -45,7 +47,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
-public class SecurityConfig {
+public class SecurityConfig   {
 
     private final UserDetailsService userDetailsService;
     private final JwtService jwtService;
@@ -66,6 +68,9 @@ public class SecurityConfig {
     /**
      * Configure le CORS pour l'application, permettant les requêtes depuis des origines spécifiques.
      */
+   
+    
+  
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
@@ -80,6 +85,7 @@ public class SecurityConfig {
         source.registerCorsConfiguration("/**", configuration);
         return source;
     }
+    
     
     /**
      * Crée un bean GridFSBucket pour interagir avec MongoDB GridFS.
@@ -110,7 +116,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/roles/**").permitAll()
                 .requestMatchers("/api/imageFile/**").permitAll()
                 .requestMatchers("/api/transactions/**").permitAll()
-                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+               
                 .requestMatchers("/api/transaction-types/**").permitAll()
                 
                 .anyRequest().authenticated()  // Toutes les autres routes nécessitent une authentification
