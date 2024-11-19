@@ -92,9 +92,9 @@ const Navbar = () => {
   };
 
   // Gestion du changement de langue
-  const [language, setLanguage] = useState({ code: 'français', label: 'FR', flag: '/path/to/french-flag.png' });
+  const [language, setLanguage] = useState({ code: 'FR', label: 'FR', flag: '/path/to/french-flag.png' });
   const languages = [
-    { code: 'fr', label: 'Français', flag: 'drapeau-francais.png' },
+    { code: 'fr', label: 'FR', flag: 'drapeau-francais.png' },
     { code: 'en', label: 'EN', flag: 'drapeau-royaume-uni.png' }
   ];
 

@@ -84,7 +84,7 @@ BookList.propTypes = {
       price: PropTypes.number,
     })
   ).isRequired,
-  type: PropTypes.oneOf(['achat', 'Bénificier']).isRequired,
+  type: PropTypes.oneOf(['achat', 'beneficier_don']).isRequired,
 };
 
 export default BookList;

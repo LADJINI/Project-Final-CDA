@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+
 import { getLatestBooksForSale, getLatestBooksForDonation } from '../services/bookService'; // Importez les services corrects
 import BookCarousel from '../components/books/BookCarousel'; // Assurez-vous que ce chemin est correct
 import { useNavigate } from 'react-router-dom'; // Importer useNavigate pour la navigation
@@ -12,14 +13,15 @@ const HomePage = () => {
     // Récupérer les derniers livres mis en vente
     const fetchLatestBooksForSale = async () => {
       const latestBooks = await getLatestBooksForSale();
+      console.log("Livres à vendre:", latestBooks); // Vérifiez la réponse dans la console
       setBooksForSale(latestBooks);
     };
-
-    // Récupérer les derniers livres mis à donner
-    const fetchLatestBooksForDonation = async () => {
-      const latestBooks = await getLatestBooksForDonation();
-      setBooksForDonation(latestBooks);
-    };
+  // Récupérer les derniers livres mis à donner
+  const fetchLatestBooksForDonation = async () => {
+    const latestBooks = await getLatestBooksForDonation();
+    console.log("Livres pour donation:", latestBooks); // Vérifiez la réponse dans la console
+    setBooksForDonation(latestBooks);
+  };
 
     fetchLatestBooksForSale();
     fetchLatestBooksForDonation();

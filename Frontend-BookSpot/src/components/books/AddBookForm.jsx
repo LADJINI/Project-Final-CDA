@@ -38,13 +38,16 @@ const AddBookForm = ({ type }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   
   const [transactionTypes, setTransactionTypes] = useState([]); // Déclaration de l'état pour les types de transaction
-  const [transactionTypeId, setTransactionTypeId] = useState(); // État pour le type de transaction sélectionné
+  const [transactionTypeId, setTransactionTypeId] = useState(null); // État pour le type de transaction sélectionné
   const navigate = useNavigate();
 
   // État pour afficher ou masquer le modal d'authentification
   const [authModalOpen, setAuthModalOpen] = useState(false);
 
-  // Effect pour charger les types de transaction au montage du composant
+  /**
+   * Effect qui charge les types de transaction au montage du composant.
+   * Récupère les types de transaction depuis l'API et sélectionne celui qui correspond au type passé en prop.
+   */
   useEffect(() => {
     const fetchTransactionTypes = async () => {
       if (user && user.token) {
@@ -54,14 +57,26 @@ const AddBookForm = ({ type }) => {
               'Authorization': `Bearer ${user.token}`,
             },
           });
-          setTransactionTypes(response.data);
-          
-          // Sélectionner automatiquement le premier type de transaction par défaut
-          if (response.data.length > 0) {
-            setTransactionTypeId(response.data[0].id); // Définir le premier ID par défaut
-            console.log("ID du type de transaction sélectionné :", response.data[0].id);
+  
+          const types = response.data;
+  
+          // Vérification des types de transaction
+          if (!Array.isArray(types)) {
+            console.error("Les types de transaction retournés ne sont pas un tableau:", types);
+            return;
           }
-          
+
+          // Recherche du type de transaction correspondant au 'type' passé en prop
+          const selectedType = types.find((t) => {
+            return t?.typeTransaction && t.typeTransaction.trim().toLowerCase() === type.trim().toLowerCase();
+          });
+  
+          if (selectedType) {
+            setTransactionTypeId(selectedType.id);
+            console.log(`Type de transaction sélectionné : ${selectedType.typeTransaction} avec ID ${selectedType.id}`);
+          } else {
+            console.warn(`Aucun type de transaction trouvé pour "${type}".`);
+          }
         } catch (error) {
           console.error('Erreur lors de la récupération des types de transaction:', error);
         }
@@ -69,7 +84,7 @@ const AddBookForm = ({ type }) => {
     };
   
     fetchTransactionTypes();
-  }, [user]);
+  }, [user, type]);
 
   /**
    * Gère les changements dans les champs du formulaire.
@@ -136,6 +151,12 @@ const AddBookForm = ({ type }) => {
       return;
     }
 
+    if (!transactionTypeId) {
+      setError('Type de transaction invalide ou non sélectionné.');
+      setIsSubmitting(false);
+      return;
+    }
+
     // Validation des champs requis
     if (!bookData.title || !bookData.author || !selectedImage) {
       setError('Veuillez remplir tous les champs requis et sélectionner une image.');
@@ -178,20 +199,22 @@ const AddBookForm = ({ type }) => {
             setIsSubmitting(false);
             return;
           }
+
+          // Ajouter le livre selon le type de transaction
           if (type === 'vente') {
             addBookToSell(addedBook);
           } else if (type === 'don') {
             addBookToGive(addedBook);
+          }
 
+          // Créez la transaction uniquement après l'ajout du livre
+          try {
+            await createTransaction(addedBook.id, transactionTypeId);
+          } catch (error) {
+            setError('Erreur lors de la création de la transaction.');
+            console.error('Erreur lors de la création de la transaction:', error);
           }
           
-          // Créez la transaction uniquement après l'ajout du livre
-        try {
-          await createTransaction(addedBook.id, transactionTypeId);
-        } catch (error) {
-          setError('Erreur lors de la création de la transaction.');
-          console.error('Erreur lors de la création de la transaction:', error);
-        }
           // Réinitialisation du formulaire
           setBookData(initialState);
           setSelectedImage(null);
@@ -201,19 +224,18 @@ const AddBookForm = ({ type }) => {
           navigate('/'); // Redirige vers la page d'accueil
         }
       } catch (e) {
-        if (e.response && e.response.status === 401) {
-          setError('Erreur d\'authentification : vous devez être connecté.');
-        } else {
-          setError('Erreur lors de l\'ajout du livre.');
-        }
-        console.error(e);
-      } finally {
-        setIsSubmitting(false);
+        setError('Erreur lors de l\'ajout du livre.');
+        console.error('Erreur lors de l\'ajout du livre:', e);
       }
-    } else {
-      setError('Veuillez sélectionner une image.');
-      setIsSubmitting(false);
     }
+    setIsSubmitting(false);
+  };
+
+  /**
+   * Ferme la fenêtre modale d'authentification.
+   */
+  const closeAuthModal = () => {
+    setAuthModalOpen(false);
   };
   
   return (
@@ -303,8 +325,9 @@ const AddBookForm = ({ type }) => {
   );
 };
 
+// PropTypes pour valider les propriétés du composant
 AddBookForm.propTypes = {
-  type: PropTypes.oneOf(['vente', 'don']).isRequired,
+  type: PropTypes.string.isRequired,
 };
 
 export default AddBookForm;
