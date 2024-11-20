@@ -21,6 +21,7 @@ export const BookProvider = ({ children }) => {
         setBooksToGive(responseGive.data);
       } catch (error) {
         console.error('Erreur lors de la récupération des livres:', error);
+       
       }
     };
 

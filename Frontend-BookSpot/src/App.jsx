@@ -10,6 +10,7 @@ import Footer from './components/layout/Footer';
 import CookieConsent from "./components/common/CookieConsent";
 import AuthModal from './components/auth/AuthModal';
 
+
 // Page Components
 import HomePage from './pages/HomePage';
 import Panier from './pages/Panier';
@@ -21,6 +22,7 @@ import BenificierDonLivre from './pages/books/BenificierDonLivre';
 import SearchResultsPage from './pages/SearchResultsPage';
 import Checkout from './pages/Checkout';
 import UserProfile from './pages/UserProfile'; 
+
 
 function App() {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
@@ -45,6 +47,7 @@ function App() {
                 <Route path="/search-results" element={<SearchResultsPage />} />
                 <Route path="/checkout" element={<Checkout />} />
                 <Route path="/profile" element={<UserProfile />} />
+                
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </main>
