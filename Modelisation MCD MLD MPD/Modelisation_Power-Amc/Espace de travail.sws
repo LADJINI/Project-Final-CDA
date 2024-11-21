@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?PowerDesigner signature="Workspace" version="15.1.0.2850"?>
+<!-- Veuillez ne pas modifier ce fichier -->
+
+<Workspace>
+	<Local Expanded="Yes">
+		<Model Expanded="Yes" ID="{D951D830-4B85-4A5A-A892-75D237DD6C49}" Name="MLD_BookSpot" Type="{5F45F978-C4F3-4E35-A3FC-AF3318663A0F}" URL="MLD_BookSpot.mld"/>
+		<Model Expanded="Yes" ID="{FA746387-75D3-40BA-8B22-A71B6FC497E0}" Name="MPD_BookSpot" Selected="Yes" Type="{CDE44E21-9669-11D1-9914-006097355D9B}" URL="MPD_BookSpot.mpd"/>
+	</Local>
+	<BrowserModule Name="Référentiel"/>
+</Workspace>
