@@ -256,37 +256,7 @@ const Navbar = () => {
             </span>
           </button>
 
-          {/* Sélecteur de langue */}
-          <div 
-            className="relative"
-            onMouseEnter={handleLanguageMouseEnter}
-            onMouseLeave={handleLanguageMouseLeave}
-          >
-            <button 
-              className="flex items-center text-sm text-white bg-custom-blue hover:bg-[#164e63] font-medium transition py-2 px-4 rounded-md h-16"
-              onClick={() => setIsLanguageOpen(!isLanguageOpen)} // Basculer l'état du menu déroulant
-            >
-              <img src={language.flag} alt={language.label} className="h-4 w-4 mr-2" />
-              {language.label} <FaChevronDown className="ml-1" />
-            </button>
-            {/* Liste des langues */}
-            {isLanguageOpen && (
-              <div className="absolute left-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
-                {/* Affiche uniquement l'autre langue */}
-                {languages.filter(lang => lang.code !== language.code).map((lang) => (
-                  <button 
-                    key={lang.code} 
-                    onClick={() => handleLanguageChange(lang)} // Changer la langue
-                    className="flex items-center px-3 py-1 text-sm text-[#155e75] hover:bg-gray-100"
-                  >
-                    <img src={lang.flag} alt={lang.label} className="h-4 w-4 mr-2" />
-                    {lang.label}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
+                 </div>
       </div>
     </div>
   

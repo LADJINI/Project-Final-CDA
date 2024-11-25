@@ -50,7 +50,7 @@ const HomePage = () => {
       {/* Bloc pour don des livres */}
       <div className="section">
         <h2 onClick={handleNavigateToDonation} style={{ cursor: 'pointer', color: 'blue' }}>
-          Bénificier d'un don de livres
+        Bénéficier  d'un don de livres
         </h2>
         <BookCarousel books={booksForDonation} />
       </div>

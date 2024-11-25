@@ -33,7 +33,7 @@ const BookCarousel = ({ books }) => {
    * @param {string} imageId - L'identifiant de l'image.
    * @returns {string} L'URL de l'image.
    */
-   const getImageUrl = (imageId) => `http://localhost:8086/api/imageFile/${imageId}`;
+   const getImageUrl = (imageId) => `http://localhost:8086/api/books/image/${imageId}`;
 
   return (
     <Slider {...settings}>

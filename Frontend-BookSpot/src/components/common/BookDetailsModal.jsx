@@ -12,7 +12,7 @@ import PropTypes from 'prop-types';
 const BookDetailsModal = ({ book, onClose }) => {
   if (!book) return null;
 
-  const getImageUrl = (imageId) => `http://localhost:8086/api/imageFile/${imageId}`;
+  const getImageUrl = (imageId) => `http://localhost:8086/api/books/image/${imageId}`;
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">

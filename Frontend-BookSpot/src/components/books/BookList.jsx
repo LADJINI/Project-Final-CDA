@@ -21,7 +21,7 @@ const BookList = ({ books, type }) => {
    * @param {string} imageId - L'identifiant de l'image.
    * @returns {string} L'URL de l'image.
    */
-  const getImageUrl = (imageId) => `http://localhost:8086/api/imageFile/${imageId}`;
+  const getImageUrl = (imageId) => `http://localhost:8086/api/books/image/${imageId}`;
 
   /**
    * Gestion de l'ajout d'un livre au panier.
