@@ -2,7 +2,7 @@ package fr.doranco.rest.services;
 
 import fr.doranco.rest.dto.RoleDto;
 import fr.doranco.rest.entities.ERole;
-import fr.doranco.rest.entities.Role;
+import fr.doranco.rest.entities.Roles;
 import fr.doranco.rest.repository.IRoleRepository;
 import jakarta.annotation.PostConstruct;
 
@@ -31,7 +31,7 @@ public class RoleService {
     public void initializeRoles() {
         for (ERole eRole : ERole.values()) {
             if (!roleRepository.findByName(eRole).isPresent()) {
-                Role role = new Role();
+                Roles role = new Roles();
                 role.setName(eRole);
                 roleRepository.save(role);
             }
@@ -67,8 +67,8 @@ public class RoleService {
      * @return Le RoleDto du rôle créé
      */
     public RoleDto createRole(RoleDto roleDto) {
-        Role role = convertToEntity(roleDto);
-        Role savedRole = roleRepository.save(role);
+        Roles role = convertToEntity(roleDto);
+        Roles savedRole = roleRepository.save(role);
         return convertToDto(savedRole);
     }
 
@@ -81,9 +81,9 @@ public class RoleService {
      */
     public RoleDto updateRole(Long id, RoleDto roleDto) {
         if (roleRepository.existsById(id)) {
-            Role role = convertToEntity(roleDto);
+            Roles role = convertToEntity(roleDto);
             role.setId(id);
-            Role updatedRole = roleRepository.save(role);
+            Roles updatedRole = roleRepository.save(role);
             return convertToDto(updatedRole);
         }
         return null;
@@ -121,7 +121,7 @@ public class RoleService {
      * @param role L'entité Role à convertir
      * @return Le RoleDto correspondant
      */
-    private RoleDto convertToDto(Role role) {
+    private RoleDto convertToDto(Roles role) {
         RoleDto dto = new RoleDto();
         dto.setId(role.getId());
         dto.setName(role.getName());
@@ -134,8 +134,8 @@ public class RoleService {
      * @param dto Le RoleDto à convertir
      * @return L'entité Role correspondante
      */
-    private Role convertToEntity(RoleDto dto) {
-        Role role = new Role();
+    private Roles convertToEntity(RoleDto dto) {
+        Roles role = new Roles();
         role.setId(dto.getId());
         role.setName(dto.getName());
         return role;

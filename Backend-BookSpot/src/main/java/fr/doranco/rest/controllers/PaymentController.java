@@ -1,7 +1,7 @@
 package fr.doranco.rest.controllers;
 
 import fr.doranco.rest.dto.PaymentDto;
-import fr.doranco.rest.entities.Payment;
+import fr.doranco.rest.entities.Payments;
 import fr.doranco.rest.services.PaymentService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

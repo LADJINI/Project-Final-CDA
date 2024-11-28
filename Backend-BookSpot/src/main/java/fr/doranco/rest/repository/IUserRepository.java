@@ -9,7 +9,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import fr.doranco.rest.entities.Role;
+import fr.doranco.rest.entities.Roles;
 import fr.doranco.rest.entities.User;
 
 /**
@@ -58,10 +58,10 @@ public interface IUserRepository extends JpaRepository<User, Long> {
     @Query("SELECT u FROM User u JOIN FETCH u.role WHERE u.email = :email")
     Optional<User> findByEmailWithRole(@Param("email") String email);
       
-        List<User> findByRole(Role role);
+        List<User> findByRole(Roles role);
         
-        @Query("SELECT u FROM User u LEFT JOIN FETCH u.books WHERE u.id = :userId")
-        Optional<User> findByIdWithBooks(@Param("userId") Long userId);
+        //@Query("SELECT u FROM User u LEFT JOIN FETCH u.books WHERE u.id = :userId")
+        //Optional<User> findByIdWithBooks(@Param("userId") Long userId);
 
    
 }

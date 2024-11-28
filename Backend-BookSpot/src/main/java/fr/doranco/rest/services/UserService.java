@@ -3,7 +3,7 @@ package fr.doranco.rest.services;
 import fr.doranco.rest.dto.RegisterRequest;
 import fr.doranco.rest.dto.UserDto;
 import fr.doranco.rest.entities.ERole;
-import fr.doranco.rest.entities.Role;
+import fr.doranco.rest.entities.Roles;
 import fr.doranco.rest.entities.User;
 import fr.doranco.rest.exception.EmailAlreadyExistsException;
 import fr.doranco.rest.exception.ResourceNotFoundException;
@@ -89,7 +89,7 @@ public class UserService {
         }
 
         // Récupération du rôle, sinon on assigne le rôle par défaut (ROLE_USER)
-        Role role = (userDto.getRoleId() != null) ?
+        Roles role = (userDto.getRoleId() != null) ?
                 roleRepository.findById(userDto.getRoleId())
                         .orElseThrow(() -> new RuntimeException("Rôle non trouvé pour l'ID : " + userDto.getRoleId())) :
                 roleRepository.findByName(ERole.ROLE_USER)
@@ -146,7 +146,7 @@ public class UserService {
 
         // Mise à jour du rôle si l'ID du rôle est fourni
         if (userDto.getRoleId() != null) {
-            Role role = roleRepository.findById(userDto.getRoleId())
+            Roles role = roleRepository.findById(userDto.getRoleId())
                     .orElseThrow(() -> new RuntimeException("Rôle non trouvé pour l'ID : " + userDto.getRoleId()));
             existingUser.setRole(role);
         }
@@ -188,7 +188,7 @@ public class UserService {
 
         // Mise à jour du rôle si l'ID du rôle est fourni
         if (userDto.getRoleId() != null) {
-            Role role = roleRepository.findById(userDto.getRoleId())
+            Roles role = roleRepository.findById(userDto.getRoleId())
                     .orElseThrow(() -> new RuntimeException("Rôle non trouvé pour l'ID : " + userDto.getRoleId()));
             existingUser.setRole(role);
         }
@@ -211,7 +211,7 @@ public class UserService {
     public List<UserDto> findUserDtosByRoleId(Long roleId) {
         
         // Récupère le rôle correspondant à l'ID fourni, ou lance une exception si aucun rôle n'est trouvé
-        Role role = roleRepository.findById(roleId)
+        Roles role = roleRepository.findById(roleId)
                 .orElseThrow(() -> new RuntimeException("Rôle non trouvé pour l'ID : " + roleId));
 
         // Récupère les utilisateurs ayant ce rôle, les convertit en DTO et retourne une liste de DTOs

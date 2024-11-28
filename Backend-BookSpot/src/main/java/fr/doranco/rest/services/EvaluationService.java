@@ -1,7 +1,7 @@
 package fr.doranco.rest.services;
 
 import fr.doranco.rest.dto.EvaluationDto;
-import fr.doranco.rest.entities.Evaluation;
+import fr.doranco.rest.entities.Evaluations;
 import fr.doranco.rest.repository.IEvaluationRepository;
 
 
@@ -32,8 +32,8 @@ public class EvaluationService {
      * @return L'évaluation créée sous forme de DTO.
      */
     public EvaluationDto addEvaluation(EvaluationDto evaluationDto) {
-        Evaluation evaluation = convertToEntity(evaluationDto);
-        Evaluation savedEvaluation = evaluationRepository.save(evaluation);
+        Evaluations evaluation = convertToEntity(evaluationDto);
+        Evaluations savedEvaluation = evaluationRepository.save(evaluation);
         return convertToDto(savedEvaluation);
     }
 
@@ -43,7 +43,7 @@ public class EvaluationService {
      * @return Une liste de toutes les évaluations sous forme de DTO.
      */
     public List<EvaluationDto> getAllEvaluations() {
-        List<Evaluation> evaluations = evaluationRepository.findAll();
+        List<Evaluations> evaluations = evaluationRepository.findAll();
         return evaluations.stream()
                 .map(this::convertToDto)
                 .collect(Collectors.toList());
@@ -56,7 +56,7 @@ public class EvaluationService {
      * @return L'évaluation correspondante sous forme de DTO, ou null si non trouvée.
      */
     public EvaluationDto getEvaluationById(Long id) {
-        Optional<Evaluation> evaluationOptional = evaluationRepository.findById(id);
+        Optional<Evaluations> evaluationOptional = evaluationRepository.findById(id);
         return evaluationOptional.map(this::convertToDto).orElse(null);
     }
 
@@ -68,13 +68,13 @@ public class EvaluationService {
      * @return L'évaluation mise à jour sous forme de DTO, ou null si non trouvée.
      */
     public EvaluationDto updateEvaluation(Long id, EvaluationDto evaluationDto) {
-        Optional<Evaluation> evaluationOptional = evaluationRepository.findById(id);
+        Optional<Evaluations> evaluationOptional = evaluationRepository.findById(id);
         if (evaluationOptional.isPresent()) {
-            Evaluation evaluation = evaluationOptional.get();
+            Evaluations evaluation = evaluationOptional.get();
             evaluation.setNote(evaluationDto.getNote());
             evaluation.setCommentaire(evaluationDto.getCommentaire());
             evaluation.setDateEvaluation(evaluationDto.getDateEvaluation());
-            Evaluation updatedEvaluation = evaluationRepository.save(evaluation);
+            Evaluations updatedEvaluation = evaluationRepository.save(evaluation);
             return convertToDto(updatedEvaluation);
         }
         return null;
@@ -100,8 +100,8 @@ public class EvaluationService {
      * @param evaluationDto Le DTO à convertir.
      * @return L'entité correspondante.
      */
-    private Evaluation convertToEntity(EvaluationDto evaluationDto) {
-        Evaluation evaluation = new Evaluation();
+    private Evaluations convertToEntity(EvaluationDto evaluationDto) {
+        Evaluations evaluation = new Evaluations();
         evaluation.setId(evaluationDto.getId());
         evaluation.setNote(evaluationDto.getNote());
         evaluation.setCommentaire(evaluationDto.getCommentaire());
@@ -115,7 +115,7 @@ public class EvaluationService {
      * @param evaluation L'entité à convertir.
      * @return Le DTO correspondant.
      */
-    private EvaluationDto convertToDto(Evaluation evaluation) {
+    private EvaluationDto convertToDto(Evaluations evaluation) {
         EvaluationDto evaluationDto = new EvaluationDto();
         evaluationDto.setId(evaluation.getId());
         evaluationDto.setNote(evaluation.getNote());

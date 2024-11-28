@@ -1,7 +1,7 @@
 package fr.doranco.rest.controllers;
 
 import fr.doranco.rest.dto.EvaluationDto;
-import fr.doranco.rest.entities.Evaluation;
+import fr.doranco.rest.entities.Evaluations;
 import fr.doranco.rest.services.EvaluationService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

@@ -2,7 +2,7 @@ package fr.doranco.rest.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import fr.doranco.rest.entities.Payment;
+import fr.doranco.rest.entities.Payments;
 
-public interface IPaymentRepository extends JpaRepository<Payment, Integer> {
+public interface IPaymentRepository extends JpaRepository<Payments, Integer> {
 }

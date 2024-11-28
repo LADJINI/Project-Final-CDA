@@ -22,6 +22,7 @@ import java.util.stream.Collectors;
  */
 @RestController
 @RequestMapping("/api/transactions")
+@CrossOrigin(origins = "http://localhost:5173")
 public class TransactionController {
 
     private static final Logger logger = LoggerFactory.getLogger(TransactionController.class);
@@ -30,7 +31,7 @@ public class TransactionController {
     private TransactionService transactionService;
 
     /**
-     * Crée une nouvelle transaction en fonction des informations fournies dans le DTO.
+     * Crée une nouvelle transaction avec les livres et le type de transaction.
      * 
      * @param requestDTO Le DTO contenant les informations nécessaires pour créer une transaction.
      * @return Une réponse contenant le DTO de la transaction créée avec un statut HTTP approprié.
@@ -68,15 +69,15 @@ public class TransactionController {
     public ResponseEntity<List<TransactionDto>> getAllTransactions() {
         try {
             // Récupérer toutes les transactions depuis le service
-            List<Transaction> transactions = transactionService.getAllTransactions();
+            List<Transaction> transaction = transactionService.getAllTransactions();
 
             // Si aucune transaction n'est trouvée, retourner un statut 404 (Non trouvé)
-            if (transactions.isEmpty()) {
+            if (transaction.isEmpty()) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
             }
 
             // Conversion des transactions en DTO
-            List<TransactionDto> transactionDtos = transactions.stream()
+            List<TransactionDto> transactionDtos = transaction.stream()
                     .map(transactionService::convertToDto)
                     .collect(Collectors.toList());
 

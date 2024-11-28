@@ -1,6 +1,6 @@
 package fr.doranco.rest.services;
 
-import fr.doranco.rest.entities.TransactionType;
+import fr.doranco.rest.entities.TransactionTypes;
 import fr.doranco.rest.dto.TransactionTypeDto;
 import fr.doranco.rest.repository.ITransactionTypeRepository;
 import jakarta.annotation.PostConstruct;
@@ -30,9 +30,9 @@ public class TransactionTypeService {
 
         for (String type : types) {
             // Vérifie si le type existe déjà dans la base de données
-            Optional<TransactionType> existingType = transactionTypeRepository.findByTypeTransaction(type);
+            Optional<TransactionTypes> existingType = transactionTypeRepository.findByTypeTransaction(type);
             if (existingType.isEmpty()) {  // Java 11 ou supérieur
-                transactionTypeRepository.save(new TransactionType(type));
+                transactionTypeRepository.save(new TransactionTypes(type));
             }
         }
     }
@@ -43,7 +43,7 @@ public class TransactionTypeService {
      */
     
     public List<TransactionTypeDto> getAllTransactionTypes() {
-        List<TransactionType> transactionTypes = transactionTypeRepository.findAll();
+        List<TransactionTypes> transactionTypes = transactionTypeRepository.findAll();
        return transactionTypes.stream()
                .map(type -> new TransactionTypeDto(type.getId(), type.getTypeTransaction()))
                .collect(Collectors.toList());
@@ -55,7 +55,7 @@ public class TransactionTypeService {
      * @return Un DTO représentant le type de transaction.
      */
     public TransactionTypeDto getTransactionTypeById(Integer id) {
-        TransactionType transactionType = transactionTypeRepository.findById(id).orElse(null);
+        TransactionTypes transactionType = transactionTypeRepository.findById(id).orElse(null);
         if (transactionType != null) {
             return new TransactionTypeDto(transactionType.getId(), transactionType.getTypeTransaction());
         }
@@ -68,8 +68,8 @@ public class TransactionTypeService {
      * @return Le DTO du type de transaction créé.
      */
     public TransactionTypeDto createTransactionType(TransactionTypeDto typeTransaction) {
-        TransactionType transactionType = new TransactionType(typeTransaction.getTypeTransaction());
-        TransactionType savedTransactionType = transactionTypeRepository.save(transactionType);
+        TransactionTypes transactionType = new TransactionTypes(typeTransaction.getTypeTransaction());
+        TransactionTypes savedTransactionType = transactionTypeRepository.save(transactionType);
         return new TransactionTypeDto(savedTransactionType.getId(), savedTransactionType.getTypeTransaction());
     }
 

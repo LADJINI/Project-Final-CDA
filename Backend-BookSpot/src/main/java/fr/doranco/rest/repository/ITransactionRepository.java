@@ -11,10 +11,10 @@ import fr.doranco.rest.entities.Transaction;
 
 import java.util.Optional;
 
-
 import org.springframework.data.jpa.repository.EntityGraph;
+
 public interface ITransactionRepository extends JpaRepository<Transaction, Integer> {
-	 @EntityGraph(attributePaths = {"books"})
+	 @EntityGraph(attributePaths = {"book"})
 	    Optional<Transaction> findById(Integer id);
 	 
 	 @Query("SELECT t FROM Transaction t LEFT JOIN FETCH t.books WHERE t.id = :id")

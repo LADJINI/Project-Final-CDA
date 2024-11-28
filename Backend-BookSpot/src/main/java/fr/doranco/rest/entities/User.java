@@ -21,7 +21,10 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
-@Table(name = "utilisateurs")
+
+@Table(
+	    name = "utilisateurs",
+	    uniqueConstraints = @UniqueConstraint(name = "PK_UTILISATEURS", columnNames = "id_utilisateur"))
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -37,18 +40,18 @@ public class User {
     private Long id;
 
     @NotBlank(message = "Le nom est obligatoire")
-    @Column(name = "nom", length = 50, nullable = false)
+    @Column(name = "nom" ,  length = 100, nullable = false)
     private String nom;
 
     @NotBlank(message = "Le prénom est obligatoire")
-    @Column(name = "prenom", length = 50, nullable = false)
+    @Column(name = "prenom", length = 100, nullable = false)
     private String prenom;
 
     @Column(name = "sexe")
     private String sexe;
 
     @NotNull(message = "La date de naissance est obligatoire")
-    @Column(name = "date_naissance", nullable = false)
+    @Column(name = "date_naissance")
     private LocalDate dateNaissance;
 
     @NotBlank(message = "L'email est obligatoire")
@@ -78,25 +81,25 @@ public class User {
     // Relation avec l'entité Role
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "role_id")
-    private Role role;
+    private Roles role;
     
     // Relation avec les livres (Book)
-    @Builder.Default
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private Set<Book> books = new HashSet<>();
+    //@Builder.Default
+    //@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    //private Set<Book> books = new HashSet<>();
 
     // Relation avec les questions de sécurité (SecurityQuestion)
     @Builder.Default
     @OneToMany(mappedBy = "user")
-    private List<SecurityQuestion> securityQuestions = new ArrayList<>();
+    private List<SecurityQuestions> securityQuestions = new ArrayList<>();
 
     // Relation avec les évaluations (Evaluation)
     @Builder.Default
     @OneToMany(mappedBy = "user")
-    private List<Evaluation> evaluations = new ArrayList<>();
+    private List<Evaluations> evaluations = new ArrayList<>();
 
     // Relation avec les transactions (Transaction)
     @Builder.Default
     @OneToMany(mappedBy = "user")
-    private List<Transaction> transactions = new ArrayList<>();
+    private List<Transaction> transaction = new ArrayList<>();
 }

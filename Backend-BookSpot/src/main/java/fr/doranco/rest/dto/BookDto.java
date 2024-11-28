@@ -1,12 +1,26 @@
 package fr.doranco.rest.dto;
 
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
+
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
+
 import fr.doranco.rest.entities.Book;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
 @Data
+@Getter
+@Setter
+@Builder
+@AllArgsConstructor
 public class BookDto {
 
     private Long id;
@@ -42,16 +56,12 @@ public class BookDto {
 
     private Boolean published;
 
-    private String imageId; // ID de l'image dans MongoDB
-    
-    public void setTransactionId(Integer transactionId) {
-      
-    }
-    
- // Constructeur sans arguments (par défaut)
+    private String imageId;
+
+    // Constructeur par défaut
     public BookDto() {}
-    
- // Constructeur qui prend un objet Book
+
+    // Constructeur basé sur une entité Book
     public BookDto(Book book) {
         this.id = book.getId();
         this.title = book.getTitle();
@@ -67,5 +77,29 @@ public class BookDto {
         this.price = book.getPrice();
         this.published = book.getPublished();
         this.imageId = book.getImageId();
+    }
+
+    /**
+     * Convertit un BookDto en une entité Book.
+     *
+     * @return Un objet Book.
+     */
+    public Book toEntity() {
+        return Book.builder()
+                .id(this.id)
+                .title(this.title)
+                .author(this.author)
+                .isbn(this.isbn)
+                .publisher(this.publisher)
+                .publicationDate(this.publicationDate)
+                .numberOfPages(this.numberOfPages)
+                .bookCondition(this.bookCondition)
+                .availability(this.availability)
+                .description(this.description)
+                .quantityAvailable(this.quantityAvailable)
+                .price(this.price)
+                .published(this.published)
+                .imageId(this.imageId)
+                .build();
     }
 }

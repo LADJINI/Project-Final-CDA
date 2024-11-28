@@ -3,9 +3,9 @@ package fr.doranco.rest.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import fr.doranco.rest.entities.SecurityQuestion;
+import fr.doranco.rest.entities.SecurityQuestions;
 
-public interface ISecurityQuestionRepository extends JpaRepository<SecurityQuestion, Integer> {
+public interface ISecurityQuestionRepository extends JpaRepository<SecurityQuestions, Integer> {
 }
 
 

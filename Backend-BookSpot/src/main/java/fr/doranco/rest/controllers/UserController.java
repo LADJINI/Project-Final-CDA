@@ -24,7 +24,7 @@ import fr.doranco.rest.dto.RegisterRequest;
 import fr.doranco.rest.dto.RoleDto;
 import fr.doranco.rest.dto.UserDto;
 import fr.doranco.rest.entities.ERole;
-import fr.doranco.rest.entities.Role;
+import fr.doranco.rest.entities.Roles;
 import fr.doranco.rest.exception.EmailAlreadyExistsException;
 import fr.doranco.rest.repository.IRoleRepository;
 import fr.doranco.rest.security.JwtUtils;
@@ -113,7 +113,7 @@ public class UserController {
     public ResponseEntity<List<UserDto>> getUsersByRole(@PathVariable String roleName) {
         try {
             ERole eRole = ERole.valueOf("ROLE_" + roleName.toUpperCase());
-            Optional<Role> roleOptional = roleRepository.findByName(eRole);
+            Optional<Roles> roleOptional = roleRepository.findByName(eRole);
             if (roleOptional.isEmpty()) {
                 return ResponseEntity.notFound().build();
             }

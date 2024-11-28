@@ -6,7 +6,7 @@ import lombok.Setter;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import fr.doranco.rest.entities.Payment;
+import fr.doranco.rest.entities.Payments;
 
 /**
  * DTO pour représenter un paiement.
@@ -26,7 +26,7 @@ public class PaymentDto {
     public PaymentDto() {}
     
     // Constructeur qui prend un objet Payment
-    public PaymentDto(Payment payment) {
+    public PaymentDto(Payments payment) {
         this.id = payment.getId();
         this.paymentDate = payment.getPaymentDate();
         this.paymentMethod = payment.getPaymentMethod();

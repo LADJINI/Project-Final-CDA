@@ -5,10 +5,10 @@ import fr.doranco.rest.dto.PaymentDto;
 import fr.doranco.rest.dto.TransactionDto;
 import fr.doranco.rest.dto.TransactionRequestDTO;
 import fr.doranco.rest.entities.Transaction;
-import fr.doranco.rest.entities.TransactionType;
+import fr.doranco.rest.entities.TransactionTypes;
 import fr.doranco.rest.entities.User;
 import fr.doranco.rest.entities.Book;
-import fr.doranco.rest.entities.Payment;
+import fr.doranco.rest.entities.Payments;
 import fr.doranco.rest.repository.IBookRepository;
 import fr.doranco.rest.repository.ITransactionRepository;
 import fr.doranco.rest.repository.ITransactionTypeRepository;
@@ -17,6 +17,8 @@ import jakarta.transaction.Transactional;
 import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -34,6 +36,7 @@ public class TransactionService {
     private IUserRepository userRepository;
     @Autowired
     private IBookRepository bookRepository;
+   
 
     /**
      * Crée une nouvelle transaction en fonction des informations fournies.
@@ -44,27 +47,36 @@ public class TransactionService {
      */
     @Transactional
     public Transaction createTransaction(TransactionRequestDTO requestDTO) {
-        TransactionType transactionType = transactionTypeRepository.findById(requestDTO.getTypeTransactionId())
-                .orElseThrow(() -> new IllegalArgumentException("Invalid Transaction Type"));
-        
-        User user = userRepository.findByIdWithBooks(requestDTO.getUserId())
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
-        
-        List<Book> booksList = bookRepository.findBooksWithUsers(requestDTO.getBookIds());
-        if (booksList.isEmpty()) {
-            throw new IllegalArgumentException("Books not found");
-        }
-
         Transaction transaction = new Transaction();
-        transaction.setTypeTransaction(transactionType);
+        
+        // Définir le type de transaction
+        TransactionTypes typeTransaction = transactionTypeRepository.findById(requestDTO.getTypeTransactionId())
+                .orElseThrow(() -> new IllegalArgumentException("Type de transaction non trouvé"));
+        transaction.setTypeTransaction(typeTransaction);
+
+        // Ajouter les livres associés
+        Set<Book> books = requestDTO.getBookIds().stream()
+                .map(bookRepository::findById)
+                .map(book -> book.orElseThrow(() -> new IllegalArgumentException("Livre non trouvé")))
+                .collect(Collectors.toSet());
+        transaction.setBooks(books);
+        
+        // Autres champs de la transaction
         transaction.setPrice(requestDTO.getPrice());
+        transaction.setUser(userRepository.findById(requestDTO.getUserId()).orElseThrow(() -> new IllegalArgumentException("Utilisateur non trouvé")));
+        transaction.setTransactionDate(LocalDateTime.now());
         transaction.setStatus("en cours");
-        transaction.setUser(user);
-        transaction.setBooks(new HashSet<>(booksList));
+        transaction.setStartDate(LocalDateTime.now());  // Par exemple, début de la transaction
+        
+        // Aucune mention de `booksList` nécessaire ici
         transaction.startTransaction();
 
-        return transactionRepository.save(transaction);
+        // Sauvegarder la transaction
+        transactionRepository.save(transaction);
+        
+        return transaction;
     }
+
 
     /**
      * Récupère toutes les transactions de la base de données.
@@ -209,8 +221,8 @@ public class TransactionService {
                 .map(BookDto::getId) // On récupère les IDs des livres
                 .collect(Collectors.toList());
         
-        List<Book> books = bookRepository.findAllById(bookIds); // Récupération de tous les livres en une seule requête
-        transaction.setBooks(new HashSet<>(books)); // On associe les livres à la transaction
+        List<Book> book = bookRepository.findAllById(bookIds); // Récupération de tous les livres en une seule requête
+        transaction.setBooks(new HashSet<>(book)); // On associe les livres à la transaction
         
         // Réglage des autres propriétés de la transaction
         transaction.setTransactionDate(transactionDto.getTransactionDate());
@@ -230,7 +242,7 @@ public class TransactionService {
      * @param payment L'entité Payment à convertir.
      * @return Un PaymentDto représentant le paiement.
      */
-    public PaymentDto convertPaymentToDto(Payment payment) {
+    public PaymentDto convertPaymentToDto(Payments payment) {
         if (payment == null) return null;
 
         PaymentDto paymentDto = new PaymentDto();
@@ -250,10 +262,10 @@ public class TransactionService {
      * @param paymentDto Le DTO PaymentDto à convertir.
      * @return L'entité Payment correspondante.
      */
-    public Payment convertDtoToPayment(PaymentDto paymentDto) {
+    public Payments convertDtoToPayment(PaymentDto paymentDto) {
         if (paymentDto == null) return null;
 
-        Payment payment = new Payment();
+        Payments payment = new Payments();
         payment.setId(paymentDto.getId());
         payment.setPaymentDate(paymentDto.getPaymentDate());
         payment.setPaymentMethod(paymentDto.getPaymentMethod());

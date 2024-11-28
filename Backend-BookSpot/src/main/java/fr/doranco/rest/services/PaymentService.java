@@ -1,7 +1,7 @@
 package fr.doranco.rest.services;
 
 import fr.doranco.rest.dto.PaymentDto;
-import fr.doranco.rest.entities.Payment;
+import fr.doranco.rest.entities.Payments;
 import fr.doranco.rest.repository.IPaymentRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
@@ -31,8 +31,8 @@ public class PaymentService {
      * @return Le DTO du paiement créé.
      */
     public PaymentDto addPayment(PaymentDto paymentDto) {
-        Payment payment = modelMapper.map(paymentDto, Payment.class);
-        Payment savedPayment = paymentRepository.save(payment);
+        Payments payment = modelMapper.map(paymentDto, Payments.class);
+        Payments savedPayment = paymentRepository.save(payment);
         return modelMapper.map(savedPayment, PaymentDto.class);
     }
 
@@ -54,7 +54,7 @@ public class PaymentService {
      * @param id L'identifiant du paiement à récupérer.
      * @return L'entité Payment ou un Optional vide si non trouvée.
      */
-    public Optional<Payment> findById(Integer id) {
+    public Optional<Payments> findById(Integer id) {
         return paymentRepository.findById(id);
     }
 
@@ -65,7 +65,7 @@ public class PaymentService {
      * @return Le DTO du paiement ou null si non trouvé.
      */
     public PaymentDto getPaymentById(Integer id) {
-        Optional<Payment> paymentOptional = paymentRepository.findById(id);
+        Optional<Payments> paymentOptional = paymentRepository.findById(id);
         return paymentOptional.map(payment -> modelMapper.map(payment, PaymentDto.class)).orElse(null);
     }
 
@@ -81,9 +81,9 @@ public class PaymentService {
             return null; // Le paiement n'existe pas
         }
 
-        Payment paymentToUpdate = modelMapper.map(paymentDto, Payment.class);
+        Payments paymentToUpdate = modelMapper.map(paymentDto, Payments.class);
         paymentToUpdate.setId(id); // S'assurer que l'ID est celui du paiement existant
-        Payment updatedPayment = paymentRepository.save(paymentToUpdate);
+        Payments updatedPayment = paymentRepository.save(paymentToUpdate);
         return modelMapper.map(updatedPayment, PaymentDto.class);
     }
 

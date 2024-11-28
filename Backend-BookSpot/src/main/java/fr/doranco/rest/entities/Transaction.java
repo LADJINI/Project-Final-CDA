@@ -20,7 +20,9 @@ import java.util.Set;
 @AllArgsConstructor
 @Builder
 @Entity
-@Table(name = "transactions")
+@Table(
+	    name = "transactions",
+	    uniqueConstraints = @UniqueConstraint(name = "PK_TRANSACTIONS", columnNames = "id_transaction"))
 @Setter
 @Getter
 @NamedQueries({
@@ -40,16 +42,16 @@ public class Transaction {
 
     @ManyToOne
     @JoinColumn(name = "id_type_transaction", nullable = false)
-    private TransactionType typeTransaction; // Référence à TransactionType
+    private TransactionTypes typeTransaction; // Référence à TransactionType
 
     @ManyToOne(optional = true)  // Le paiement est optionnel
     @JoinColumn(name = "id_paiment")
-    private Payment payment;
+    private Payments payment;
 
     // Utilisation de FetchType.EAGER pour charger immédiatement les livres associés
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
-        name = "livre_transaction",
+        name = "livres_transactions",
         joinColumns = @JoinColumn(name = "id_transaction"),
         inverseJoinColumns = @JoinColumn(name = "id_livre")
     )
@@ -76,8 +78,8 @@ public class Transaction {
         this.transactionDate = LocalDateTime.now();
     }
 
-    public void setBooks(Set<Book> books) {
-        this.books = books;
+    public void setBooks(Set<Book> book) {
+        this.books = book;
     }
 
     public void setAmount(Double amount) {
@@ -99,19 +101,19 @@ public class Transaction {
         this.endDate = LocalDateTime.now();
     }
 
-    public Payment getPayment() {
+    public Payments getPayment() {
         return payment;
     }
 
-    public void setPayment(Payment payment) {
+    public void setPayment(Payments payment) {
         this.payment = payment;
     }
 
-    public TransactionType getTypeTransaction() {
+    public TransactionTypes getTypeTransaction() {
         return typeTransaction;
     }
 
-    public void setTypeTransaction(TransactionType typeTransaction) {
+    public void setTypeTransaction(TransactionTypes typeTransaction) {
         this.typeTransaction = typeTransaction;
     }
 

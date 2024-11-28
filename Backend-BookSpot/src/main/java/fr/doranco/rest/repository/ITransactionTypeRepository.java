@@ -1,17 +1,17 @@
 package fr.doranco.rest.repository;
 
-import fr.doranco.rest.entities.TransactionType;
+import fr.doranco.rest.entities.TransactionTypes;
 
 import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.repository.CrudRepository;
 
-public interface ITransactionTypeRepository extends CrudRepository<TransactionType, Integer> {
+public interface ITransactionTypeRepository extends CrudRepository<TransactionTypes, Integer> {
 
     
-	 Optional<TransactionType> findByTypeTransaction(String typeTransaction);
+	 Optional<TransactionTypes> findByTypeTransaction(String typeTransaction);
     @Override
-    List<TransactionType> findAll();
-    Optional<TransactionType> findById(Integer id);
+    List<TransactionTypes> findAll();
+    Optional<TransactionTypes> findById(Integer id);
 }
