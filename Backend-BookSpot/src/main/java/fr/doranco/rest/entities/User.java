@@ -18,14 +18,15 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Getter
-@Setter
+
 @Entity
 
 @Table(
 	    name = "utilisateurs",
 	    uniqueConstraints = @UniqueConstraint(name = "PK_UTILISATEURS", columnNames = "id_utilisateur"))
 @Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder

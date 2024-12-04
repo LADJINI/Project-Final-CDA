@@ -1,0 +1,50 @@
+
+services:
+  backend:
+    build:
+      context: ./Backend-BookSpot
+      dockerfile: Dockerfile
+    ports:
+      - "8086:8086"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/Bookspot?useSSL=true
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=Bookspot2024
+      - SPRING_DATA_MONGODB_URI=mongodb://mongo:27017/Bookspot
+    depends_on:
+      - mysql
+      - mongo
+    networks:
+      - bookspot-network
+
+  frontend:
+    build:
+      context: ./Frontend-BookSpot
+      dockerfile: Dockerfile
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend
+    networks:
+      - bookspot-network
+
+  mysql:
+    image: mysql:8.0
+    ports:
+      - "3309:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: Bookspot2024
+      MYSQL_DATABASE: Bookspot
+    networks:
+      - bookspot-network
+
+  mongo:
+    image: mongo:6.0
+    ports:
+      - "27017:27017"
+    networks:
+      - bookspot-network
+
+networks:
+  bookspot-network:
+    driver: bridge

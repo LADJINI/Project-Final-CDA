@@ -11,6 +11,10 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.testng.Assert;
+
+import io.github.bonigarcia.wdm.WebDriverManager;
+
 import org.openqa.selenium.Alert;
 import org.openqa.selenium.support.ui.ExpectedCondition;
 
@@ -31,7 +35,7 @@ public class BookControllerSeleniumTest {
     }
 
     @Test
-    public void testAddBook() {
+      public void testAddBook() {
         // Naviguer vers la page d'ajout de livre
         driver.get("http://localhost:5173/ajouter-livre-vente"); // Remplacez l'URL par celle qui mène à la page de formulaire d'ajout de livre
 
