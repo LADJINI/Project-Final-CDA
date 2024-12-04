@@ -7,30 +7,30 @@ on:
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04  # Version stable d'Ubuntu
 
     steps:
     - name: Récupérer le code
       uses: actions/checkout@v2
+
+    - name: Mettre à jour OpenSSH et OpenSSL
+      run: |
+        sudo apt-get update
+        sudo apt-get install openssh-client openssl
 
     - name: Configurer SSH
       uses: webfactory/ssh-agent@v0.5.4
       with:
         ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
-    - name: Copier les fichiers via SSH
+    - name: Tester la connexion SSH
       run: |
-        # Copier les fichiers vers le serveur via SCP
-        scp -r ./* ladjini@192.168.1.86:/c/Users/Ladjini/Desktop/Project-Final-CDA/
+        ssh -o StrictHostKeyChecking=no ladjini@192.168.1.86 "echo 'SSH connexion réussie!'"
 
-    - name: Redémarrer le service Spring Boot via PowerShell
+    - name: Copier les fichiers vers le serveur via SCP
       run: |
-        # Arrêter le processus Java Spring Boot (si lancé via `java -jar`)
-        ssh ladjini@192.168.1.86 "powershell.exe Stop-Process -Name java -Force"
-        # Redémarrer le service Spring Boot (lancez à nouveau le fichier JAR)
-        ssh ladjini@192.168.1.86 "start /B java -jar C:/Users/Ladjini/Desktop/Project-Final-CDA/spring-boot-app.jar"
+        scp -r ./* ladjini@192.168.1.86:"/C:/Users/Ladjini/Desktop/Project-Final-CDA/"
 
-    - name: Redémarrer le service React (si utilisé avec PM2)
+    - name: Redémarrer le serveur
       run: |
-        # Si vous utilisez PM2 pour gérer l'application React
-        ssh ladjini@192.168.1.86 "pm2 restart react-app"
+        ssh ladjini@192.168.1.86 "cd /C:/Users/Ladjini/Desktop/Project-Final-CDA/ && ./restart_script.sh"
