@@ -20,8 +20,17 @@ jobs:
 
     - name: Copier les fichiers via SSH
       run: |
-        scp -r ./* ladjini@192.168.1.86:/C:\Users\Ladjini\Desktop\Project-Final-CDA/
+        # Copier les fichiers vers le serveur via SCP
+        scp -r ./* ladjini@192.168.1.86:/c/Users/Ladjini/Desktop/Project-Final-CDA/
 
-    - name: Redémarrer le serveur
+    - name: Redémarrer le service Spring Boot via PowerShell
       run: |
-        ssh ladjini@192.168.1.86 "cd /C:\Users\Ladjini\Desktop\Project-Final-CDA/ && ./!/bin/bash"
+        # Arrêter le processus Java Spring Boot (si lancé via `java -jar`)
+        ssh ladjini@192.168.1.86 "powershell.exe Stop-Process -Name java -Force"
+        # Redémarrer le service Spring Boot (lancez à nouveau le fichier JAR)
+        ssh ladjini@192.168.1.86 "start /B java -jar C:/Users/Ladjini/Desktop/Project-Final-CDA/spring-boot-app.jar"
+
+    - name: Redémarrer le service React (si utilisé avec PM2)
+      run: |
+        # Si vous utilisez PM2 pour gérer l'application React
+        ssh ladjini@192.168.1.86 "pm2 restart react-app"
