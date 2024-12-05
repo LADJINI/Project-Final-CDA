@@ -1,38 +1,34 @@
-name: Build and Deploy Docker Images
+name: Build and Push Docker Images
 
 on:
   push:
     branches:
-      - main
+      - main  # Le workflow se déclenche lors d'un push sur la branche "main"
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
-      # Étape 1 : Checkout du code
+      # Étape 1 : Checkout du code source
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v3  # Action pour récupérer le code source du repository
 
-      # Étape 2 : Build Docker images
+      # Étape 2 : Build des images Docker
       - name: Build Docker images
         run: |
           docker build -t ${{ secrets.DOCKER_USERNAME }}/bookspot-backend:latest ./Backend-BookSpot
           docker build -t ${{ secrets.DOCKER_USERNAME }}/bookspot-frontend:latest ./Frontend-BookSpot
 
-      # Vérification des images créées
-      - name: List Docker images
-        run: docker images
+      # Étape 3 : Connexion à Docker Hub avec les secrets
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}  # Utilisez votre nom d'utilisateur Docker Hub
+          password: ${{ secrets.DOCKER_PASSWORD }}  # Utilisez le token d'accès Docker Hub comme mot de passe
 
-      # Étape 3 : Push Docker images vers Docker Hub
-      - name: Push Docker images
+      # Étape 4 : Push des images vers Docker Hub
+      - name: Push Docker images to Docker Hub
         run: |
           docker push ${{ secrets.DOCKER_USERNAME }}/bookspot-backend:latest
           docker push ${{ secrets.DOCKER_USERNAME }}/bookspot-frontend:latest
-
-      # Étape 4 : Déployer sur le serveur distant (si applicable)
-      - name: Deploy to server (si nécessaire)
-        run: |
-          ssh -o StrictHostKeyChecking=no user@192.168.1.86 "docker-compose down && docker-compose up -d"
-        env:
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
