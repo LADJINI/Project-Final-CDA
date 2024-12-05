@@ -3,7 +3,7 @@ name: Déployer l'API REST
 on:
   push:
     branches:
-      - main  # Déclencher le déploiement sur la branche principale
+      - main
 
 jobs:
   deploy:
@@ -20,8 +20,8 @@ jobs:
 
     - name: Copier les fichiers via SSH
       run: |
-        scp -r ./ ladjini@192.168.1.86:/C:/Users/Ladjini/Desktop/Project-Final-CDA
+        scp -r ./ ladjini@192.168.1.86:C:/Users/Ladjini/Desktop/Project-Final-CDA
 
     - name: Exécuter des commandes à distance
       run: |
-        ssh ladjini@192.168.1.86 "cd /C:/Users/Ladjini/Desktop/Project-Final-CDA && ./start-server.sh"
+        ssh ladjini@192.168.1.86 "cd C:/Users/Ladjini/Desktop/Project-Final-CDA && ./start-server.sh"
