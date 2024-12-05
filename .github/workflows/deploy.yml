@@ -1,56 +1,65 @@
-name: Deploy and Expose via ngrok
+name: Deploy Dockerized Application
 
 on:
   push:
     branches:
-      - main  # Déclenchement du workflow lors d'un push sur la branche 'main'
+      - main  # Remplacez par la branche que vous utilisez, comme 'main' ou 'master'
 
 jobs:
-  deploy:
-    runs-on: ubuntu-latest  # Utilisation d'une image Ubuntu pour exécuter les étapes
+  build_and_deploy:
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:8.0
+        ports:
+          - 3309:3306
+        env:
+          MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
+          MYSQL_DATABASE: Bookspot
+        options: --health-cmd="mysqladmin ping --silent" --health-timeout=30s --health-retries=3 --health-start-period=10s
+
+      mongo:
+        image: mongo:6.0
+        ports:
+          - 27017:27017
+        options: --health-cmd="mongo --eval 'db.adminCommand('ping')' --quiet" --health-timeout=30s --health-retries=3 --health-start-period=10s
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v2
+      # Étape 1 : Checkout du code source
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v1
+      # Étape 2 : Installer Docker
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
 
-    - name: Cache Docker layers
-      uses: actions/cache@v2
-      with:
-        path: /tmp/.buildx-cache
-        key: ${{ runner.os }}-buildx-${{ github.sha }}
-        restore-keys: |
-          ${{ runner.os }}-buildx-
+      # Étape 3 : Build de l'image Docker du backend
+      - name: Build backend Docker image
+        run: |
+          docker build -t backend-image ./Backend-BookSpot
 
-    - name: Install Docker Compose
-      run: |
-        sudo curl -L "https://github.com/docker/compose/releases/download/v2.19.1/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-        sudo chmod +x /usr/local/bin/docker-compose
-        docker-compose --version  # Vérifier que Docker Compose est correctement installé
+      # Étape 4 : Build de l'image Docker du frontend
+      - name: Build frontend Docker image
+        run: |
+          docker build -t frontend-image ./Frontend-BookSpot
 
-    - name: Set up Docker
-      uses: docker/setup-buildx-action@v1
+      # Étape 5 : Lancer les services Docker avec docker-compose
+      - name: Start Docker containers
+        run: |
+          docker network create bookspot-network || true
+          docker-compose -f docker-compose.yml up -d
 
-    - name: Build Docker images
-      run: |
-        docker-compose -f docker-compose.yml build
+      # Étape 6 : Test pour vérifier que les services sont bien démarrés
+      - name: Check backend service
+        run: |
+          curl --retry 5 --retry-delay 10 --max-time 30 http://localhost:8086/health
 
-    - name: Deploy to server via ngrok tunnel
-      run: |
-        ssh -o StrictHostKeyChecking=no ladjini@0.tcp.ngrok.io -p 12345 'cd "C:/Users/Ladjini/Desktop/Project-Final-CDA" && docker-compose down && docker-compose up -d'
-      env:
-        SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-
-    - name: Start ngrok tunnel (if not started)
-      run: |
-        nohup ngrok http 5173 > /dev/null 2>&1 &  # Lancer le tunnel en arrière-plan
-        sleep 10  # Attendre que ngrok démarre
-        curl -s http://127.0.0.1:4040/api/tunnels | jq '.tunnels[0].public_url'  # Récupérer l'URL publique de ngrok
-      env:
-        NGROK_AUTH_TOKEN: ${{ secrets.NGROK_AUTH_TOKEN }}  # Si vous avez un jeton d'authentification ngrok, ajoutez-le dans les secrets
-
-    - name: Output ngrok URL
-      run: |
-        echo "Ngrok URL is: https://8f50-2001-861-3887-a940-d563-5517-97b4-f348.ngrok-free.app"  # Remplacez par l'URL réelle récupérée
+      - name: Check frontend service
+        run: |
+          curl --retry 5 --retry-delay 10 --max-time 30 http://localhost:5173
+          
+      # Étape 7 : Nettoyage des containers (optionnel)
+      - name: Clean up Docker containers
+        run: |
+          docker-compose down
