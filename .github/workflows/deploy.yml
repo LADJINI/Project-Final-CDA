@@ -35,4 +35,4 @@ jobs:
 
     - name: Deploy to server
       run: |
-        ssh -o StrictHostKeyChecking=no ladjini@192.168.1.86 'cd /home/ladjini/Desktop/Project-Final-CDA && sudo docker-compose down && sudo docker-compose up -d'
+        ssh -o StrictHostKeyChecking=no ladjini@192.168.1.86 'cd "C:/Users/Ladjini/Desktop/Project-Final-CDA" && docker-compose down && docker-compose up -d'
