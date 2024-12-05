@@ -1,4 +1,4 @@
-name: Deploy to Server
+name: Deploy and Expose via ngrok
 
 on:
   push:
@@ -24,21 +24,26 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-buildx-
 
-    - name: Set up SSH key for deployment
-      uses: webfactory/ssh-agent@v0.5.3
-      with:
-        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+    - name: Set up Docker
+      uses: docker/setup-buildx-action@v1
 
-    - name: Install Docker Compose
-      run: |
-        sudo curl -L "https://github.com/docker/compose/releases/download/v2.20.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-        sudo chmod +x /usr/local/bin/docker-compose
-        docker-compose --version
-
-    - name: Build Docker images
+    - name: Build and push Docker images
       run: |
         docker-compose -f docker-compose.yml build
 
     - name: Deploy to server
       run: |
         ssh -o StrictHostKeyChecking=no ladjini@192.168.1.86 'cd "C:/Users/Ladjini/Desktop/Project-Final-CDA" && docker-compose down && docker-compose up -d'
+
+    - name: Start ngrok tunnel
+      run: |
+        nohup ngrok http 5173 > /dev/null 2>&1 &
+        sleep 10  # Attendre que ngrok démarre
+        curl -s http://127.0.0.1:4040/api/tunnels | jq '.tunnels[0].public_url'  # Récupérer l'URL publique de ngrok
+      env:
+        NGROK_AUTH_TOKEN: ${{ secrets.NGROK_AUTH_TOKEN }}  # Si vous avez un jeton d'authentification ngrok, ajoutez-le dans les secrets
+
+    - name: Output ngrok URL
+      run: |
+        echo "Ngrok URL is: https://8f50-2001-861-3887-a940-d563-5517-97b4-f348.ngrok-free.app"  # Remplacez par l'URL réelle récupérée
+
