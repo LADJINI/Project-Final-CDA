@@ -76,7 +76,7 @@ jobs:
           ssh -o StrictHostKeyChecking=no user@192.168.1.86 << EOF
             docker pull ${{ secrets.DOCKER_USERNAME }}/bookspot-backend:latest
             docker pull ${{ secrets.DOCKER_USERNAME }}/bookspot-frontend:latest
-            cd /home/user/Project-Final-CDA
+             cd C:\\Users\\Ladjini\\Desktop\\Project-Final-CDA 
             docker-compose down
             docker-compose up -d
           EOF
