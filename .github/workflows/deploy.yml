@@ -1,27 +1,49 @@
-name: Déployer l'API REST
+name: Deploy to Docker Hub
 
 on:
   push:
     branches:
-      - main
+      - main  # Déclenche le workflow sur les pushs vers la branche main
 
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-latest
 
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: Bookspot2024
+          MYSQL_DATABASE: Bookspot
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h localhost"
+          --health-interval=30s
+          --health-timeout=5s
+          --health-retries=3
+
+      mongo:
+        image: mongo:6.0
+        ports:
+          - 27017:27017
+
     steps:
-    - name: Récupérer le code
+    - name: Checkout code
       uses: actions/checkout@v2
 
-    - name: Configurer SSH
-      uses: webfactory/ssh-agent@v0.5.4
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v1
+
+    - name: Build and push Docker images
+      uses: docker/build-push-action@v2
       with:
-        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+        context: .
+        push: true
+        tags: ladjini/backend:latest, ladjini/frontend:latest
 
-    - name: Copier les fichiers via SSH
+    - name: Deploy to server
       run: |
-        scp -o ConnectTimeout=30 -r ./ ladjini@192.168.1.86:~/Desktop/Project-Final-CDA
-
-    - name: Exécuter des commandes à distance
-      run: |
-        ssh ladjini@192.168.1.86 "cd ~/Desktop/Project-Final-CDA && chmod +x start-server.sh && ./start-server.sh"
+        ssh -o StrictHostKeyChecking=no user@192.168.1.86 "docker-compose -f /C:\Users\Ladjini\Desktop\Project-Final-CDA/docker-compose.yml up -d"
+      env:
+        SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
