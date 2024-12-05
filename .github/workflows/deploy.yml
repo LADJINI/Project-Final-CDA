@@ -1,4 +1,4 @@
-name: Build and Prepare Docker Images
+name: Build and Deploy Docker Images
 
 on:
   push:
@@ -6,21 +6,33 @@ on:
       - main
 
 jobs:
-  build:
+  build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
+      # Étape 1 : Checkout du code
       - name: Checkout code
         uses: actions/checkout@v3
 
+      # Étape 2 : Build Docker images
       - name: Build Docker images
         run: |
-          docker build -t bookspot-backend ./Backend-BookSpot
-          docker build -t bookspot-frontend ./Frontend-BookSpot
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/bookspot-backend:latest ./Backend-BookSpot
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/bookspot-frontend:latest ./Frontend-BookSpot
 
-      - name: Push Docker images (optional)
+      # Vérification des images créées
+      - name: List Docker images
+        run: docker images
+
+      # Étape 3 : Push Docker images vers Docker Hub
+      - name: Push Docker images
         run: |
           docker push ${{ secrets.DOCKER_USERNAME }}/bookspot-backend:latest
           docker push ${{ secrets.DOCKER_USERNAME }}/bookspot-frontend:latest
 
-      # Optionnel: vous pouvez préparer le transfert des images ou des fichiers sources
+      # Étape 4 : Déployer sur le serveur distant (si applicable)
+      - name: Deploy to server (si nécessaire)
+        run: |
+          ssh -o StrictHostKeyChecking=no user@192.168.1.86 "docker-compose down && docker-compose up -d"
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
