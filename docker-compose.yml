@@ -4,6 +4,7 @@ services:
     build:
       context: ./Backend-BookSpot
       dockerfile: Dockerfile
+      
     ports:
       - "8086:8086"
     environment:
@@ -31,7 +32,7 @@ services:
   mysql:
     image: mysql:8.0
     ports:
-      - "3309:3306"
+      - "3306:3306"
     environment:
       MYSQL_ROOT_PASSWORD: Bookspot2024
       MYSQL_DATABASE: Bookspot
