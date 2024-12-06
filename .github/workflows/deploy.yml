@@ -1,0 +1,34 @@
+name: Build and Push Docker Images
+
+on:
+  push:
+    branches:
+      - main  # Le workflow se déclenche lors d'un push sur la branche "main"
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Étape 1 : Checkout du code source
+      - name: Checkout code
+        uses: actions/checkout@v3  # Action pour récupérer le code source du repository
+
+      # Étape 2 : Build des images Docker
+      - name: Build Docker images
+        run: |
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/bookspot-backend:latest ./Backend-BookSpot
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/bookspot-frontend:latest ./Frontend-BookSpot
+
+      # Étape 3 : Connexion à Docker Hub avec les secrets
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}  # Utilisez votre nom d'utilisateur Docker Hub
+          password: ${{ secrets.DOCKER_PASSWORD }}  # Utilisez le token d'accès Docker Hub comme mot de passe
+
+      # Étape 4 : Push des images vers Docker Hub
+      - name: Push Docker images to Docker Hub
+        run: |
+          docker push ${{ secrets.DOCKER_USERNAME }}/bookspot-backend:latest
+          docker push ${{ secrets.DOCKER_USERNAME }}/bookspot-frontend:latest
