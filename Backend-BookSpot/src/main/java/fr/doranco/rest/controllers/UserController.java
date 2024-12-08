@@ -66,8 +66,13 @@ public class UserController {
         List<UserDto> users = userService.findAllUsers();
         return ResponseEntity.ok(users);
     }
-    
-  
+    /**
+     * .test getUser WithEvaluations
+     */
+    @GetMapping("/{userId}/evaluations")
+    public UserDto getUserWithEvaluations(@PathVariable Long userId) {
+        return userService.getUserWithEvaluations(userId);
+    }
 
     /**
      * Ajoute un nouvel utilisateur.

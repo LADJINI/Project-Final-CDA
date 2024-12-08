@@ -15,8 +15,8 @@ export const BookProvider = ({ children }) => {
     const fetchBooks = async () => {
       try {
         // Récupère les livres à vendre et à donner depuis l'API
-        const responseSell = await axios.get('http://localhost:8086/api/books?type=vente');
-        const responseGive = await axios.get('http://localhost:8086/api/books?type=don');
+        const responseSell = await axios.get('http://localhost:8086/api/books/type/1');
+        const responseGive = await axios.get('http://localhost:8086/api/books/type/3');
         setBooksToSell(responseSell.data);
         setBooksToGive(responseGive.data);
       } catch (error) {
@@ -54,7 +54,9 @@ export const BookProvider = ({ children }) => {
   return (
     <BookContext.Provider value={{ 
       booksToSell, 
-      booksToGive, 
+      setBooksToSell, 
+      booksToGive,
+      setBooksToGive, 
       addBookToSell, 
       addBookToGive, 
       searchBooks,

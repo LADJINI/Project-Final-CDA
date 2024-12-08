@@ -1,7 +1,9 @@
+/* Importation des utilitaires Tailwind CSS */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+/* Variables globales (root) */
 :root {
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
@@ -17,37 +19,54 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Liens (hypertext) */
 a {
   font-weight: 500;
   color: #646cff;
-  text-decoration: inherit;
+  text-decoration: none; /* Retire le soulignement */
 }
 a:hover {
-  color: #535bf2;
+  color: #535bf2; /* Couleur au survol */
 }
 
+/* Styles généraux du corps */
 body {
   margin: 0;
   display: flex;
-  flex-direction: column; /* Ensure that the navbar is displayed at the top */
-  width: 100%;           /* Ensure the body takes the full width of the page */
-  min-height: 100vh;
+  flex-direction: column; /* Structure principale */
+  width: 100%;           /* Largeur responsive */
+  min-height: 100vh;     /* Minimum: pleine hauteur d'écran */
 }
+
+/* Conteneur principal de l'application */
 .App {
   display: flex;
   flex-direction: column;
-  min-height: 100vh; /* Assure que l'App prend au moins la hauteur de la fenêtre */
+  min-height: 100vh; /* S'étend sur toute la hauteur */
 }
 
+/* Section principale */
 main {
-  flex-grow: 1; /* Permet au main de prendre tout l'espace disponible */
+  flex-grow: 1; /* Prend tout l'espace disponible */
 }
 
+/* Titres */
 h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
+  font-size: 1.5rem; /* Equivalent de text-2xl */
+  font-weight: 600; /* Equivalent de font-semibold */
+  color: #1D4ED8; /* Equivalent de text-blue-600 */
+  cursor: pointer;
+  margin-bottom: 1rem; /* Equivalent de mb-4 */
 }
 
+
+@media (max-width: 768px) {
+  h1 {
+    font-size: 2em; /* Ajustement mobile */
+  }
+}
+
+/* Animation d'entrée et de sortie (exemple popup) */
 .cart-popup-enter {
   opacity: 0;
   transform: scale(0.9);
@@ -66,6 +85,7 @@ h1 {
   transition: opacity 300ms, transform 300ms;
 }
 
+/* Boutons génériques */
 button {
   border-radius: 8px;
   border: 1px solid transparent;
@@ -74,6 +94,7 @@ button {
   font-weight: 500;
   font-family: inherit;
   background-color: #1a1a1a;
+  color: white;
   cursor: pointer;
   transition: border-color 0.25s;
 }
@@ -85,6 +106,7 @@ button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
 }
 
+/* Thème clair */
 @media (prefers-color-scheme: light) {
   :root {
     color: #213547;
@@ -95,11 +117,11 @@ button:focus-visible {
   }
   button {
     background-color: #f9f9f9;
+    color: black; /* Plus lisible en thème clair */
   }
 }
 
-/* src/index.css */
-/* Ajoutez des styles de base ou des configurations pour les classes utilisées */
+/* Champs d'entrée (formulaires) */
 .input {
   width: 100%;
   padding: 8px;
@@ -107,6 +129,7 @@ button:focus-visible {
   border-radius: 4px;
 }
 
+/* Bouton (CTA) */
 .btn {
   padding: 10px 20px;
   border: none;
@@ -115,60 +138,286 @@ button:focus-visible {
   color: white;
   cursor: pointer;
 }
-
 .btn:hover {
   background-color: #45a049;
 }
 
+/* Messages d'erreur */
 .error {
   color: red;
 }
 
-/* Dans pour l'état actif des lien */
+/* Lien actif */
 .active-link {
   font-weight: bold;
-  color: #3b82f6; /* Bleu */
+  color: #3b82f6; /* Bleu vif */
 }
-/* Barre de recherche */
+
+/* Placeholder (barre de recherche) */
 .search-input::placeholder {
   color: #9CA3AF;
   opacity: 1;
 }
-
 .search-input:focus::placeholder {
   color: #6B7280;
 }
-/* home  page */
+
+/* Page d'accueil */
 .homepage {
   padding: 20px;
 }
+@media (max-width: 768px) {
+  .homepage {
+    padding: 10px; /* Ajustement mobile */
+  }
+}
 
+/* Sections */
 .section {
   margin-bottom: 40px;
 }
-
 .section-title {
   font-size: 24px;
   font-weight: bold;
   margin-bottom: 10px;
-  text-decoration: none;
   color: #000;
 }
+@media (max-width: 768px) {
+  .section-title {
+    font-size: 18px; /* Plus petit pour mobile */
+  }
+}
 
+/* Cartes de livres */
 .book-card {
   padding: 10px;
   text-align: center;
+  border: 1px solid #ddd; /* Ajout d'une bordure légère */
+  border-radius: 8px;
 }
-
 .book-card img {
   max-width: 100%;
   height: auto;
 }
-
 .book-card h3 {
   margin-top: 10px;
   font-size: 16px;
 }
 
+/* Barre de navigation */
+.navbar ul {
+  display: flex;
+  gap: 20px; /* Espacement entre les liens */
+  list-style: none; /* Retire les puces */
+}
+@media (max-width: 768px) {
+  .navbar ul {
+    display: none; /* Cache la liste sur mobile */
+  }
+  .navbar button {
+    display: block; /* Affiche le bouton hamburger */
+  }
+}
 
-/* NavBar */
+/* --- Ajustements pour Mobile S (≤ 360px) --- */
+@media (max-width: 360px) {
+  h1 {
+    font-size: 1.8em; /* Plus petit pour les écrans très étroits */
+  }
+  .section-title {
+    font-size: 16px; /* Réduction pour Mobile S */
+  }
+  p {
+    font-size: 0.875em; /* Ajustement de la taille des paragraphes */
+  }
+  .homepage {
+    padding: 8px; /* Réduction des marges sur Mobile S */
+  }
+  .book-card h3 {
+    font-size: 14px; /* Taille réduite pour les titres des cartes */
+  }
+  button {
+    padding: 0.5em 1em; /* Boutons plus compacts */
+  }
+}
+
+/* footer.css */
+
+/* Styles par défaut (petites tailles d'écran, mobile-first) */
+.footer-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2rem 1rem;
+}
+
+.footer-logo {
+  font-size: 1.25rem;
+  font-weight: bold;
+}
+
+.footer-description {
+  font-size: 0.75rem;
+  color: #d1d5db; /* gray-300 */
+}
+
+.footer-title {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.footer-links ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.footer-links li {
+  margin-bottom: 0.5rem;
+}
+
+.footer-links a {
+  color: #d1d5db;
+  font-size: 0.75rem;
+}
+
+.footer-social-icons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.footer-social-icons a {
+  color: #d1d5db;
+}
+
+.footer-social-icons a:hover {
+  color: #3b82f6; /* blue-400 */
+}
+
+/* Pour les écrans de taille moyenne et plus */
+@media (min-width: 640px) {
+  .footer-container {
+    flex-direction: row;
+    justify-content: space-between;
+  }
+
+  .footer-logo,
+  .footer-description {
+    text-align: left;
+  }
+
+  .footer-links ul {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .footer-social-icons {
+    justify-content: center;
+  }
+}
+
+/* Pour les écrans larges (grands écrans de bureau) */
+@media (min-width: 1024px) {
+  .footer-container {
+    padding: 3rem 4rem;
+  }
+
+  .footer-title {
+    font-size: 1.125rem;
+  }
+
+  .footer-links ul {
+    flex-direction: row;
+    gap: 1rem;
+  }
+}
+
+
+
+/* Suppression des styles non nécessaires */
+.homepage { 
+  margin: 0 auto; 
+  max-width: 1200px; 
+  padding: 20px;
+}
+
+.section {
+  margin-bottom: 50px;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  cursor: pointer;
+}
+
+.section-title {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #2c3e50;
+  transition: color 0.3s ease;
+}
+
+.section-title:hover {
+  color: #3498db;
+}
+
+/* Si vous n'avez pas besoin de styles spécifiques pour slick */
+.slick-slide {
+  padding: 0 10px;
+}
+
+.slick-prev, .slick-next {
+  z-index: 1;
+}
+
+/* Supprimer les styles des cartes */
+.book-card {
+  position: relative;
+  background-color: #fff;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+}
+
+.book-card:hover {
+  transform: translateY(-10px);
+}
+
+.book-image {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+}
+
+.book-info {
+  padding: 15px;
+}
+
+.book-title {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.book-author {
+  font-size: 1rem;
+  color: #777;
+  margin-bottom: 5px;
+}
+
+.book-price {
+  font-size: 1rem;
+  font-weight: bold;
+  color: #3498db;
+}
+
+.book-condition {
+  font-size: 0.9rem;
+  color: #777;
+}

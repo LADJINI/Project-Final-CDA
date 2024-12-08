@@ -9,6 +9,8 @@ import fr.doranco.rest.exception.EmailAlreadyExistsException;
 import fr.doranco.rest.exception.ResourceNotFoundException;
 import fr.doranco.rest.repository.IRoleRepository;
 import fr.doranco.rest.repository.IUserRepository;
+
+import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -74,6 +76,20 @@ public class UserService {
     @Transactional(readOnly = true)
     public Optional<UserDto> findById(Long id) {
         return userRepository.findById(id).map(this::convertToDto);
+    }
+    /**
+     *TEST evaluation
+     */
+    @Transactional
+    public UserDto getUserWithEvaluations(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User  not found"));
+
+        // Initialiser explicitement les évaluations associées
+        Hibernate.initialize(user.getEvaluations());
+
+        // Convertir l'utilisateur en UserDto
+        return new UserDto(user);
     }
 
     /**

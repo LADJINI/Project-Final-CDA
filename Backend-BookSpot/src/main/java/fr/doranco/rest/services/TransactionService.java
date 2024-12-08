@@ -119,7 +119,7 @@ public class TransactionService {
         Hibernate.initialize(transaction.getBooks());
 
         // Convertir la transaction en TransactionDto
-        return convertToDto(transaction);
+        return new TransactionDto(transaction);
     }
 
 
@@ -193,6 +193,17 @@ public class TransactionService {
                 transaction.getStartDate(),
                 transaction.getEndDate()
         );
+    }
+    @Transactional
+    public List<BookDto> getBooksForUser (Long userId) {
+        List<Transaction> transactions = transactionRepository.findByUserId(userId);
+        Set<Book> books = new HashSet<>();
+
+        for (Transaction transaction : transactions) {
+            books.addAll(transaction.getBooks());
+        }
+
+        return books.stream().map(this::convertBookToDto).collect(Collectors.toList());
     }
 
 

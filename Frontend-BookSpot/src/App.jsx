@@ -22,6 +22,8 @@ import BenificierDonLivre from './pages/books/BenificierDonLivre';
 import SearchResultsPage from './pages/SearchResultsPage';
 import Checkout from './pages/Checkout';
 import UserProfile from './pages/UserProfile'; 
+import BooksForSale from './pages/BooksForSale'; 
+import BooksForDonation from './pages/BooksForDonation'; 
 
 
 function App() {
@@ -32,6 +34,7 @@ function App() {
   return (
     <AuthProvider> {/* Ajoutez le AuthProvider ici */}
       <BookProvider>
+      
         <CartProvider>
           <div className="App">
             <Navbar />
@@ -47,6 +50,8 @@ function App() {
                 <Route path="/search-results" element={<SearchResultsPage />} />
                 <Route path="/checkout" element={<Checkout />} />
                 <Route path="/profile" element={<UserProfile />} />
+                <Route path="/BooksForDonation" element={<BooksForDonation />} />
+                <Route path="/BooksForSale" element={<BooksForSale />} />
                 
                 <Route path="*" element={<NotFound />} />
               </Routes>
@@ -58,6 +63,7 @@ function App() {
              <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />
           </div>
         </CartProvider>
+        
       </BookProvider>
     </AuthProvider>
   );

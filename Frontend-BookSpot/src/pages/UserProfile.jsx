@@ -3,114 +3,135 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useBooks } from '../context/BookContext';
+import { FiEdit2 } from 'react-icons/fi';
+import BooksForSale from './BooksForSale';
+import BooksForDonation from './BooksForDonation';
 
-/**
- * Composant de profil utilisateur.
- * Affiche les informations de l'utilisateur, ses livres à vendre et ses livres à donner.
- * 
- * @returns {JSX.Element} Le rendu du profil utilisateur.
- */
 const UserProfile = () => {
-  const { user } = useAuth();  // Récupérer l'utilisateur du contexte
-  const { booksToSell, booksToGive } = useBooks();  // Récupérer les livres du contexte
+  const { user } = useAuth();
+  const { booksToSell, booksToGive } = useBooks();
   const [userData, setUserData] = useState(null);
+  const [editMode, setEditMode] = useState({});
+  const [updatedFields, setUpdatedFields] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [activeSection, setActiveSection] = useState('account');  // Section active dans le menu déroulant
-
+  const [activeSection, setActiveSection] = useState('account');
   const navigate = useNavigate();
 
-  /**
-   * Effet de récupération des données de l'utilisateur.
-   */
   useEffect(() => {
     const fetchUserData = async () => {
       if (!user) {
-        navigate('/loginForm');  // Redirige l'utilisateur vers la page de connexion s'il n'est pas connecté
+        navigate('/loginForm');
         return;
       }
-
       setLoading(true);
       try {
         const config = { headers: { Authorization: `Bearer ${user.token}` } };
-        const userDataResponse = await axios.get(`http://localhost:8086/api/users/email/${user.email}`, config);
-        setUserData(userDataResponse.data);
+        const response = await axios.get(`http://localhost:8086/api/users/email/${user.email}`, config);
+        setUserData(response.data);
       } catch (err) {
         console.error("Erreur lors de la récupération des données utilisateur :", err);
-        if (err.response && err.response.status === 404) {
-          setError('Utilisateur non trouvé.');
-        } else {
-          setError('Erreur lors de la récupération des données utilisateur.');
-        }
+        setError('Erreur lors de la récupération des données utilisateur.');
       } finally {
         setLoading(false);
       }
     };
-
     fetchUserData();
   }, [navigate, user]);
 
-  /**
-   * Sélectionne les livres de l'utilisateur à partir des données du contexte
-   */
-  const userBooksForSale = booksToSell.filter(book => book.user_id === user?.id);
-  const userBooksForDonation = booksToGive.filter(book => book.user_id === user?.id);
-
-  /**
-   * Handlers pour changer la section active du profil utilisateur
-   */
-  const handleEditProfile = () => {
-    setActiveSection('account');
+  const handleEditClick = (field) => {
+    setEditMode((prevState) => ({ ...prevState, [field]: true }));
   };
 
-  const handleEditBooksForSale = () => {
-    setActiveSection('booksForSale');
+  const handleInputChange = (field, value) => {
+    setUpdatedFields((prevState) => ({ ...prevState, [field]: value }));
   };
 
-  const handleEditBooksForDonation = () => {
-    setActiveSection('booksForDonation');
+  const handleSaveClick = async (field) => {
+    try {
+      const config = { headers: { Authorization: `Bearer ${user.token}` } };
+      const updatedUserData = { ...userData, [field]: updatedFields[field] };
+      const response = await axios.put(
+        `http://localhost:8086/api/users/email/${user.email}`,
+        updatedUserData,
+        config
+      );
+      setUserData(response.data);
+      setEditMode((prevState) => ({ ...prevState, [field]: false }));
+      setUpdatedFields((prevState) => {
+        const newState = { ...prevState };
+        delete newState[field];
+        return newState;
+      });
+    } catch (err) {
+      console.error("Erreur lors de la mise à jour :", err);
+      setError("Erreur lors de la mise à jour.");
+    }
   };
 
-  // Si l'utilisateur est en cours de chargement ou s'il y a une erreur, afficher un message
   if (loading) return <p>Chargement...</p>;
   if (error) return <p className="text-red-500">{error}</p>;
   if (!userData) return <p>Aucune donnée disponible</p>;
 
-  return (
-    <div className="max-w-3xl mx-auto p-4 border rounded-md shadow-lg bg-white">
-      <h1 className="text-2xl font-bold mb-4">Profil de l'utilisateur</h1>
+  const fields = [
+    { name: 'nom', label: 'Nom', type: 'text' },
+    { name: 'prenom', label: 'Prénom', type: 'text' },
+    { name: 'sexe', label: 'Sexe', type: 'text' },
+    { name: 'dateNaissance', label: 'Date de naissance', type: 'date' },
+    { name: 'email', label: 'Email', type: 'email' },
+    { name: 'password', label: 'Mot de passe', type: 'password' },
+    { name: 'address', label: 'Adresse', type: 'text' },
+    { name: 'telephone', label: 'Téléphone', type: 'tel' }
+  ];
 
-      {/* Menu déroulant pour naviguer entre les différentes sections */}
+  return (
+    <div className="max-w-3xl mx-auto p-6 border rounded-md shadow-lg bg-white">
+      <h1 className="text-2xl font-bold mb-4">Bonjour {userData.nom} {userData.prenom} !</h1>
+      
       <div className="flex space-x-4 mb-6">
-        <button onClick={handleEditProfile} className="text-blue-500 hover:underline">Votre compte</button>
-        <button onClick={handleEditBooksForSale} className="text-blue-500 hover:underline">Vos livres à vendre</button>
-        <button onClick={handleEditBooksForDonation} className="text-blue-500 hover:underline">Vos livres à donner</button>
+        <button onClick={() => setActiveSection('account')} className="text-blue-500 hover:underline">Votre compte</button>
+        <button onClick={() => setActiveSection('booksForSale')} className="text-blue-500 hover:underline">Vos livres à vendre</button>
+        <button onClick={() => setActiveSection('booksForDonation')} className="text-blue-500 hover:underline">Vos livres à donner</button>
       </div>
 
-      {/* Section du profil utilisateur */}
       {activeSection === 'account' && (
-        <div className="mb-4">
-          {userData ? (
-            <div className="flex flex-col">
-              <p><strong>Nom:</strong> {userData.nom}</p>
-              <p><strong>Prénom:</strong> {userData.prenom}</p>
-              <p><strong>Email:</strong> {userData.email}</p>
+        <form className="space-y-4">
+          {fields.map((field) => (
+            <div key={field.name} className="flex items-center">
+              <label className="w-1/3 font-semibold">{field.label} :</label>
+              {editMode[field.name] ? (
+                <input
+                  type={field.type}
+                  defaultValue={field.type === 'password' ? '' : userData[field.name]}
+                  onChange={(e) => handleInputChange(field.name, e.target.value)}
+                  className="border rounded px-2 py-1 flex-grow"
+                  placeholder={field.type === 'password' ? '********' : ''}
+                />
+              ) : (
+                <span className="flex-grow">
+                  {field.type === 'password' ? '********' : userData[field.name]}
+                </span>
+              )}
+              <button
+                type="button"
+                className="ml-2 text-blue-500"
+                onClick={() => (editMode[field.name] ? handleSaveClick(field.name) : handleEditClick(field.name))}
+              >
+                {editMode[field.name] ? 'Enregistrer' : <FiEdit2 />}
+              </button>
             </div>
-          ) : (
-            <p>Chargement du profil...</p>
-          )}
-        </div>
+          ))}
+        </form>
       )}
 
-      {/* Section des livres à vendre */}
       {activeSection === 'booksForSale' && (
         <div className="mb-4">
-          <h2 className="text-xl font-semibold">Vos livres à vendre</h2>
-          {userBooksForSale.length === 0 ? (
-            <p>Aucun livre à vendre</p>
+          
+          {booksToSell.filter(book => book.user_id === user?.id).length === 0 ? (
+            <p></p>
           ) : (
             <ul>
-              {userBooksForSale.map((book) => (
+              {booksToSell.filter(book => book.user_id === user?.id).map((book) => (
                 <li key={book.id}>
                   <p>{book.title} - {book.price}€</p>
                 </li>
@@ -120,23 +141,25 @@ const UserProfile = () => {
         </div>
       )}
 
-      {/* Section des livres à donner */}
       {activeSection === 'booksForDonation' && (
         <div className="mb-4">
-          <h2 className="text-xl font-semibold">Vos livres à donner</h2>
-          {userBooksForDonation.length === 0 ? (
-            <p>Aucun livre à donner</p>
+          
+          {booksToGive.filter(book => book.user_id === user?.id).length === 0 ? (
+            <p></p>
           ) : (
             <ul>
-              {userBooksForDonation.map((book) => (
+              {booksToGive.filter(book => book.user_id === user?.id).map((book) => (
                 <li key={book.id}>
-                 <p>{book.title} - {book.price}€</p>
+                  <p>{book.title} - {book.price}€</p>
                 </li>
               ))}
             </ul>
           )}
         </div>
       )}
+           {activeSection === 'booksForSale' && <BooksForSale user={user} />}
+
+{activeSection === 'booksForDonation' && <BooksForDonation user={user} />}
     </div>
   );
 };

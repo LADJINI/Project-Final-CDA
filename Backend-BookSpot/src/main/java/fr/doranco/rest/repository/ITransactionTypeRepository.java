@@ -10,8 +10,9 @@ import org.springframework.data.repository.CrudRepository;
 public interface ITransactionTypeRepository extends CrudRepository<TransactionTypes, Integer> {
 
     
-	 Optional<TransactionTypes> findByTypeTransaction(String typeTransaction);
+	Optional<TransactionTypes> findByTypeTransaction(String typeTransaction);
     @Override
     List<TransactionTypes> findAll();
     Optional<TransactionTypes> findById(Integer id);
+   
 }

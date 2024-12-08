@@ -69,11 +69,11 @@ public class Book {
     
     
 
-    @OneToMany(mappedBy = "book")
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "book")
     private Set<Evaluations> evaluations;
 
   
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
         name = "livres_transactions",  
         joinColumns = @JoinColumn(name = "id_livre"),

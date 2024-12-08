@@ -1,56 +1,62 @@
 import React, { useEffect, useState } from 'react';
-
-import { getLatestBooksForSale, getLatestBooksForDonation } from '../services/bookService'; // Importez les services corrects
-import BookCarousel from '../components/books/BookCarousel'; // Assurez-vous que ce chemin est correct
-import { useNavigate } from 'react-router-dom'; // Importer useNavigate pour la navigation
+import { getBooksForSale, getBooksForDonation } from '../services/bookService';
+import BookCarousel from '../components/books/BookCarousel';
+import { useNavigate } from 'react-router-dom';
 
 const HomePage = () => {
   const [booksForSale, setBooksForSale] = useState([]);
   const [booksForDonation, setBooksForDonation] = useState([]);
-  const navigate = useNavigate(); // Pour la navigation vers d'autres pages
+  const navigate = useNavigate();
 
   useEffect(() => {
-    // Récupérer les derniers livres mis en vente
-    const fetchLatestBooksForSale = async () => {
-      const latestBooks = await getLatestBooksForSale();
-      console.log("Livres à vendre:", latestBooks); // Vérifiez la réponse dans la console
-      setBooksForSale(latestBooks);
+    const fetchBooks = async () => {
+      try {
+        // Récupérer les livres à vendre et à donner depuis les API
+        const latestBooksForSale = await getBooksForSale();
+        const latestBooksForDonation = await getBooksForDonation();
+
+        console.log("Books for sale:", latestBooksForSale);
+        console.log("Books for donation:", latestBooksForDonation);
+
+        // Mettre à jour les états avec les livres récupérés
+        setBooksForSale(latestBooksForSale);
+        setBooksForDonation(latestBooksForDonation);
+      } catch (error) {
+        console.error("Erreur lors de la récupération des livres", error);
+      }
     };
-  // Récupérer les derniers livres mis à donner
-  const fetchLatestBooksForDonation = async () => {
-    const latestBooks = await getLatestBooksForDonation();
-    console.log("Livres pour donation:", latestBooks); // Vérifiez la réponse dans la console
-    setBooksForDonation(latestBooks);
-  };
 
-    fetchLatestBooksForSale();
-    fetchLatestBooksForDonation();
-  }, []);
+    fetchBooks();
+  }, []);  // L'effet s'exécute une seule fois au montage du composant
 
-  // Fonction pour naviguer vers la page "Acheter un livre"
   const handleNavigateToBuy = () => {
-    navigate('/acheter-livre');
+    navigate('/acheter-livre');  // Naviguer vers la page d'achat de livres
   };
 
-  // Fonction pour naviguer vers la page "Bénificier d'un don"
   const handleNavigateToDonation = () => {
-    navigate('/don-livre');
+    navigate('/don-livre');  // Naviguer vers la page de don de livres
   };
 
   return (
-    <div className="homepage">
-      {/* Bloc pour acheter des livres */}
-      <div className="section">
-        <h2 onClick={handleNavigateToBuy} style={{ cursor: 'pointer', color: 'blue' }}>
+    <div className="p-6">
+      {/* Section pour les livres à vendre */}
+      <div className="mb-8">
+        <h2 
+          onClick={handleNavigateToBuy} 
+          className="text-2xl font-semibold text-blue-600 cursor-pointer mb-4"
+        >
           Choisissez votre livre à acheter
         </h2>
         <BookCarousel books={booksForSale} />
       </div>
 
-      {/* Bloc pour don des livres */}
-      <div className="section">
-        <h2 onClick={handleNavigateToDonation} style={{ cursor: 'pointer', color: 'blue' }}>
-        Bénéficier  d'un don de livres
+      {/* Section pour les livres à donner */}
+      <div className="mb-8">
+        <h2 
+          onClick={handleNavigateToDonation} 
+          className="text-2xl font-semibold text-blue-600 cursor-pointer mb-4"
+        >
+          Bénéficiez d'un don de livres
         </h2>
         <BookCarousel books={booksForDonation} />
       </div>

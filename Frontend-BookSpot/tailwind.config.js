@@ -7,10 +7,10 @@ export default {
   theme: {
     extend: {
       colors: {
-        'custom-blue': '#155e75', // Ajoutez cette ligne pour la couleur personnalisée
+        'custom-blue': '#155e75', // Couleur personnalisée
       },
+     
     },
   },
   plugins: [],
 }
-

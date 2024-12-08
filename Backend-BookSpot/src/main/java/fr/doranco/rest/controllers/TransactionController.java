@@ -1,5 +1,6 @@
 package fr.doranco.rest.controllers;
 
+import fr.doranco.rest.dto.BookDto;
 import fr.doranco.rest.dto.TransactionDto;
 import fr.doranco.rest.dto.TransactionRequestDTO;
 import fr.doranco.rest.entities.Transaction;
@@ -96,6 +97,18 @@ public class TransactionController {
             // Gérer toutes les autres erreurs générales
             logger.error("Erreur lors de la récupération des transactions", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
+    
+    
+    @GetMapping("/user/{userId}/books")
+    public ResponseEntity<List<BookDto>> getBooksForUser (@PathVariable Long userId) {
+        try {
+            List<BookDto> books = transactionService.getBooksForUser (userId);
+            return ResponseEntity.ok(books);
+        } catch (Exception e) {
+            logger.error("Erreur lors de la récupération des livres pour l'utilisateur", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 

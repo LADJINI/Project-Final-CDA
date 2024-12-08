@@ -2,8 +2,8 @@ package fr.doranco.rest.services;
 
 import fr.doranco.rest.dto.EvaluationDto;
 import fr.doranco.rest.entities.Evaluations;
-import fr.doranco.rest.repository.IEvaluationRepository;
 
+import fr.doranco.rest.repository.IEvaluationRepository;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,11 +12,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-/**
- * Service pour gérer les évaluations.
- */
 @Service
-@Transactional
 public class EvaluationService {
 
     private final IEvaluationRepository evaluationRepository;
@@ -28,9 +24,10 @@ public class EvaluationService {
     /**
      * Ajoute une nouvelle évaluation.
      *
-     * @param evaluationDto Les données de l'évaluation à ajouter.
-     * @return L'évaluation créée sous forme de DTO.
+     * @param evaluationDto le DTO de l'évaluation à ajouter
+     * @return le DTO de l'évaluation ajoutée
      */
+    @Transactional
     public EvaluationDto addEvaluation(EvaluationDto evaluationDto) {
         Evaluations evaluation = convertToEntity(evaluationDto);
         Evaluations savedEvaluation = evaluationRepository.save(evaluation);
@@ -40,11 +37,10 @@ public class EvaluationService {
     /**
      * Récupère toutes les évaluations.
      *
-     * @return Une liste de toutes les évaluations sous forme de DTO.
+     * @return une liste de DTOs d'évaluations
      */
     public List<EvaluationDto> getAllEvaluations() {
-        List<Evaluations> evaluations = evaluationRepository.findAll();
-        return evaluations.stream()
+        return evaluationRepository.findAll().stream()
                 .map(this::convertToDto)
                 .collect(Collectors.toList());
     }
@@ -52,82 +48,69 @@ public class EvaluationService {
     /**
      * Récupère une évaluation par son identifiant.
      *
-     * @param id L'identifiant de l'évaluation à récupérer.
-     * @return L'évaluation correspondante sous forme de DTO, ou null si non trouvée.
+     * @param id l'identifiant de l'évaluation
+     * @return le DTO de l'évaluation trouvée, ou un Optional vide si non trouvée
      */
-    public EvaluationDto getEvaluationById(Long id) {
-        Optional<Evaluations> evaluationOptional = evaluationRepository.findById(id);
-        return evaluationOptional.map(this::convertToDto).orElse(null);
+    public Optional<EvaluationDto> getEvaluationById(Long id) {
+        return evaluationRepository.findById(id)
+                .map(this::convertToDto);
     }
 
     /**
      * Met à jour une évaluation existante.
      *
-     * @param id             L'identifiant de l'évaluation à mettre à jour.
-     * @param evaluationDto  Les nouvelles données de l'évaluation.
-     * @return L'évaluation mise à jour sous forme de DTO, ou null si non trouvée.
+     * @param id l'identifiant de l'évaluation à mettre à jour
+     * @param evaluationDto le DTO de l'évaluation avec les nouvelles données
+     * @return le DTO de l'évaluation mise à jour
      */
+    @Transactional
     public EvaluationDto updateEvaluation(Long id, EvaluationDto evaluationDto) {
-        Optional<Evaluations> evaluationOptional = evaluationRepository.findById(id);
-        if (evaluationOptional.isPresent()) {
-            Evaluations evaluation = evaluationOptional.get();
-            evaluation.setNote(evaluationDto.getNote());
-            evaluation.setCommentaire(evaluationDto.getCommentaire());
-            evaluation.setDateEvaluation(evaluationDto.getDateEvaluation());
-            Evaluations updatedEvaluation = evaluationRepository.save(evaluation);
-            return convertToDto(updatedEvaluation);
-        }
-        return null;
+        Evaluations evaluation = evaluationRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Évaluation non trouvée"));
+        evaluation.setNote(evaluationDto.getNote());
+        evaluation.setCommentaire(evaluationDto.getCommentaire());
+        evaluation.setDateEvaluation(evaluationDto.getDateEvaluation());
+        Evaluations updatedEvaluation = evaluationRepository.save(evaluation);
+        return convertToDto(updatedEvaluation);
     }
 
     /**
      * Supprime une évaluation par son identifiant.
      *
-     * @param id L'identifiant de l'évaluation à supprimer.
-     * @return true si l'évaluation a été supprimée, false sinon.
+     * @param id l'identifiant de l'évaluation à supprimer
      */
-    public boolean deleteEvaluation(Long id) {
-        if (evaluationRepository.existsById(id)) {
-            evaluationRepository.deleteById(id);
-            return true;
-        }
-        return false;
+    @Transactional
+    public void deleteEvaluation(Long id) {
+        evaluationRepository.deleteById(id);
     }
 
     /**
      * Convertit un DTO en entité.
      *
-     * @param evaluationDto Le DTO à convertir.
-     * @return L'entité correspondante.
+     * @param evaluationDto le DTO à convertir
+     * @return l'entité correspondante
      */
     private Evaluations convertToEntity(EvaluationDto evaluationDto) {
         Evaluations evaluation = new Evaluations();
-        evaluation.setId(evaluationDto.getId());
         evaluation.setNote(evaluationDto.getNote());
         evaluation.setCommentaire(evaluationDto.getCommentaire());
         evaluation.setDateEvaluation(evaluationDto.getDateEvaluation());
+        // Vous pouvez ajouter la conversion des relations ici si nécessaire
         return evaluation;
     }
 
     /**
      * Convertit une entité en DTO.
      *
-     * @param evaluation L'entité à convertir.
-     * @return Le DTO correspondant.
+     * @param evaluation l'entité à convertir
+     * @return le DTO correspondant
      */
     private EvaluationDto convertToDto(Evaluations evaluation) {
-        EvaluationDto evaluationDto = new EvaluationDto();
-        evaluationDto.setId(evaluation.getId());
-        evaluationDto.setNote(evaluation.getNote());
-        evaluationDto.setCommentaire(evaluation.getCommentaire());
-        evaluationDto.setDateEvaluation(evaluation.getDateEvaluation());
-        // Assurez-vous d'ajouter l'ID du livre et de l'utilisateur ici si nécessaire
-        if (evaluation.getBook() != null) {
-            evaluationDto.setBookId(evaluation.getBook().getId());
-        }
-        if (evaluation.getUser() != null) {
-            evaluationDto.setUserId(evaluation.getUser().getId());
-        }
-        return evaluationDto;
+        EvaluationDto dto = new EvaluationDto();
+        dto.setId(evaluation.getId());
+        dto.setNote(evaluation.getNote());
+        dto.setCommentaire(evaluation.getCommentaire());
+        dto.setDateEvaluation(evaluation.getDateEvaluation());
+        return dto;
     }
 }

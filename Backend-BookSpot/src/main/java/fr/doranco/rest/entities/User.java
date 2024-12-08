@@ -5,6 +5,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import java.util.ArrayList;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
@@ -91,16 +94,17 @@ public class User {
 
     // Relation avec les questions de sécurité (SecurityQuestion)
     @Builder.Default
-    @OneToMany(mappedBy = "user")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
     private List<SecurityQuestions> securityQuestions = new ArrayList<>();
 
     // Relation avec les évaluations (Evaluation)
-    @Builder.Default
-    @OneToMany(mappedBy = "user")
+  
+    
+    @OneToMany(fetch = FetchType.LAZY,mappedBy = "user")
     private List<Evaluations> evaluations = new ArrayList<>();
 
     // Relation avec les transactions (Transaction)
-    @Builder.Default
-    @OneToMany(mappedBy = "user")
+   
+    @OneToMany(fetch = FetchType.LAZY,mappedBy = "user")
     private List<Transaction> transaction = new ArrayList<>();
 }

@@ -1,21 +1,22 @@
 package fr.doranco.rest.controllers;
 
 import fr.doranco.rest.dto.EvaluationDto;
-import fr.doranco.rest.entities.Evaluations;
 import fr.doranco.rest.services.EvaluationService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
- * Contrôleur pour gérer les évaluations.
+ * Contrôleur REST pour gérer les évaluations.
+ * 
+ * Ce contrôleur expose des endpoints pour ajouter, récupérer, mettre à jour et supprimer des évaluations.
  */
-
 @CrossOrigin(origins = "http://localhost:8086")
 @RestController
-@RequestMapping("/evaluations")
+@RequestMapping("/api/evaluations")
 public class EvaluationController {
 
     private final EvaluationService evaluationService;
@@ -27,60 +28,61 @@ public class EvaluationController {
     /**
      * Ajoute une nouvelle évaluation.
      *
-     * @param evaluationDto Les données de l'évaluation à ajouter.
-     * @return Réponse HTTP avec l'évaluation ajoutée.
+     * @param evaluationDto le DTO de l'évaluation à ajouter
+     * @return la réponse contenant le DTO de l'évaluation ajoutée
      */
     @PostMapping
     public ResponseEntity<EvaluationDto> addEvaluation(@RequestBody EvaluationDto evaluationDto) {
         EvaluationDto createdEvaluation = evaluationService.addEvaluation(evaluationDto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdEvaluation);
+        return new ResponseEntity<>(createdEvaluation, HttpStatus.CREATED);
     }
 
     /**
      * Récupère toutes les évaluations.
      *
-     * @return Liste des évaluations.
+     * @return la réponse contenant la liste des DTOs d'évaluations
      */
     @GetMapping
     public ResponseEntity<List<EvaluationDto>> getAllEvaluations() {
         List<EvaluationDto> evaluations = evaluationService.getAllEvaluations();
-        return ResponseEntity.ok(evaluations);
+        return new ResponseEntity<>(evaluations, HttpStatus.OK);
     }
 
     /**
      * Récupère une évaluation par son identifiant.
      *
-     * @param id L'identifiant de l'évaluation à récupérer.
-     * @return Réponse HTTP avec l'évaluation ou une erreur 404 si non trouvée.
+     * @param id l'identifiant de l'évaluation
+     * @return la réponse contenant le DTO de l'évaluation trouvée, ou une réponse 404 si non trouvée
      */
     @GetMapping("/{id}")
     public ResponseEntity<EvaluationDto> getEvaluationById(@PathVariable Long id) {
-        EvaluationDto evaluationDto = evaluationService.getEvaluationById(id);
-        return evaluationDto != null ? ResponseEntity.ok(evaluationDto) : ResponseEntity.notFound().build();
+        Optional<EvaluationDto> evaluationDto = evaluationService.getEvaluationById(id);
+        return evaluationDto.map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
     /**
      * Met à jour une évaluation existante.
      *
-     * @param id             L'identifiant de l'évaluation à mettre à jour.
-     * @param evaluationDto  Les nouvelles données de l'évaluation.
-     * @return Réponse HTTP avec l'évaluation mise à jour ou une erreur 404 si non trouvée.
+     * @param id l'identifiant de l'évaluation à mettre à jour
+     * @param evaluationDto le DTO de l'évaluation avec les nouvelles données
+     * @return la réponse contenant le DTO de l'évaluation mise à jour
      */
     @PutMapping("/{id}")
     public ResponseEntity<EvaluationDto> updateEvaluation(@PathVariable Long id, @RequestBody EvaluationDto evaluationDto) {
         EvaluationDto updatedEvaluation = evaluationService.updateEvaluation(id, evaluationDto);
-        return updatedEvaluation != null ? ResponseEntity.ok(updatedEvaluation) : ResponseEntity.notFound().build();
+        return ResponseEntity.ok(updatedEvaluation);
     }
 
     /**
      * Supprime une évaluation par son identifiant.
      *
-     * @param id L'identifiant de l'évaluation à supprimer.
-     * @return Réponse HTTP indiquant le succès ou l'échec de la suppression.
+     * @param id l'identifiant de l'évaluation à supprimer
+     * @return la réponse 204 No Content si la suppression a réussi
      */
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteEvaluation(@PathVariable Long id) {
-        boolean isDeleted = evaluationService.deleteEvaluation(id);
-        return isDeleted ? ResponseEntity.noContent().build() : ResponseEntity.notFound().build();
+        evaluationService.deleteEvaluation(id);
+        return ResponseEntity.noContent().build();
     }
 }

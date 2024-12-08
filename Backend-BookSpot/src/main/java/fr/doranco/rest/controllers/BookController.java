@@ -7,6 +7,8 @@ import com.mongodb.client.model.Filters;
 
 import fr.doranco.rest.dto.BookDto;
 import fr.doranco.rest.entities.Book;
+import fr.doranco.rest.entities.TransactionTypes;
+import fr.doranco.rest.entities.User;
 import fr.doranco.rest.repository.IBookRepository;
 import fr.doranco.rest.services.BookService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -24,6 +26,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.security.Principal;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -56,7 +59,33 @@ public class BookController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
+    
+    /**
+     *Récupère tous les livres de chaque utilisateur par type de transaction
+     */
+    
+    @GetMapping("/user/{userId}/type/{typeId}")
+    public List<Book> getBooksByUserAndType(@PathVariable Long userId, @PathVariable Integer typeId) {
+        User user = new User();
+        user.setId(userId); // Vous pouvez récupérer l'utilisateur de la base de données si nécessaire
 
+        TransactionTypes typeTransaction = new TransactionTypes();
+        typeTransaction.setId(typeId); // Vous pouvez récupérer le type de transaction de la base de données si nécessaire
+
+        return bookService.getBooksByUserAndType(user, typeTransaction);
+    }
+    /**
+     *Récupère tous les livres  par type de transaction
+     */
+    @GetMapping("/type/{typeId}")
+    public List<Book> getBooksByType(@PathVariable Integer typeId) {
+        TransactionTypes typeTransaction = new TransactionTypes();
+        typeTransaction.setId(typeId); // Vous pouvez récupérer le type de transaction de la base de données si nécessaire
+
+        return bookService.getBooksByType(typeTransaction);
+    }
+
+    
     /**
      * Ajoute un nouveau livre.
      *

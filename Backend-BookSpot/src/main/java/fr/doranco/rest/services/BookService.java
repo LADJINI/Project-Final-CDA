@@ -3,8 +3,12 @@ package fr.doranco.rest.services;
 import fr.doranco.rest.dto.BookDto;
 import fr.doranco.rest.entities.Book;
 import fr.doranco.rest.entities.Transaction;
+import fr.doranco.rest.entities.TransactionTypes;
+import fr.doranco.rest.entities.User;
 import fr.doranco.rest.repository.IBookRepository;
 import fr.doranco.rest.repository.ITransactionRepository;
+import fr.doranco.rest.repository.ITransactionTypeRepository;
+
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,6 +22,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.security.Principal;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -32,6 +37,9 @@ public class BookService {
 
     @Autowired
     private ITransactionRepository transactionRepository;
+    
+    @Autowired
+    private ITransactionTypeRepository transactionTypeRepository;
 
     /**
      * Récupère tous les livres ou filtre par mot-clé.
@@ -45,6 +53,21 @@ public class BookService {
                 : bookRepository.findByTitleContaining(keyword);
         return book.stream().map(this::convertToDto).collect(Collectors.toList());
     }
+    
+    /**
+      Récupère les livres  par utilisateur et type de transaction
+     */
+    public List<Book> getBooksByUserAndType(User user, TransactionTypes typeTransaction) {
+        return bookRepository.findBooksByUserAndType(user, typeTransaction);
+    }
+    
+    /**
+     * Récupère les livres par type de transaction
+     */
+    public List<Book> getBooksByType(TransactionTypes typeTransaction) {
+        return bookRepository.findBooksByType(typeTransaction);
+    }
+
 
     /**
      * Ajoute un nouveau livre.

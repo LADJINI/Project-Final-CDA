@@ -1,7 +1,9 @@
 package fr.doranco.rest.repository;
 
 import java.util.List;
+
 import java.util.Optional;
+
 
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -9,6 +11,9 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import fr.doranco.rest.entities.Book;
+import fr.doranco.rest.entities.TransactionTypes;
+import fr.doranco.rest.entities.User;
+
 
 
 /**
@@ -68,6 +73,11 @@ public interface IBookRepository extends JpaRepository<Book, Long> {
 	 
 	 //@Query("SELECT b FROM Book b LEFT JOIN FETCH b.user WHERE b.id IN :bookIds")
 	 //List<Book> findBooksWithUsers(@Param("bookIds") List<Long> bookIds);
+	 
+	 @Query("SELECT b FROM Book b JOIN b.transaction t WHERE t.user = :user AND t.typeTransaction = :typeTransaction")
+	 List<Book> findBooksByUserAndType(@Param("user") User user, @Param("typeTransaction") TransactionTypes typeTransaction);
 
+	 @Query("SELECT b FROM Book b JOIN b.transaction t WHERE t.typeTransaction = :typeTransaction")
+	 List<Book> findBooksByType(@Param("typeTransaction") TransactionTypes typeTransaction);
 
 }

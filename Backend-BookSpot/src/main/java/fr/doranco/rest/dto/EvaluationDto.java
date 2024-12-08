@@ -6,16 +6,34 @@ import lombok.Setter;
 import java.time.LocalDateTime;
 
 /**
- * Data Transfer Object pour l'évaluation.
+ * DTO (Data Transfer Object) pour représenter une évaluation.
+ * 
+ * Ce DTO est utilisé pour transférer les données d'évaluation entre
+ * le backend et le frontend sans exposer les entités JPA directement.
  */
 @Getter
 @Setter
 public class EvaluationDto {
+    
+    /**
+     * Identifiant unique de l'évaluation.
+     */
+    private Long id;
 
-    private Long id; // Identifiant de l'évaluation
-    private Long bookId; // Identifiant du livre évalué
-    private Long userId; // Identifiant de l'utilisateur ayant effectué l'évaluation
-    private Integer note; // Note donnée à l'évaluation
-    private String commentaire; // Commentaire de l'évaluation
-    private LocalDateTime dateEvaluation; // Date de l'évaluation
+    /**
+     * Note attribuée à l'évaluation.
+     */
+    private Integer note;
+
+    /**
+     * Commentaire associé à l'évaluation.
+     */
+    private String commentaire;
+
+    /**
+     * Date et heure de l'évaluation.
+     */
+    private LocalDateTime dateEvaluation;
+
+    // Vous pouvez ajouter d'autres champs si nécessaire
 }
