@@ -59,6 +59,12 @@
     <version>4.9.1</version> <!-- Même version que mongodb-driver-sync -->
 </dependency>
 
+<dependency>
+  <groupId>org.springframework.boot</groupId>
+  <artifactId>spring-boot-devtools</artifactId>
+  <scope>runtime</scope>
+</dependency>
+
 
   <dependency>
     <groupId>org.modelmapper</groupId>
