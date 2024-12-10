@@ -49,8 +49,8 @@ const AuthModal = ({ isOpen, onClose }) => {
             </h2>
             <div className="mb-4">
               {/* Affichage du formulaire de connexion ou d'inscription selon l'état */}
-              {isLogin ? <LoginForm onClose={onClose} /> : <RegisterForm onClose={onClose} />}
-            </div>
+              {isLogin ? <LoginForm onClose={onClose} showCaptcha={isLogin} />  : <RegisterForm onClose={onClose} />}
+              </div>
             <div className="text-center">
               {/* Bouton pour basculer entre connexion et inscription */}
               <button

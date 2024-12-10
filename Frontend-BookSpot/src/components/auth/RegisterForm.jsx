@@ -5,6 +5,7 @@ import * as z from 'zod';
 import axios from "axios"; // Ligne correcte
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import ReCAPTCHA from 'react-google-recaptcha';
 
 /**
  * Schéma de validation pour le formulaire d'inscription.
@@ -36,20 +37,30 @@ const RegisterForm = ({ onClose }) => {
   const { register, handleSubmit, formState: { errors } } = useForm({
     resolver: zodResolver(schema),
   });
-
+  const [captchaToken, setCaptchaToken] = useState(null);
+  const [errorMessage, setErrorMessage] = useState(null);
   /**
    * Gère la soumission du formulaire d'inscription.
    * @param {Object} data - Les données du formulaire.
    */
   const onSubmit = async (data) => {
+    if (!captchaToken) {
+      setErrorMessage('Veuillez valider le captcha.');
+      return;
+    }
     try {
-      const response = await axios.post('http://localhost:8086/api/auth/register', data);
+      
+      const response = await axios.post('http://localhost:8086/api/auth/register', {
+        ...data,
+        recaptchaToken: captchaToken,
+      });
       console.log('Inscription réussie', response.data);
       await signup(response.data);
       alert('Inscription réussie ! Vous pouvez maintenant vous connecter.');
       navigate('/'); // Redirection vers la page d'accueil
       onClose(); // Fermer le modal
-    } catch (error) {
+    } 
+    catch (error) {
       console.error('Erreur inscription', error.response ? error.response.data : error.message);
       alert('Erreur lors de l\'inscription : ' + (error.response ? error.response.data : error.message));
     }
@@ -92,6 +103,14 @@ const RegisterForm = ({ onClose }) => {
 
       <input {...register("adresse")} placeholder="Adresse" className="w-full px-3 py-2 border rounded bg-gray-700 text-white" />
       {errors.adresse && <p className="text-red-500 text-xs">{errors.adresse.message}</p>}
+      <div className="mb-4">
+    <ReCAPTCHA
+      sitekey="6LerFpcqAAAAAMlnymdvDpxDg037MtFc5EzX5bvO"
+      onChange={(token) => setCaptchaToken(token)}
+    />
+  </div>
+
+  {errorMessage && <p className="text-red-500 text-xs">{errorMessage}</p>}
 
       <button type="submit" className="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600">
         S'inscrire

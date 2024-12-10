@@ -5,6 +5,7 @@ import * as z from 'zod';
 import axios from 'axios';
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import ReCAPTCHA from 'react-google-recaptcha';
 
 /**
  * Schéma de validation pour le formulaire de connexion.
@@ -21,13 +22,19 @@ const LoginForm = ({ onClose }) => {
     resolver: zodResolver(schema),
   });
 
+
+  const [captchaToken, setCaptchaToken] = useState(null);
+  const [errorMessage, setErrorMessage] = useState(null);
   /**
    * Gère la soumission du formulaire de connexion.
    * @param {Object} data - Les données du formulaire.
    */
   const onSubmit = async (data) => {
     try {
-      const response = await axios.post('http://localhost:8086/api/auth/login', data);
+      const response = await axios.post('http://localhost:8086/api/auth/login', {
+        ...data,
+        recaptchaToken: captchaToken,
+      });
       await login(response.data);
       onClose();
     } catch (error) {
@@ -56,6 +63,14 @@ const LoginForm = ({ onClose }) => {
         />
         {errors.password && <p className="text-red-500 text-xs">{errors.password.message}</p>}
       </div>
+<div className="mb-4">
+    <ReCAPTCHA
+      sitekey="6LerFpcqAAAAAMlnymdvDpxDg037MtFc5EzX5bvO"
+      onChange={(token) => setCaptchaToken(token)}
+    />
+  </div>
+
+  {errorMessage && <p className="text-red-500 text-xs">{errorMessage}</p>}
 
       <button type="submit" className="mt-4 bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600">
         Se connecter
