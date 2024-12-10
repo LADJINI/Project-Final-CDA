@@ -86,11 +86,11 @@ const RegisterForm = ({ onClose }) => {
       <div className="flex space-x-4">
         <label className="inline-flex items-center">
           <input {...register("sexe")} type="radio" value="homme" className="form-radio text-blue-600" />
-          <span className="ml-2">Homme</span>
+          <span className="ml-2 text-white">Homme</span>
         </label>
         <label className="inline-flex items-center">
           <input {...register("sexe")} type="radio" value ="femme" className="form-radio text-blue-600" />
-          <span className="ml-2">Femme</span>
+          <span className="ml-2 text-white">Femme</span>
         </label>
       </div>
       {errors.sexe && <p className="text-red-500 text-xs">{errors.sexe.message}</p>}
@@ -103,12 +103,13 @@ const RegisterForm = ({ onClose }) => {
 
       <input {...register("adresse")} placeholder="Adresse" className="w-full px-3 py-2 border rounded bg-gray-700 text-white" />
       {errors.adresse && <p className="text-red-500 text-xs">{errors.adresse.message}</p>}
-      <div className="mb-4">
-    <ReCAPTCHA
-      sitekey="6LerFpcqAAAAAMlnymdvDpxDg037MtFc5EzX5bvO"
-      onChange={(token) => setCaptchaToken(token)}
-    />
-  </div>
+      
+      <div className="mb-4 recaptcha-container">
+        <ReCAPTCHA
+          sitekey="6LerFpcqAAAAAMlnymdvDpxDg037MtFc5EzX5bvO"
+          onChange={(token) => setCaptchaToken(token)}
+        />
+      </div>
 
   {errorMessage && <p className="text-red-500 text-xs">{errorMessage}</p>}
 

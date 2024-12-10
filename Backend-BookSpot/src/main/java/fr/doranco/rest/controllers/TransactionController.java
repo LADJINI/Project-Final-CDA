@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
  */
 @RestController
 @RequestMapping("/api/transactions")
-@CrossOrigin(origins = "http://localhost:5173")
+@CrossOrigin(origins = "http://localhost:5174")
 public class TransactionController {
 
     private static final Logger logger = LoggerFactory.getLogger(TransactionController.class);

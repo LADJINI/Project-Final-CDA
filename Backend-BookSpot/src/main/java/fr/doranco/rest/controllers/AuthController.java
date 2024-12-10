@@ -25,6 +25,7 @@ import fr.doranco.rest.dto.UserDto;
 import fr.doranco.rest.exception.EmailAlreadyExistsException;
 import fr.doranco.rest.security.JwtUtils;
 import fr.doranco.rest.security.UserDetailsImpl;
+import fr.doranco.rest.services.RecaptchaService;
 import fr.doranco.rest.services.UserService;
 
 /**
@@ -45,6 +46,9 @@ public class AuthController {
     
     @Autowired
     private JwtUtils jwtUtils;
+    
+    @Autowired
+    private RecaptchaService recaptchaService;
 
      
     /**
@@ -55,7 +59,15 @@ public class AuthController {
      */
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@RequestBody RegisterRequest registerRequest) {
+    	
+    	
         try {
+        	
+        	boolean isRecaptchaValid = recaptchaService.validateToken(registerRequest.getRecaptchaToken());
+            if (!isRecaptchaValid) {
+                logger.warn("Échec de la validation reCAPTCHA pour : {}", registerRequest.getEmail());
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Échec de la validation reCAPTCHA.");
+            }
             // Conversion de la requête en UserDto pour passer au service utilisateur
             UserDto userDto = convertToUserDto(registerRequest);
 
@@ -116,6 +128,12 @@ public class AuthController {
     
     @PostMapping("/login")
     public ResponseEntity<?> authenticateUser(@RequestBody LoginRequest loginRequest) {
+    	
+    	  // Vérifiez le token avec RecaptchaService
+        if (loginRequest.getRecaptchaToken() == null || !recaptchaService.validateToken(loginRequest.getRecaptchaToken())) {
+            return ResponseEntity.badRequest().body("ReCAPTCHA invalide. Veuillez réessayer.");
+        }
+    	
         if (loginRequest.getEmail() == null || loginRequest.getEmail().isEmpty()) {
             logger.error("Tentative de connexion avec un email null ou vide");
             return ResponseEntity.badRequest().body("L'email ne peut pas être vide");

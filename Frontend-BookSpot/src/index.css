@@ -421,3 +421,13 @@ button:focus-visible {
   font-size: 0.9rem;
   color: #777;
 }
+
+
+@layer utilities {
+  @media screen and (max-width: 400px) {
+    .recaptcha-container {
+      transform: scale(0.8);
+      transform-origin: 0 0;
+    }
+  }
+}

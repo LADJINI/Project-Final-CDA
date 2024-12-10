@@ -1,4 +1,5 @@
 package fr.doranco.rest.dto;
+
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -25,7 +26,7 @@ public class RegisterRequest {
     private String email;
 
     @NotBlank(message = "Le mot de passe est obligatoire")
-    @Size(min = 12, message = "Le mot de passe doit contenir au moins 6 caractères")
+    @Size(min = 12, message = "Le mot de passe doit contenir au moins 12 caractères")
     private String password;
 
     private String address;
@@ -33,14 +34,8 @@ public class RegisterRequest {
     private String telephone;
 
     private Integer roleId;
+
+    // Ajouter le champ pour le token reCAPTCHA
+    @NotBlank(message = "Le token reCAPTCHA est obligatoire")
+    private String recaptchaToken;
 }
-
-    // Vous pouvez omettre les champs suivants car ils seront généralement définis par le système :
-    // private Long id;
-    // private LocalDate registrationDate;
-    // private Boolean actif;
-    
-    // Constructeur, getters et setters sont générés par Lombok
-
-
- 

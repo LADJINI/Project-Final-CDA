@@ -63,12 +63,12 @@ const LoginForm = ({ onClose }) => {
         />
         {errors.password && <p className="text-red-500 text-xs">{errors.password.message}</p>}
       </div>
-<div className="mb-4">
-    <ReCAPTCHA
-      sitekey="6LerFpcqAAAAAMlnymdvDpxDg037MtFc5EzX5bvO"
-      onChange={(token) => setCaptchaToken(token)}
-    />
-  </div>
+      <div className="mb-4 recaptcha-container">
+        <ReCAPTCHA
+          sitekey="6LerFpcqAAAAAMlnymdvDpxDg037MtFc5EzX5bvO"
+          onChange={(token) => setCaptchaToken(token)}
+        />
+      </div>
 
   {errorMessage && <p className="text-red-500 text-xs">{errorMessage}</p>}
 

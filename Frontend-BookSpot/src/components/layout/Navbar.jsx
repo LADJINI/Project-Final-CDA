@@ -202,14 +202,107 @@ const Navbar = () => {
         </div>
       </nav>
 
-      {/* Mobile Menu */}
-      <div className={`mobile-menu ${isMenuOpen ? 'block' : 'hidden'} bg-custom-blue lg:hidden`}>
-        <NavLink to="/don-livre" className="block text-white py-2 px-4">Je veux recevoir un don</NavLink>
-        <NavLink to="/acheter-livre" className="block text-white py-2 px-4">Je veux acheter un livre</NavLink>
-        <NavLink to="/ajouter-livre-vente" className="block text-white py-2 px-4">Je souhaite vendre</NavLink>
-        <NavLink to="/ajouter-livre-don" className="block text-white py-2 px-4">Je souhaite donner</NavLink>
-        <NavLink to="/profile" className="block text-white py-2 px-4">Mon Profil</NavLink>
-        <button onClick={handleLogout} className="block text-white py-2 px-4">Déconnexion</button>
+      {/* Menu mobile */}
+      <div
+        className={`mobile-menu ${
+          isMenuOpen ? 'block' : 'hidden'
+        } bg-custom-blue lg:hidden absolute right-0 top-16 w-64 z-50 shadow-lg`}
+      >
+        <div className="py-2">
+          {/* Menu "Commander un livre" pour mobile */}
+          <div className="relative">
+            <button
+              onClick={() => setIsCatalogueOpen(!isCatalogueOpen)}
+              className="w-full text-left px-4 py-2 bg-custom-blue hover:bg-[#164e63] transition"
+            >
+              Commander un livre <FaChevronDown className="float-right mt-1" />
+            </button>
+            {isCatalogueOpen && (
+              <div className="bg-[#0e7490] py-1">
+                <NavLink
+                  to="/don-livre"
+                  className="block px-6 py-2 text-white hover:bg-[#164e63] transition"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Je veux recevoir un don
+                </NavLink>
+                <NavLink
+                  to="/acheter-livre"
+                  className="block px-6 py-2 text-white hover:bg-[#164e63] transition"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Je veux acheter un livre
+                </NavLink>
+              </div>
+            )}
+          </div>
+
+          {/* Menu "Ajouter un livre" pour mobile */}
+          <div className="relative">
+            <button
+              onClick={() => setIsAddBookOpen(!isAddBookOpen)}
+              className="w-full text-left px-4 py-2 bg-custom-blue hover:bg-[#164e63] transition"
+            >
+              Ajouter un livre <FaChevronDown className="float-right mt-1" />
+            </button>
+            {isAddBookOpen && (
+              <div className="bg-[#0e7490] py-1">
+                <NavLink
+                  to="/ajouter-livre-vente"
+                  className="block px-6 py-2 text-white hover:bg-[#164e63] transition"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Je souhaite vendre
+                </NavLink>
+                <NavLink
+                  to="/ajouter-livre-don"
+                  className="block px-6 py-2 text-white hover:bg-[#164e63] transition"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Je souhaite donner
+                </NavLink>
+              </div>
+            )}
+          </div>
+
+          {/* Boutons d'authentification et panier pour mobile */}
+          {user ? (
+            <>
+              <NavLink
+                to="/profile"
+                className="block px-4 py-2 text-white hover:bg-[#164e63] transition"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Profile !
+              </NavLink>
+              <button
+                onClick={handleLogout}
+                className="w-full text-left px-4 py-2 bg-custom-blue hover:bg-[#164e63] transition"
+              >
+                Déconnexion
+              </button>
+            </>
+          ) : (
+            <button
+              onClick={handleAuthClick}
+              className="w-full text-left px-4 py-2 bg-custom-blue hover:bg-[#164e63] transition"
+            >
+              <FaUser className="inline-block mr-2" />
+              Identifiez-vous
+            </button>
+          )}
+          <button
+            onClick={(e) => {
+              e.preventDefault();
+              setIsCartPopupOpen(!isCartPopupOpen);
+              setIsMenuOpen(false);
+            }}
+            className="w-full text-left px-4 py-2 bg-custom-blue hover:bg-[#164e63] transition"
+          >
+            <FaShoppingCart className="inline-block mr-2" />
+            Panier ({totalItems}) - {totalPrice.toFixed(2)}€
+          </button>
+        </div>
       </div>
 
       {/* Modal d'authentification */}

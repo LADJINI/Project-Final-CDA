@@ -15,8 +15,6 @@ services:
       - mongo
     networks:
       - bookspot-network
-    volumes:
-      - ./Backend-BookSpot:/app  # Synchronisation des fichiers backend
 
   frontend:
     build:
@@ -28,8 +26,6 @@ services:
       - backend
     networks:
       - bookspot-network
-    volumes:
-      - ./Frontend-BookSpot:/usr/share/nginx/html  # Synchronisation des fichiers frontend
 
   mysql:
     image: mysql:8.0

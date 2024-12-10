@@ -7,9 +7,10 @@ import jakarta.validation.constraints.NotBlank;
  * Classe DTO pour la gestion des demandes de connexion (login).
  * Cette classe représente les données nécessaires pour qu'un utilisateur puisse se connecter.
  * 
- * Elle contient deux champs :
+ * Elle contient trois champs :
  * - email : l'adresse email de l'utilisateur.
  * - password : le mot de passe de l'utilisateur.
+ * - recaptchaToken : le token reCAPTCHA fourni par le client.
  */
 public class LoginRequest {
 
@@ -20,6 +21,9 @@ public class LoginRequest {
     @NotBlank(message = "Le mot de passe est obligatoire")  // Validation pour s'assurer que le mot de passe n'est pas vide
     private String password;
 
+    @NotBlank(message = "Le token reCAPTCHA est obligatoire")  // Validation pour s'assurer que le token n'est pas vide
+    private String recaptchaToken;
+
     /**
      * Retourne l'adresse email de l'utilisateur.
      * 
@@ -28,7 +32,7 @@ public class LoginRequest {
     public String getEmail() {
         return email;
     }
-    
+
     public String getUsername() {
         return email;
     }
@@ -58,5 +62,23 @@ public class LoginRequest {
      */
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    /**
+     * Retourne le token reCAPTCHA fourni par le client.
+     * 
+     * @return Le token reCAPTCHA.
+     */
+    public String getRecaptchaToken() {
+        return recaptchaToken;
+    }
+
+    /**
+     * Définit le token reCAPTCHA.
+     * 
+     * @param recaptchaToken Le token reCAPTCHA à définir.
+     */
+    public void setRecaptchaToken(String recaptchaToken) {
+        this.recaptchaToken = recaptchaToken;
     }
 }

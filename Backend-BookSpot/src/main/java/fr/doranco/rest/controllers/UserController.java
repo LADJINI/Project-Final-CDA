@@ -32,7 +32,7 @@ import fr.doranco.rest.security.UserDetailsImpl;
 import fr.doranco.rest.services.RoleService;
 import fr.doranco.rest.services.UserService;
 
-@CrossOrigin(origins = " http://localhost:5173")
+@CrossOrigin(origins = " http://localhost:5174")
 @RestController
 @RequestMapping("/api")
 public class UserController {
@@ -248,6 +248,7 @@ public class UserController {
                userDto.getEmail() != null && !userDto.getEmail().trim().isEmpty() &&
                userDto.getDateNaissance() != null &&
                userDto.getTelephone() != null && !userDto.getTelephone().trim().isEmpty() &&
+              userDto.getAddress() != null && !userDto.getAddress().trim().isEmpty() &&
                userDto.getRoleId() != null;
     }
   }

@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDate;
 
 import fr.doranco.rest.entities.User;
+import jakarta.persistence.Column;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -43,12 +44,15 @@ public class UserDto {
     @NotBlank(message = "Le mot de passe est obligatoire")
     @Size(min = 12, message = "Le mot de passe doit contenir au moins 12 caractères")
     private String password;
-
+    
+   
     private String address;
 
     @NotBlank(message = "Le téléphone est obligatoire")
     private String telephone;
-
+    
+    
+    
     private LocalDate registrationDate;
 
     private Boolean actif;
